@@ -13,7 +13,6 @@
   <style>
     * { 
       box-sizing: border-box; 
-      user-select: none; 
       -webkit-tap-highlight-color: transparent; 
       -webkit-font-smoothing: none;
     }
@@ -27,13 +26,12 @@
     }
 
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       background: #b8d5ec;
+      user-select: none;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -41,7 +39,6 @@
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
     }
 
-    /* 強制復古 Windows 98 按鈕外觀，防止手機預設圓弧 */
     button {
       -webkit-appearance: none !important;
       appearance: none !important;
@@ -54,47 +51,32 @@
       align-items: center !important;
       justify-content: center !important;
     }
-    button:active {
-      border: 2px inset #ffffff !important;
-    }
+    button:active { border: 2px inset #ffffff !important; }
 
     /* 開場全螢幕展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 1200;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #b8d5ec;
-      cursor: var(--star-cursor);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #b8d5ec; cursor: var(--star-cursor);
       transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
     }
     .intro-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.92);
+      opacity: 0; pointer-events: none; transform: scale(0.92);
     }
     .intro-title {
-      font-size: 18px;
-      letter-spacing: 2px;
-      color: #000080;
+      font-size: 18px; letter-spacing: 2px; color: #000080;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      font-weight: bold;
-      margin-bottom: 24px;
-      text-align: center;
-      white-space: nowrap;
+      font-weight: bold; margin-bottom: 24px; text-align: center; white-space: nowrap;
     }
     .intro-cd-disc {
-      width: 170px; height: 170px;
-      border-radius: 50% !important;
+      width: 170px; height: 170px; border-radius: 50% !important;
       background: conic-gradient(from 0deg, #d8d8d8, #ffffff, #c8c8c8, #ffffff, #cfcfcf, #ffffff, #d8d8d8);
       box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 0 12px rgba(0,0,0,0.2);
       display: flex; align-items: center; justify-content: center;
-      animation: discSpin 3s linear infinite;
-      position: relative;
+      animation: discSpin 3s linear infinite; position: relative;
     }
     .intro-cd-hole {
       position: absolute; width: 42px; height: 42px; border-radius: 50% !important;
@@ -107,30 +89,19 @@
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       font-weight: bold;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理工具列 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      background: transparent;
-      border: none;
-      pointer-events: none;
+      z-index: 50; display: flex; flex-direction: column; background: transparent;
+      border: none; pointer-events: none;
     }
     body.admin-mode .top-bar-wrapper {
-      background: #c0c0c0;
-      border: 2px outset #fff;
-      padding: 3px;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
-      pointer-events: auto;
+      background: #c0c0c0; border: 2px outset #fff; padding: 3px;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.4); pointer-events: auto;
     }
     .top-actions-viewport {
       display: flex; gap: 4px; overflow-x: hidden; white-space: nowrap; pointer-events: auto;
@@ -151,7 +122,6 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; cursor: pointer;
     }
-    .scrollbar-btn:active { border: 1px inset #fff; }
     .scrollbar-track {
       flex: 1; height: 100%;
       background: repeating-conic-gradient(#c0c0c0 0% 25%, #ffffff 0% 50%) 50% / 2px 2px;
@@ -162,24 +132,17 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器主視圖容器 */
+    /* 播放器主視窗容器 */
     .app-viewport {
-      position: absolute;
-      top: 48px;
+      position: absolute; top: 48px;
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 6px 10px 24px 10px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      gap: 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
-    /* 3D 隨身聽正圓底座舞台 */
+    /* 3D 隨身聽正圓舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -208,72 +171,47 @@
     }
     .cd-disc-3d:active { cursor: grabbing; }
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
-    @keyframes discSpin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+    @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .cd-disc-art {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       object-fit: cover; pointer-events: none; opacity: 0.95;
       mask: radial-gradient(circle, transparent 16px, black 17px);
       -webkit-mask: radial-gradient(circle, transparent 16px, black 17px);
     }
-    /* 精確幾何中心的 CD 中心孔 */
     .cd-center-hole {
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 32px; height: 32px;
-      margin-left: -16px; margin-top: -16px;
+      position: absolute; top: 50%; left: 50%;
+      width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
       border-radius: 50% !important;
       background: radial-gradient(circle, transparent 8px, rgba(255,255,255,0.7) 9px, #b8d5ec 12px);
-      border: 2px solid rgba(255,255,255,0.8);
-      z-index: 10;
-      pointer-events: none;
+      border: 2px solid rgba(255,255,255,0.8); z-index: 10; pointer-events: none;
     }
 
-    /* Win98 經典灰底視窗 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
-      background: #c0c0c0 !important;
-      border: 2px outset #ffffff !important;
+      background: #c0c0c0 !important; border: 2px outset #ffffff !important;
     }
     .player-subwin .title-bar {
       background: linear-gradient(90deg, #000080, #1084d0) !important;
-      color: #fff !important;
-      padding: 3px 4px !important;
-      font-weight: bold !important;
-      font-size: 11px !important;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      color: #fff !important; padding: 3px 4px !important; font-weight: bold !important; font-size: 11px !important;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .player-subwin .window-body {
-      padding: 6px !important;
-      background: #c0c0c0 !important;
-    }
+    .player-subwin .window-body { padding: 6px !important; background: #c0c0c0 !important; }
 
     .folder-nav-bar {
       display: flex; gap: 4px; align-items: center; margin-bottom: 6px;
       background: #c0c0c0; padding: 3px; border: 2px groove #fff;
     }
-    .folder-nav-bar button {
-      font-size: 11px !important; padding: 2px 6px !important; height: 22px !important;
-    }
+    .folder-nav-bar button { font-size: 11px !important; padding: 2px 6px !important; height: 22px !important; }
 
-    /* 綠字液晶螢幕 */
     .lcd-screen {
       background: #000 !important; color: #39ff14 !important; font-family: monospace !important;
       padding: 5px 8px; border: 2px inset #fff; display: flex;
       justify-content: space-between; align-items: center;
-      font-size: 12px; letter-spacing: 1px; margin-bottom: 6px;
-      overflow: hidden;
+      font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; overflow: hidden;
     }
-    #lcdTrackTitle {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 68%;
-    }
+    #lcdTrackTitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 68%; }
 
-    /* 藍色進度條 */
     .lcd-progress-bar {
       width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
       margin-bottom: 8px; position: relative; cursor: pointer;
@@ -282,103 +220,68 @@
       height: 100%; width: 0%; background: #000080; transition: width 0.3s linear; pointer-events: none;
     }
 
-    /* 控制按鈕列：等比格線防溢出 */
     .player-ctrl-row {
-      display: grid !important;
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 3px !important;
-      margin-bottom: 8px !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
+      display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      gap: 3px !important; margin-bottom: 8px !important; width: 100% !important; box-sizing: border-box !important;
     }
     .player-ctrl-row button {
-      width: 100% !important;
-      min-width: 0 !important;
-      height: 28px !important;
-      border: 2px outset #fff !important;
-      border-radius: 0px !important;
-      background: #c0c0c0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
+      width: 100% !important; min-width: 0 !important; height: 28px !important;
+      border: 2px outset #fff !important; border-radius: 0px !important;
+      background: #c0c0c0 !important; display: flex !important; align-items: center !important; justify-content: center !important;
       padding: 0 !important;
     }
-    .player-ctrl-row button:active {
-      border: 2px inset #fff !important;
-    }
-    .player-ctrl-row svg {
-      width: 12px; height: 12px; fill: #000; pointer-events: none;
-    }
+    .player-ctrl-row button:active { border: 2px inset #fff !important; }
+    .player-ctrl-row svg { width: 12px; height: 12px; fill: #000; pointer-events: none; }
 
-    /* 五版專輯切換按鈕：固定兩排排版 (上 3 下 2，完美解決 Speed of Summer 截斷) */
     .ver-tabs-row {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-bottom: 6px;
-      width: 100%;
+      display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; width: 100%;
     }
-    .ver-tabs-subrow {
-      display: flex;
-      gap: 3px;
-      width: 100%;
-    }
+    .ver-tabs-subrow { display: flex; gap: 3px; width: 100%; }
     .ver-tabs-subrow button {
-      flex: 1;
-      font-size: 11px !important;
-      padding: 4px 2px !important;
-      border: 2px outset #fff !important;
-      border-radius: 0 !important;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex: 1; font-size: 11px !important; padding: 4px 2px !important;
+      border: 2px outset #fff !important; border-radius: 0 !important;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .ver-tabs-subrow button.active {
-      font-weight: bold;
-      background: #000080 !important;
-      color: #fff !important;
-      border: 2px inset #fff !important;
+      font-weight: bold; background: #000080 !important; color: #fff !important; border: 2px inset #fff !important;
     }
 
-    /* 曲目清單容器 */
+    /* 曲目清單 */
     .track-list-box {
-      list-style: none; margin: 0; padding: 0;
-      background: #fff; border: 2px inset #dfdfdf;
-      max-height: 135px; overflow-y: auto; width: 100%;
+      list-style: none; margin: 0; padding: 0; background: #fff; border: 2px inset #dfdfdf;
+      max-height: 140px; overflow-y: auto; width: 100%;
     }
     .track-list-box li {
       padding: 4px 6px; font-size: 11px; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 4px;
+      display: flex; justify-content: space-between; align-items: center; gap: 4px;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .track-title-text {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
-    }
-    .track-ops-box {
+    .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    
+    /* 順序調整手把與操作按鈕 */
+    .order-reorder-box {
       display: none; gap: 2px; flex-shrink: 0;
     }
-    body.admin-mode .track-ops-box {
-      display: inline-flex;
+    body.admin-mode .order-reorder-box { display: inline-flex; }
+    .order-reorder-box button {
+      font-size: 8px !important; padding: 1px 3px !important; height: 18px !important; line-height: 1 !important;
     }
-    .track-ops-box button {
-      font-size: 9px !important; padding: 1px 4px !important; height: 18px !important;
-    }
+
+    .track-ops-box { display: none; gap: 2px; flex-shrink: 0; }
+    body.admin-mode .track-ops-box { display: inline-flex; }
+    .track-ops-box button { font-size: 9px !important; padding: 1px 4px !important; height: 18px !important; }
+    
     .track-list-box li:hover { background: #000080; color: #fff; }
     .track-list-box li:hover .track-title-text { color: #fff; }
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
     .track-list-box li.active .track-title-text { color: #fff; }
 
-    /* 工作列 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      height: var(--taskbar-h); min-height: 38px;
-      background: #c0c0c0; border-top: 2px solid #fff;
+      height: var(--taskbar-h); min-height: 38px; background: #c0c0c0; border-top: 2px solid #fff;
       display: flex; align-items: flex-start; justify-content: space-between;
-      padding-top: 4px;
-      padding-left: max(8px, var(--safe-left));
-      padding-right: max(14px, var(--safe-right));
-      padding-bottom: max(6px, var(--safe-bottom));
-      z-index: 2500;
+      padding-top: 4px; padding-left: max(8px, var(--safe-left)); padding-right: max(14px, var(--safe-right));
+      padding-bottom: max(6px, var(--safe-bottom)); z-index: 2500;
     }
     .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
     .task-item-btn { font-size: 11px; padding: 2px 6px; height: 26px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
@@ -403,7 +306,11 @@
 
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
-    #hiddenAudioEngine, #hiddenYtIframe { display: none; }
+    
+    /* 嵌入式播放核心：置於最底層但具備可視尺寸以確保手機允許自動觸發 */
+    .media-engine-mount {
+      position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.01; pointer-events: none;
+    }
   </style>
 </head>
 <body onclick="handleGlobalClick(event)">
@@ -411,13 +318,11 @@
   <!-- 開場封面展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
-    <div class="intro-cd-disc" id="introCdDisc">
-      <div class="intro-cd-hole"></div>
-    </div>
+    <div class="intro-cd-disc"><div class="intro-cd-hole"></div></div>
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <!-- 頂部管理列 -->
+  <!-- 頂部管理工具列 -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
@@ -443,7 +348,6 @@
   </div>
 
   <div class="app-viewport">
-    
     <!-- 3D 隨身聽主機與正圓盤面 -->
     <div class="cd-stage" id="cdStage">
       <div class="walkman-base"></div>
@@ -460,7 +364,6 @@
         <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
       </div>
       <div class="window-body">
-        
         <div class="folder-nav-bar">
           <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
           <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
@@ -474,7 +377,7 @@
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
         </div>
 
-        <!-- 播放控制按鈕 (等比格線排版) -->
+        <!-- 播放控制按鈕 -->
         <div class="player-ctrl-row">
           <button type="button" onclick="prevCdTrack()" title="上一首">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -482,7 +385,7 @@
           <button type="button" id="btnPlayPause" onclick="togglePlayPause()" title="播放/暫停">
             <svg id="playIconSvg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           </button>
-          <button type="button" onclick="stopCdTrack()" title="停止/重整回開頭">
+          <button type="button" onclick="stopAndReplayTrack()" title="停止重播(頭起跑)">
             <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
           </button>
           <button type="button" onclick="nextCdTrack()" title="下一首">
@@ -493,18 +396,16 @@
           </button>
         </div>
 
-        <!-- 五版專輯切換列：上 3 下 2 固定兩排，字體完整呈現 -->
+        <!-- 5 版專輯結構 (3+2 雙排設計) -->
         <div class="ver-tabs-row" id="verTabsRow"></div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
-          <span class="admin-only" style="font-size:10px; color:#555;">(點擊✏️可重新編輯內容)</span>
+          <span class="admin-only" style="font-size:10px; color:#555;">(▲▼調換順序 / 點擊換歌)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
-
       </div>
     </div>
-
   </div>
 
   <!-- WINTER 開始選單 -->
@@ -532,14 +433,17 @@
     </div>
   </div>
 
-  <audio id="hiddenAudioEngine"></audio>
-  <iframe id="hiddenYtIframe" allow="autoplay"></iframe>
+  <!-- 播放核心掛載點 (相容手機權限) -->
+  <div class="media-engine-mount">
+    <audio id="hiddenAudioEngine" playsinline preload="auto"></audio>
+    <iframe id="hiddenYtIframe" allow="autoplay; encrypted-media"></iframe>
+  </div>
 
   <script>
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    /* 五張專輯完整資料庫 (保持與圖二設定完全一致) */
+    /* 5 版專輯資料庫 */
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 0,
@@ -601,7 +505,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_classic98_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_v2026_fixed";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -629,7 +533,7 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已複製至剪貼簿！請替換 CD_MASTER_CONFIG 儲存。");
+        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 GitHub index.html 的 CD_MASTER_CONFIG 區域。");
       }).catch(() => {
         prompt("請複製以下最新備份代碼：", output);
       });
@@ -639,6 +543,9 @@
       const overlay = document.getElementById('introOverlay');
       overlay.classList.add('hidden');
       renderCdPlayerUI();
+      // 在使用者觸碰當下解鎖行動裝置音訊限制
+      const audio = document.getElementById('hiddenAudioEngine');
+      audio.load();
     }
 
     function extractDriveId(url) {
@@ -671,7 +578,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖換CD封面、曲目編輯增刪功能。");
+          alert("登入成功！已解鎖曲目排序(▲▼)、編輯、換CD封面功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -679,7 +586,7 @@
       renderCdPlayerUI();
     }
 
-    /* 渲染 UI：專輯切換按鈕分為 3+2 雙排結構，排版完全對齊 */
+    /* 渲染曲目介面 (支援 ▲ / ▼ 點擊排序，行動與電腦 100% 穩定) */
     function renderCdPlayerUI() {
       const curVer = config.versions[cdState.verIndex];
       document.getElementById('discCoverImg').src = curVer.cover;
@@ -700,11 +607,8 @@
         btn.innerText = v.name;
         btn.onclick = () => switchPlaylistVer(idx);
 
-        if (idx < 3) {
-          row1.appendChild(btn); // 第一排放 3 個：Lips, Spark, Blue
-        } else {
-          row2.appendChild(btn); // 第二排放 2 個：Saddle Up, Speed of Summer
-        }
+        if (idx < 3) row1.appendChild(btn);
+        else row2.appendChild(btn);
       });
 
       const listEl = document.getElementById('cdTrackListBox');
@@ -720,6 +624,10 @@
         }
 
         li.innerHTML = `
+          <div class="order-reorder-box">
+            <button type="button" title="上移" onclick="event.stopPropagation(); moveTrackOrder(${idx}, -1)">▲</button>
+            <button type="button" title="下移" onclick="event.stopPropagation(); moveTrackOrder(${idx}, 1)">▼</button>
+          </div>
           <span class="track-title-text">${idx + 1}. ${t.title}</span>
           <div class="track-ops-box">
             <button type="button" title="編輯曲目" onclick="event.stopPropagation(); editTrackAtIndex(${idx})">✏️</button>
@@ -727,15 +635,10 @@
           </div>
         `;
 
-        // 點擊曲目：即刻更換並自動開始播放
+        // 點擊曲目：即刻自動切換並開始播放 (User Gesture 立即觸發)
         li.onclick = () => {
-          if (isAdmin) {
-            selectedTrackIdx = (selectedTrackIdx === idx) ? null : idx;
-          }
-          recordNavHistory();
-          cdState.trackIndex = idx;
-          cdState.currentSec = 0;
-          playCurrentTrack();
+          if (isAdmin) selectedTrackIdx = (selectedTrackIdx === idx) ? null : idx;
+          selectAndPlayTrack(idx);
         };
 
         listEl.appendChild(li);
@@ -745,6 +648,29 @@
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
       updateDiscSpinning();
       updateNavButtons();
+    }
+
+    /* 調換曲目順序 */
+    function moveTrackOrder(idx, direction) {
+      const curVer = config.versions[cdState.verIndex];
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= curVer.tracks.length) return;
+
+      const item = curVer.tracks.splice(idx, 1)[0];
+      curVer.tracks.splice(targetIdx, 0, item);
+
+      if (cdState.trackIndex === idx) cdState.trackIndex = targetIdx;
+      else if (cdState.trackIndex === targetIdx) cdState.trackIndex = idx;
+
+      saveState();
+      renderCdPlayerUI();
+    }
+
+    function selectAndPlayTrack(idx) {
+      recordNavHistory();
+      cdState.trackIndex = idx;
+      cdState.currentSec = 0;
+      playCurrentTrack();
     }
 
     function switchPlaylistVer(vIdx) {
@@ -763,7 +689,7 @@
       else playCurrentTrack();
     }
 
-    /* 播放當前選中歌曲 */
+    /* 播放當前歌曲：手機端授權即時啟動 */
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -778,12 +704,18 @@
       if (track.type === 'youtube') {
         audio.pause();
         const startSec = Math.floor(cdState.currentSec || 0);
-        ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&start=${startSec}&enablejsapi=1`;
+        // 使用 HTTPS 正式播放源並帶入即時播放指令
+        ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&start=${startSec}&playsinline=1&enablejsapi=1`;
       } else {
         ytIframe.src = '';
         if (audio.src !== track.src) audio.src = track.src;
         audio.currentTime = cdState.currentSec || 0;
-        audio.play().catch(()=>{});
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.log("Audio play error, retrying...", err);
+          });
+        }
       }
 
       startProgressTracker();
@@ -797,18 +729,24 @@
       const audio = document.getElementById('hiddenAudioEngine');
       const ytIframe = document.getElementById('hiddenYtIframe');
 
-      // 暫停時記住秒數
       if (audio.src && !audio.paused) {
         cdState.currentSec = audio.currentTime;
       }
       audio.pause();
-      ytIframe.src = ''; // 停止播放但保留秒數
+      ytIframe.src = '';
 
       clearInterval(cdState.timerInterval);
       updateDiscSpinning();
     }
 
-    /* ▪️ 停止鍵：重整回開頭 (00:00) 並暫停 */
+    /* 正方形 (▪️) 鍵：停止、秒數歸零並立即自動從頭重新播放 */
+    function stopAndReplayTrack() {
+      stopCdTrack();
+      // 重設為 0 秒後直接自動重新起跑
+      cdState.currentSec = 0;
+      playCurrentTrack();
+    }
+
     function stopCdTrack() {
       pauseCdTrack();
       cdState.currentSec = 0;
@@ -927,7 +865,6 @@
       if (fBtn) fBtn.disabled = (navForwardStack.length === 0);
     }
 
-    /* 管理員編輯功能 */
     function editTrackAtIndex(idx) {
       const curVer = config.versions[cdState.verIndex];
       const track = curVer.tracks[idx];
@@ -964,7 +901,7 @@
 
     function editSelectedTrackPrompt() {
       if (selectedTrackIdx === null) {
-        alert("請先在下方清單點選一首歌曲！");
+        alert("請先在清單點選一首歌曲！");
         return;
       }
       editTrackAtIndex(selectedTrackIdx);
@@ -1087,7 +1024,7 @@
       if (menu) menu.style.display = 'none';
     }
 
-    /* 3D 光碟邊界防拖出保護 */
+    /* 3D 光碟邊界防脫離 */
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
