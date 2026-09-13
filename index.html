@@ -25,15 +25,16 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
-      --taskbar-h: calc(40px + var(--safe-bottom));
+      --taskbar-h: calc(38px + var(--safe-bottom));
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100vw;
       height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      /* 乾淨淡藍色背景 */
       background: #b8d5ec;
     }
     
@@ -42,6 +43,7 @@
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
     }
 
+    /* 確保按鈕在手機端嚴格維持 Windows 98 凸起方角外觀 */
     button {
       -webkit-appearance: none !important;
       appearance: none !important;
@@ -58,6 +60,7 @@
       border: 2px inset #ffffff !important;
     }
 
+    /* 開場全螢幕封面展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -159,6 +162,7 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
+    /* 手機可上下平滑滑動主容器，底部按鈕不被遮擋 */
     .app-viewport {
       position: absolute;
       top: 48px;
@@ -169,35 +173,36 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 6px 10px;
+      padding: 6px 10px 24px 10px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       gap: 6px;
     }
 
-    /* 正圓隨身聽舞台 */
+    /* 3D 隨身聽正圓舞台 (防止拖曳脫離) */
     .cd-stage {
       position: relative;
-      width: 170px; height: 170px;
+      width: 165px; height: 165px;
       display: flex; align-items: center; justify-content: center;
-      perspective: 1000px; touch-action: none;
+      perspective: 800px; touch-action: none;
       flex-shrink: 0; margin-top: 2px;
     }
     .walkman-base {
-      position: absolute; width: 170px; height: 170px; border-radius: 50% !important;
+      position: absolute; width: 165px; height: 165px; border-radius: 50% !important;
       background: radial-gradient(circle, #f0f4f8 30%, #a2b4c7 70%, #586e84 100%);
       border: 3px solid #586e84;
       box-shadow: 0 8px 16px rgba(0,0,0,0.35), inset 0 2px 5px #fff;
     }
     .walkman-tray {
-      position: absolute; width: 130px; height: 130px; border-radius: 50% !important;
+      position: absolute; width: 126px; height: 126px; border-radius: 50% !important;
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
     .cd-disc-3d {
-      position: absolute; width: 126px; height: 126px; border-radius: 50% !important;
+      position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
-      cursor: grab; transition: transform 0.08s ease-out;
+      cursor: grab; transition: transform 0.15s ease-out;
       background: conic-gradient(from 0deg, #e2e8f0, #fff, #cbd5e0, #fff, #a0aec0, #fff, #e2e8f0);
       overflow: hidden;
     }
@@ -214,12 +219,12 @@
       -webkit-mask: radial-gradient(circle, transparent 18px, black 19px);
     }
     .cd-center-hole {
-      position: absolute; width: 32px; height: 32px; border-radius: 50% !important;
+      position: absolute; width: 30px; height: 30px; border-radius: 50% !important;
       background: radial-gradient(circle, transparent 8px, rgba(255,255,255,0.7) 9px, #b8d5ec 12px);
       border: 2px solid rgba(255,255,255,0.8); z-index: 10;
     }
 
-    /* 播放器視窗 */
+    /* 播放器視窗：排版防溢出保護 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
@@ -246,7 +251,7 @@
       background: #c0c0c0; padding: 3px; border: 2px groove #fff;
     }
     .folder-nav-bar button {
-      font-size: 11px !important; padding: 2px 5px !important; height: 22px !important;
+      font-size: 11px !important; padding: 2px 6px !important; height: 22px !important;
     }
 
     .lcd-screen {
@@ -254,6 +259,10 @@
       padding: 5px 8px; border: 2px inset #fff; display: flex;
       justify-content: space-between; align-items: center;
       font-size: 12px; letter-spacing: 1px; margin-bottom: 6px;
+      overflow: hidden;
+    }
+    #lcdTrackTitle {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;
     }
     .lcd-progress-bar {
       width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
@@ -263,16 +272,22 @@
       height: 100%; width: 0%; background: #000080; transition: width 0.3s linear;
     }
 
-    /* 播放控制按鍵 */
+    /* 播放控制列：彈性等比分布，不溢出邊界 */
     .player-ctrl-row {
-      display: flex; justify-content: center; gap: 4px; margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+      width: 100%;
     }
     .player-ctrl-row button {
-      flex: 1; max-width: 48px; height: 26px !important;
+      width: 100% !important;
+      height: 28px !important;
       border: 2px outset #fff !important;
       border-radius: 0px !important;
       background: #c0c0c0 !important;
       display: flex; align-items: center; justify-content: center;
+      padding: 0 !important;
     }
     .player-ctrl-row button:active {
       border: 2px inset #fff !important;
@@ -281,27 +296,43 @@
       width: 12px; height: 12px; fill: #000; pointer-events: none;
     }
 
-    /* 五版專輯切換按鈕列 */
+    /* 五版專輯切換列：自動換行、防止擠壓重疊 */
     .ver-tabs-row {
-      display: flex; gap: 3px; margin-bottom: 6px; flex-wrap: wrap;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-bottom: 6px;
+      width: 100%;
     }
     .ver-tabs-row button {
-      flex: 1 1 calc(20% - 3px); min-width: 58px; font-size: 10px !important; padding: 4px 1px !important;
-      border: 2px outset #fff !important; border-radius: 0 !important; white-space: nowrap;
+      flex: 1 1 calc(33.33% - 3px);
+      min-width: 70px;
+      font-size: 10px !important;
+      padding: 4px 2px !important;
+      border: 2px outset #fff !important;
+      border-radius: 0 !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .ver-tabs-row button.active {
       font-weight: bold; background: #000080 !important; color: #fff !important;
       border: 2px inset #fff !important;
     }
 
+    /* 曲目清單容器與文字截斷保護 */
     .track-list-box {
       list-style: none; margin: 0; padding: 0;
       background: #fff; border: 2px inset #dfdfdf;
-      max-height: 120px; overflow-y: auto;
+      max-height: 120px; overflow-y: auto; width: 100%;
     }
     .track-list-box li {
-      padding: 4px 6px; font-size: 11px; cursor: pointer;
+      padding: 5px 6px; font-size: 11px; cursor: pointer;
       display: flex; justify-content: space-between; align-items: center;
+      white-space: nowrap;
+    }
+    .track-list-box li span {
+      overflow: hidden; text-overflow: ellipsis; max-width: 88%;
     }
     .track-list-box li:hover { background: #000080; color: #fff; }
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
@@ -309,15 +340,14 @@
     /* 工作列 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      height: var(--taskbar-h); min-height: 40px;
+      height: var(--taskbar-h); min-height: 38px;
       background: #c0c0c0; border-top: 2px solid #fff;
       display: flex; align-items: flex-start; justify-content: space-between;
-      padding-top: 5px;
+      padding-top: 4px;
       padding-left: max(8px, var(--safe-left));
       padding-right: max(14px, var(--safe-right));
-      padding-bottom: max(10px, var(--safe-bottom));
-      z-index: 9999;
-      pointer-events: auto !important;
+      padding-bottom: max(6px, var(--safe-bottom));
+      z-index: 2500;
     }
     .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
     .taskbar-right { font-size: 11px; display: flex; align-items: center; padding-left: 8px; flex-shrink: 0; height: 26px; }
@@ -326,7 +356,7 @@
     .start-menu {
       position: fixed; bottom: var(--taskbar-h); left: max(6px, var(--safe-left));
       width: 235px; background: #c0c0c0; border: 2px outset #fff;
-      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 10000; padding: 3px;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 3000; padding: 3px;
     }
     .start-menu-banner {
       background: linear-gradient(180deg, #104e8b, #1e90ff);
@@ -425,7 +455,7 @@
           </button>
         </div>
 
-        <!-- 5 套獨立版本專輯切換分頁 -->
+        <!-- 5 套版本專輯分頁：支援自動折行防重疊 -->
         <div class="ver-tabs-row" id="verTabsRow">
           <button type="button" class="active" onclick="switchPlaylistVer(0)">Ver 1. Summer</button>
           <button type="button" onclick="switchPlaylistVer(1)">Ver 2. Armageddon</button>
@@ -476,7 +506,6 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    /* 5 版完整獨立專輯資料庫 (包含各自專屬純 CD 光碟封面與 5~6 首曲目) */
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 0,
@@ -539,7 +568,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_pureblue_v5albums";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_pureblue_v6clamped";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -922,9 +951,11 @@
       if (menu) menu.style.display = 'none';
     }
 
+    /* 3D 光碟邊界鉗制 (防止拖曳脫離舞台) */
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
+      const MAX_DRAG_OFFSET = 36; // 限制最大移動偏移半徑
 
       function onStart(e) {
         isDragging = true;
@@ -933,11 +964,21 @@
       }
       function onMove(e) {
         if (!isDragging) return;
-        curX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
-        curY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
-        disc.style.transform = `translate(${curX}px, ${curY}px) rotateY(${curX * 0.3}deg) rotateX(${-curY * 0.3}deg)`;
+        const rawX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+        const rawY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+        
+        // 邊界限制：嚴格鎖定在隨身聽上方，不飛出可視範圍
+        curX = Math.max(-MAX_DRAG_OFFSET, Math.min(MAX_DRAG_OFFSET, rawX));
+        curY = Math.max(-MAX_DRAG_OFFSET, Math.min(MAX_DRAG_OFFSET, rawY));
+        
+        disc.style.transform = `translate(${curX}px, ${curY}px) rotateY(${curX * 0.4}deg) rotateX(${-curY * 0.4}deg)`;
       }
-      function onEnd() { isDragging = false; }
+      function onEnd() { 
+        isDragging = false; 
+        // 鬆開後平滑彈回盤座中央
+        curX = 0; curY = 0;
+        disc.style.transform = `translate(0px, 0px) rotateY(0deg) rotateX(0deg)`;
+      }
 
       disc.addEventListener('mousedown', onStart);
       window.addEventListener('mousemove', onMove);
@@ -1030,4 +1071,3 @@
   </script>
 </body>
 </html>
-
