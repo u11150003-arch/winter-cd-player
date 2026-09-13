@@ -25,7 +25,7 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
-      --taskbar-h: calc(36px + var(--safe-bottom));
+      --taskbar-h: calc(40px + var(--safe-bottom));
     }
 
     body {
@@ -33,7 +33,7 @@
       height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      /* 乾淨優雅的純淡藍色背景 */
+      /* 乾淨淡藍色背景 */
       background: #b8d5ec;
     }
     
@@ -42,7 +42,6 @@
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
     }
 
-    /* 強制所有按鈕遵循 Windows 98 復古凸起外觀，徹底消除手機圓弧與膠囊形狀 */
     button {
       -webkit-appearance: none !important;
       appearance: none !important;
@@ -57,10 +56,8 @@
     }
     button:active {
       border: 2px inset #ffffff !important;
-      padding: 3px 1px 1px 3px !important;
     }
 
-    /* 首頁開場動畫展示層 (純淡藍色底) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -114,7 +111,6 @@
       50% { opacity: 1; }
     }
 
-    /* 頂部管理列容器 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
@@ -163,7 +159,6 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 主應用容器 */
     .app-viewport {
       position: absolute;
       top: 48px;
@@ -179,7 +174,7 @@
       gap: 6px;
     }
 
-    /* 3D 隨身聽正圓舞台 (百分之百正圓，不受擠壓) */
+    /* 正圓隨身聽舞台 */
     .cd-stage {
       position: relative;
       width: 170px; height: 170px;
@@ -224,7 +219,7 @@
       border: 2px solid rgba(255,255,255,0.8); z-index: 10;
     }
 
-    /* 播放器視窗：百分之百 Windows 98 經典邊框樣式 */
+    /* 播放器視窗 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
@@ -268,12 +263,12 @@
       height: 100%; width: 0%; background: #000080; transition: width 0.3s linear;
     }
 
-    /* 控制按鈕：強制復古方形按鈕，拒絕圓弧 */
+    /* 播放控制按鍵 */
     .player-ctrl-row {
       display: flex; justify-content: center; gap: 4px; margin-bottom: 8px;
     }
     .player-ctrl-row button {
-      width: 42px !important; height: 26px !important;
+      flex: 1; max-width: 48px; height: 26px !important;
       border: 2px outset #fff !important;
       border-radius: 0px !important;
       background: #c0c0c0 !important;
@@ -286,12 +281,13 @@
       width: 12px; height: 12px; fill: #000; pointer-events: none;
     }
 
+    /* 五版專輯切換按鈕列 */
     .ver-tabs-row {
-      display: flex; gap: 4px; margin-bottom: 6px;
+      display: flex; gap: 3px; margin-bottom: 6px; flex-wrap: wrap;
     }
     .ver-tabs-row button {
-      flex: 1; font-size: 11px !important; padding: 4px 2px !important;
-      border: 2px outset #fff !important; border-radius: 0 !important;
+      flex: 1 1 calc(20% - 3px); min-width: 58px; font-size: 10px !important; padding: 4px 1px !important;
+      border: 2px outset #fff !important; border-radius: 0 !important; white-space: nowrap;
     }
     .ver-tabs-row button.active {
       font-weight: bold; background: #000080 !important; color: #fff !important;
@@ -310,16 +306,18 @@
     .track-list-box li:hover { background: #000080; color: #fff; }
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
 
-    /* 底部工作列：與原始 Desktop 完全一致 */
+    /* 工作列 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      height: var(--taskbar-h); min-height: 36px;
+      height: var(--taskbar-h); min-height: 40px;
       background: #c0c0c0; border-top: 2px solid #fff;
       display: flex; align-items: flex-start; justify-content: space-between;
-      padding-top: 4px; padding-left: max(8px, var(--safe-left));
+      padding-top: 5px;
+      padding-left: max(8px, var(--safe-left));
       padding-right: max(14px, var(--safe-right));
-      padding-bottom: max(4px, var(--safe-bottom));
-      z-index: 2500;
+      padding-bottom: max(10px, var(--safe-bottom));
+      z-index: 9999;
+      pointer-events: auto !important;
     }
     .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
     .taskbar-right { font-size: 11px; display: flex; align-items: center; padding-left: 8px; flex-shrink: 0; height: 26px; }
@@ -328,7 +326,7 @@
     .start-menu {
       position: fixed; bottom: var(--taskbar-h); left: max(6px, var(--safe-left));
       width: 235px; background: #c0c0c0; border: 2px outset #fff;
-      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 3000; padding: 3px;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 10000; padding: 3px;
     }
     .start-menu-banner {
       background: linear-gradient(180deg, #104e8b, #1e90ff);
@@ -348,7 +346,6 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 (點擊直接淡出開機) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc" id="introCdDisc">
@@ -357,7 +354,6 @@
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <!-- 頂部管理列 -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
@@ -383,7 +379,6 @@
 
   <div class="app-viewport">
     
-    <!-- 3D 隨身聽主機與正圓盤面 (不受任何長寬比扭曲) -->
     <div class="cd-stage" id="cdStage">
       <div class="walkman-base"></div>
       <div class="walkman-tray"></div>
@@ -393,7 +388,6 @@
       </div>
     </div>
 
-    <!-- Win98 播放器面板視窗 (全風格復古化) -->
     <div class="window player-subwin" id="playerSubwin">
       <div class="title-bar">
         <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
@@ -413,7 +407,6 @@
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
         </div>
 
-        <!-- 播放控制鍵：清晰黑白純復古向量圖示 -->
         <div class="player-ctrl-row">
           <button type="button" onclick="prevCdTrack()" title="上一首">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -432,10 +425,13 @@
           </button>
         </div>
 
+        <!-- 5 套獨立版本專輯切換分頁 -->
         <div class="ver-tabs-row" id="verTabsRow">
           <button type="button" class="active" onclick="switchPlaylistVer(0)">Ver 1. Summer</button>
           <button type="button" onclick="switchPlaylistVer(1)">Ver 2. Armageddon</button>
           <button type="button" onclick="switchPlaylistVer(2)">Ver 3. Solo & Live</button>
+          <button type="button" onclick="switchPlaylistVer(3)">Ver 4. Drama</button>
+          <button type="button" onclick="switchPlaylistVer(4)">Ver 5. Whiplash</button>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
@@ -449,7 +445,6 @@
 
   </div>
 
-  <!-- WINTER 開始選單跳轉 -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -481,6 +476,7 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
+    /* 5 版完整獨立專輯資料庫 (包含各自專屬純 CD 光碟封面與 5~6 首曲目) */
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 0,
@@ -501,9 +497,9 @@
           "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
           "tracks": [
             { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube" },
-            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
-            { "title": "aespa - Whiplash", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube" },
+            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube" },
             { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube" }
           ]
         },
@@ -517,11 +513,33 @@
             { "title": "Winter - Voyage", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
             { "title": "Winter - Bday Special Song", "src": "YTeFLKMnwjg", "type": "youtube" }
           ]
+        },
+        {
+          "name": "Ver 4. Drama",
+          "cover": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400",
+          "tracks": [
+            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube" }
+          ]
+        },
+        {
+          "name": "Ver 5. Whiplash",
+          "cover": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
+          "tracks": [
+            { "title": "aespa - Whiplash", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Kill It", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" }
+          ]
         }
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_pureblue_v3";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_pureblue_v5albums";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -877,7 +895,7 @@
     }
 
     function changeWallpaper() {
-      const raw = prompt("請輸入背景顏色或圖片網址 (輸入 clear 恢復淡藍色)：", "");
+      const raw = prompt("請輸入背景顏色或圖片網址 (輸入 clear 恢復純淡藍色)：", "");
       if (raw === "clear") {
         config.wallpaper = "";
         document.body.style.backgroundImage = "none";
@@ -904,7 +922,6 @@
       if (menu) menu.style.display = 'none';
     }
 
-    // 3D 光碟自由拖曳旋轉系統
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
