@@ -53,7 +53,6 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -132,7 +131,6 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器主視窗容器 */
     .app-viewport {
       position: absolute; top: 48px;
       left: max(0px, var(--safe-left));
@@ -142,7 +140,6 @@
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
-    /* 3D 隨身聽正圓舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -246,7 +243,6 @@
       font-weight: bold; background: #000080 !important; color: #fff !important; border: 2px inset #fff !important;
     }
 
-    /* 曲目清單 */
     .track-list-box {
       list-style: none; margin: 0; padding: 0; background: #fff; border: 2px inset #dfdfdf;
       max-height: 140px; overflow-y: auto; width: 100%;
@@ -258,14 +254,9 @@
     }
     .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     
-    /* 順序調整手把與操作按鈕 */
-    .order-reorder-box {
-      display: none; gap: 2px; flex-shrink: 0;
-    }
+    .order-reorder-box { display: none; gap: 2px; flex-shrink: 0; }
     body.admin-mode .order-reorder-box { display: inline-flex; }
-    .order-reorder-box button {
-      font-size: 8px !important; padding: 1px 3px !important; height: 18px !important; line-height: 1 !important;
-    }
+    .order-reorder-box button { font-size: 8px !important; padding: 1px 3px !important; height: 18px !important; }
 
     .track-ops-box { display: none; gap: 2px; flex-shrink: 0; }
     body.admin-mode .track-ops-box { display: inline-flex; }
@@ -307,7 +298,6 @@
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
     
-    /* 嵌入式播放核心：置於最底層但具備可視尺寸以確保手機允許自動觸發 */
     .media-engine-mount {
       position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.01; pointer-events: none;
     }
@@ -315,14 +305,12 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc"><div class="intro-cd-hole"></div></div>
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <!-- 頂部管理工具列 -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
@@ -348,7 +336,6 @@
   </div>
 
   <div class="app-viewport">
-    <!-- 3D 隨身聽主機與正圓盤面 -->
     <div class="cd-stage" id="cdStage">
       <div class="walkman-base"></div>
       <div class="walkman-tray"></div>
@@ -358,7 +345,6 @@
       </div>
     </div>
 
-    <!-- Win98 經典灰底播放視窗 -->
     <div class="window player-subwin" id="playerSubwin">
       <div class="title-bar">
         <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
@@ -377,7 +363,6 @@
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
         </div>
 
-        <!-- 播放控制按鈕 -->
         <div class="player-ctrl-row">
           <button type="button" onclick="prevCdTrack()" title="上一首">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -396,7 +381,6 @@
           </button>
         </div>
 
-        <!-- 5 版專輯結構 (3+2 雙排設計) -->
         <div class="ver-tabs-row" id="verTabsRow"></div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
@@ -408,7 +392,6 @@
     </div>
   </div>
 
-  <!-- WINTER 開始選單 -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -433,9 +416,9 @@
     </div>
   </div>
 
-  <!-- 播放核心掛載點 (相容手機權限) -->
+  <!-- 原生音訊核心 (加入跨網域直連設定) -->
   <div class="media-engine-mount">
-    <audio id="hiddenAudioEngine" playsinline preload="auto"></audio>
+    <audio id="hiddenAudioEngine" playsinline preload="auto" crossorigin="anonymous"></audio>
     <iframe id="hiddenYtIframe" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -443,20 +426,19 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    /* 5 版專輯資料庫 */
+    // 核心資料庫 (已修正 BLUE 的雲端純音訊直連網址)
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
-      "activeVerIndex": 0,
+      "activeVerIndex": 2, // 預設停在 BLUE
       "versions": [
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
           "tracks": [
             { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - What you want do for love", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
+            { "title": "Winter - What you want do for love", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" },
             { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
-            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" },
-            { "title": "Winter - Special Summer Track", "src": "YTeFLKMnwjg", "type": "youtube" }
+            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" }
           ]
         },
         {
@@ -471,14 +453,14 @@
           ]
         },
         {
-          "name": "Blue",
+          "name": "BLUE",
           "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
           "tracks": [
-            { "title": "Winter - Spark (Acoustic Solo)", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - With You (OST)", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
+            // 正確轉換的 Google 雲端純音訊直連網址
+            { "title": "BLUE (WINTER Solo)", "src": "https://docs.google.com/uc?export=download&id=1S-ph9I2finH0vNrL-vluaiIssaUz2Eji", "type": "drive" },
+            { "title": "Winter - With You (OST)", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" },
             { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - Voyage", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
-            { "title": "Winter - Bday Special Song", "src": "YTeFLKMnwjg", "type": "youtube" }
+            { "title": "Winter - Voyage", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" }
           ]
         },
         {
@@ -505,7 +487,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_v2026_fixed";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_drivefix_v1";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -523,6 +505,24 @@
 
     let navHistory = [];
     let navForwardStack = [];
+
+    // 核心網址自動轉換引擎
+    function extractDriveId(url) {
+      if (!url) return null;
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    function autoFormatMediaUrl(url, type) {
+      if (!url) return url;
+      const driveId = extractDriveId(url);
+      if (driveId) {
+        if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
+        // 純音訊檔案必須使用 export=download 直連
+        return `https://docs.google.com/uc?export=download&id=${driveId}`;
+      }
+      return url.trim();
+    }
 
     function saveState() {
       config.activeVerIndex = cdState.verIndex;
@@ -543,25 +543,8 @@
       const overlay = document.getElementById('introOverlay');
       overlay.classList.add('hidden');
       renderCdPlayerUI();
-      // 在使用者觸碰當下解鎖行動裝置音訊限制
       const audio = document.getElementById('hiddenAudioEngine');
       audio.load();
-    }
-
-    function extractDriveId(url) {
-      if (!url) return null;
-      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
-    }
-
-    function autoFormatMediaUrl(url, type) {
-      if (!url) return url;
-      const driveId = extractDriveId(url);
-      if (driveId) {
-        if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
-        return `https://drive.google.com/file/d/${driveId}/preview`;
-      }
-      return url.trim();
     }
 
     function toggleAdmin(e) {
@@ -586,7 +569,6 @@
       renderCdPlayerUI();
     }
 
-    /* 渲染曲目介面 (支援 ▲ / ▼ 點擊排序，行動與電腦 100% 穩定) */
     function renderCdPlayerUI() {
       const curVer = config.versions[cdState.verIndex];
       document.getElementById('discCoverImg').src = curVer.cover;
@@ -635,7 +617,6 @@
           </div>
         `;
 
-        // 點擊曲目：即刻自動切換並開始播放 (User Gesture 立即觸發)
         li.onclick = () => {
           if (isAdmin) selectedTrackIdx = (selectedTrackIdx === idx) ? null : idx;
           selectAndPlayTrack(idx);
@@ -650,7 +631,6 @@
       updateNavButtons();
     }
 
-    /* 調換曲目順序 */
     function moveTrackOrder(idx, direction) {
       const curVer = config.versions[cdState.verIndex];
       const targetIdx = idx + direction;
@@ -689,7 +669,7 @@
       else playCurrentTrack();
     }
 
-    /* 播放當前歌曲：手機端授權即時啟動 */
+    // 播放核心 (支援 Google 雲端純音訊直連與真實時間同步)
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -704,11 +684,15 @@
       if (track.type === 'youtube') {
         audio.pause();
         const startSec = Math.floor(cdState.currentSec || 0);
-        // 使用 HTTPS 正式播放源並帶入即時播放指令
         ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&start=${startSec}&playsinline=1&enablejsapi=1`;
       } else {
         ytIframe.src = '';
-        if (audio.src !== track.src) audio.src = track.src;
+        // 確保轉為純音訊下載直連
+        const finalSrc = autoFormatMediaUrl(track.src, 'audio');
+        if (audio.src !== finalSrc) {
+          audio.src = finalSrc;
+          audio.load();
+        }
         audio.currentTime = cdState.currentSec || 0;
         const playPromise = audio.play();
         if (playPromise !== undefined) {
@@ -739,10 +723,8 @@
       updateDiscSpinning();
     }
 
-    /* 正方形 (▪️) 鍵：停止、秒數歸零並立即自動從頭重新播放 */
     function stopAndReplayTrack() {
       stopCdTrack();
-      // 重設為 0 秒後直接自動重新起跑
       cdState.currentSec = 0;
       playCurrentTrack();
     }
@@ -782,7 +764,7 @@
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-      const duration = cdState.totalDuration || 210;
+      const duration = cdState.totalDuration || 211;
       cdState.currentSec = ratio * duration;
 
       const audio = document.getElementById('hiddenAudioEngine');
@@ -796,22 +778,44 @@
       }
     }
 
+    // 監聽 HTML5 Audio 元數據，直接讀取雲端 MP3 檔案的真實歌曲長度
+    const globalAudio = document.getElementById('hiddenAudioEngine');
+    globalAudio.addEventListener('loadedmetadata', () => {
+      if (globalAudio.duration && !isNaN(globalAudio.duration)) {
+        cdState.totalDuration = globalAudio.duration;
+        updateLcdDisplay(globalAudio.currentTime, globalAudio.duration);
+      }
+    });
+
+    globalAudio.addEventListener('ended', () => {
+      nextCdTrack();
+    });
+
     function startProgressTracker() {
       clearInterval(cdState.timerInterval);
       cdState.timerInterval = setInterval(() => {
         const audio = document.getElementById('hiddenAudioEngine');
-        if (audio.src && !audio.paused) {
-          cdState.currentSec = audio.currentTime;
-          cdState.totalDuration = audio.duration || 210;
+        const curVer = config.versions[cdState.verIndex];
+        const track = curVer.tracks[cdState.trackIndex];
+
+        if (track && track.type !== 'youtube') {
+          if (audio.src) {
+            cdState.currentSec = audio.currentTime || 0;
+            if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+              cdState.totalDuration = audio.duration;
+            }
+          }
         } else {
           cdState.currentSec++;
           if (!cdState.totalDuration) cdState.totalDuration = 210;
         }
 
         updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
-        const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
-        document.getElementById('lcdProgressFill').style.width = percent + '%';
-      }, 1000);
+        if (cdState.totalDuration > 0) {
+          const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
+          document.getElementById('lcdProgressFill').style.width = percent + '%';
+        }
+      }, 500);
     }
 
     function updateLcdDisplay(sec, totalSec) {
@@ -883,7 +887,7 @@
         let type = "youtube";
         const driveId = extractDriveId(link);
         if (driveId) {
-          src = `https://drive.google.com/file/d/${driveId}/preview`;
+          src = `https://docs.google.com/uc?export=download&id=${driveId}`;
           type = "drive";
         } else if (link.includes("v=")) {
           src = link.split("v=")[1].substring(0, 11);
@@ -938,7 +942,7 @@
       let type = "youtube";
       const driveId = extractDriveId(link);
       if (driveId) {
-        src = `https://drive.google.com/file/d/${driveId}/preview`;
+        src = `https://docs.google.com/uc?export=download&id=${driveId}`;
         type = "drive";
       } else if (link.includes("v=")) {
         src = link.split("v=")[1].substring(0, 11);
@@ -1024,7 +1028,7 @@
       if (menu) menu.style.display = 'none';
     }
 
-    /* 3D 光碟邊界防脫離 */
+    // 3D 光碟阻尼邊界防脫離
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
