@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WINTER CD PLAYER</title>
+
+  <!-- 網址分享縮圖 -->
+  <meta property="og:title" content="WINTER CD PLAYER">
+  <meta property="og:description" content="A retro 3D CD player space for WINTER">
+  <meta property="og:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
+
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <style>
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    
+    :root {
+      --star-cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9' fill='%23FFD700' stroke='%23B8860B' stroke-width='1.5'/></svg>") 4 4, auto;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --taskbar-h: calc(36px + var(--safe-bottom));
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+      background: #89b3d9 url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600') no-repeat center center;
+      background-size: cover;
+    }
+    
+    button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
+      cursor: var(--star-cursor) !important;
+    }
+
+    /* 首頁全螢幕 3D CD 旋轉封面展示層 (burn-cd 開場動畫) */
+    .intro-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: inherit;
+      cursor: var(--star-cursor);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .intro-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.85);
+    }
+    .intro-title {
+      font-size: 32px;
+      letter-spacing: 4px;
+      color: #3b5998;
+      text-shadow: 0 0 12px rgba(255,255,255,0.9), 1px 2px 3px rgba(0,0,0,0.3);
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+    .intro-cd-disc {
+      width: 170px; height: 170px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #d8d8d8, #ffffff, #c8c8c8, #ffffff, #cfcfcf, #ffffff, #d8d8d8);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 12px rgba(0,0,0,0.25);
+      display: flex; align-items: center; justify-content: center;
+      animation: discSpin 3s linear infinite;
+      position: relative;
+    }
+    .intro-cd-hole {
+      position: absolute; width: 42px; height: 42px; border-radius: 50%;
+      background: radial-gradient(circle, transparent 12px, rgba(255,255,255,0.8) 13px, #7da2c8 16px);
+      border: 3px solid rgba(255,255,255,0.9);
+    }
+    .intro-hint {
+      margin-top: 24px; font-size: 13px; color: #1e3a5f;
+      letter-spacing: 1px; animation: pulse 1.6s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* 頂部操作工具列 */
+    .top-bar-wrapper {
+      position: absolute;
+      top: max(6px, env(safe-area-inset-top, 6px));
+      left: max(6px, var(--safe-left));
+      right: max(6px, var(--safe-right));
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      border: none;
+      pointer-events: none;
+    }
+    body.admin-mode .top-bar-wrapper {
+      background: #c0c0c0;
+      border: 2px outset #fff;
+      padding: 3px;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+      pointer-events: auto;
+    }
+    .top-actions-viewport {
+      display: flex; gap: 4px; overflow-x: hidden; white-space: nowrap; pointer-events: auto;
+    }
+    .top-actions-viewport button, .top-actions-viewport span {
+      flex-shrink: 0; font-size: 11px; padding: 2px 6px; cursor: pointer; height: 25px;
+    }
+    #authBtn { pointer-events: auto; align-self: flex-start; }
+
+    /* 實體滑桿 */
+    .admin-scrollbar-bar {
+      display: none; height: 16px; background: #c0c0c0; border-top: 1px solid #808080;
+      margin-top: 3px; align-items: center; position: relative;
+    }
+    body.admin-mode .admin-scrollbar-bar { display: flex; }
+    .scrollbar-btn {
+      width: 16px; height: 16px; padding: 0; font-size: 8px; font-weight: bold;
+      border: 1px outset #fff; background: #c0c0c0; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; cursor: pointer;
+    }
+    .scrollbar-btn:active { border: 1px inset #fff; }
+    .scrollbar-track {
+      flex: 1; height: 100%;
+      background: repeating-conic-gradient(#c0c0c0 0% 25%, #ffffff 0% 50%) 50% / 2px 2px;
+      position: relative; cursor: pointer;
+    }
+    .scrollbar-thumb {
+      position: absolute; top: 0; left: 0; width: 40px; height: 100%;
+      background: #c0c0c0; border: 1px outset #fff; cursor: grab;
+    }
+    .scrollbar-thumb:active { cursor: grabbing; border: 1px inset #fff; }
+
+    /* 主應用舞台 */
+    .app-viewport {
+      position: absolute;
+      top: 50px;
+      left: max(0px, var(--safe-left));
+      right: max(0px, var(--safe-right));
+      bottom: var(--taskbar-h);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      overflow-y: auto;
+    }
+
+    /* 3D CD 隨身聽主機與盤面 */
+    .cd-stage {
+      position: relative; width: 220px; height: 210px;
+      display: flex; align-items: center; justify-content: center;
+      perspective: 1000px; touch-action: none; margin-bottom: 6px;
+    }
+    .walkman-base {
+      position: absolute; width: 195px; height: 195px;
+      background: radial-gradient(circle, #f5f5f5 35%, #bfbfbf 70%, #888 100%);
+      border: 3px solid #666; border-radius: 50% 50% 45% 45%;
+      box-shadow: 0 12px 20px rgba(0,0,0,0.45), inset 0 2px 5px #fff;
+    }
+    .walkman-tray {
+      position: absolute; width: 150px; height: 150px; border-radius: 50%;
+      background: #202020; box-shadow: inset 0 3px 8px #000;
+    }
+
+    .cd-disc-3d {
+      position: absolute; width: 144px; height: 144px; border-radius: 50%;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      cursor: grab; transition: transform 0.08s ease-out;
+      background: conic-gradient(from 0deg, #e6e6e6, #fff, #dcdcdc, #fff, #d5d5d5, #fff, #e6e6e6);
+      overflow: hidden;
+    }
+    .cd-disc-3d:active { cursor: grabbing; }
+    .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
+    @keyframes discSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .cd-disc-art {
+      position: absolute; width: 100%; height: 100%; border-radius: 50%;
+      object-fit: cover; pointer-events: none; opacity: 0.94;
+      mask: radial-gradient(circle, transparent 20px, black 21px);
+      -webkit-mask: radial-gradient(circle, transparent 20px, black 21px);
+    }
+    .cd-center-hole {
+      position: absolute; width: 34px; height: 34px; border-radius: 50%;
+      background: radial-gradient(circle, transparent 9px, rgba(255,255,255,0.7) 10px, #7da2c8 13px);
+      border: 2px solid rgba(255,255,255,0.8); z-index: 10;
+    }
+
+    /* 播放視窗 (支援自適應縮放、全螢幕與還原) */
+    .win-modal {
+      position: fixed; display: none; z-index: 100;
+      box-shadow: 2px 2px 14px rgba(0,0,0,0.6);
+      width: 94vw; max-width: 440px; min-width: 280px; min-height: 200px;
+      resize: both; overflow: hidden;
+    }
+    .win-modal .title-bar { cursor: move; position: relative; }
+    .win-modal .title-bar-controls {
+      position: relative; z-index: 1000; display: flex; gap: 2px; pointer-events: auto !important;
+    }
+    .win-modal .title-bar-controls button {
+      cursor: var(--star-cursor) !important; pointer-events: auto !important;
+    }
+    .win-modal .window-body {
+      height: calc(100% - 32px); max-height: calc(100% - 32px); overflow-y: auto; padding: 6px;
+    }
+    .win-modal.maximized {
+      top: 0 !important; left: 0 !important; transform: none !important;
+      width: 100vw !important; max-width: 100vw !important;
+      height: calc(100vh - var(--taskbar-h)) !important;
+      z-index: 1500 !important; resize: none !important;
+    }
+    .win-modal.maximized .title-bar { cursor: default; }
+
+    /* 導航按鈕列 (上一步 / 下一步) */
+    .folder-nav-bar {
+      display: flex; gap: 4px; align-items: center; margin-bottom: 6px; background: #dfdfdf;
+      padding: 3px 5px; border: 1px solid #7f9db9;
+    }
+    .folder-nav-bar button {
+      font-size: 11px; padding: 2px 5px; height: 22px; cursor: pointer;
+    }
+
+    /* 液晶面板 */
+    .lcd-screen {
+      background: #0a0a0a; color: #39ff14; font-family: monospace;
+      padding: 5px 8px; border-radius: 2px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-size: 13px; letter-spacing: 1px; margin-bottom: 6px;
+      box-shadow: inset 0 0 6px rgba(57, 255, 20, 0.4);
+    }
+    .lcd-progress-bar {
+      width: 100%; height: 8px; background: #222; border: 1px inset #555;
+      margin-bottom: 8px; position: relative;
+    }
+    .lcd-progress-fill {
+      height: 100%; width: 0%; background: #39ff14; transition: width 0.3s linear;
+    }
+    .player-ctrl-row {
+      display: flex; justify-content: center; gap: 6px; margin-bottom: 8px;
+    }
+    .player-ctrl-row button {
+      min-width: 38px; height: 26px; font-weight: bold; font-size: 11px; cursor: pointer;
+    }
+
+    /* 三版專輯切換分頁 */
+    .ver-tabs-row {
+      display: flex; gap: 4px; margin-bottom: 6px;
+    }
+    .ver-tabs-row button {
+      flex: 1; font-size: 11px; padding: 4px 2px; cursor: pointer;
+    }
+    .ver-tabs-row button.active {
+      font-weight: bold; background: #000080; color: #fff;
+    }
+
+    .track-list-box {
+      list-style: none; margin: 0; padding: 0;
+      background: #fff; border: 2px inset #dfdfdf;
+      max-height: 130px; overflow-y: auto;
+    }
+    .track-list-box li {
+      padding: 5px 8px; font-size: 11px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .track-list-box li:hover { background: #e0e0ff; }
+    .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
+
+    /* 底部工作列 */
+    .taskbar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--taskbar-h); min-height: 36px;
+      background: #c0c0c0; border-top: 2px solid #fff;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding-top: 4px; padding-left: max(8px, var(--safe-left));
+      padding-right: max(14px, var(--safe-right));
+      padding-bottom: max(4px, var(--safe-bottom));
+      z-index: 2500;
+    }
+    .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
+    .task-item-btn { font-size: 11px; padding: 2px 6px; height: 26px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+    .taskbar-right { font-size: 11px; display: flex; align-items: center; padding-left: 8px; flex-shrink: 0; height: 26px; }
+    .taskbar-right a { color: #000; text-decoration: none; font-weight: bold; border-bottom: 1px dotted #555; }
+
+    /* 底部 WINTER 選單 (切換 Desktop / CD Player) */
+    .start-menu {
+      position: fixed; bottom: var(--taskbar-h); left: max(6px, var(--safe-left));
+      width: 220px; background: #c0c0c0; border: 2px outset #fff;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 3000; padding: 3px;
+    }
+    .start-menu-banner {
+      background: linear-gradient(180deg, #104e8b, #1e90ff);
+      color: #fff; font-weight: bold; padding: 8px 10px; font-size: 13px; margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+    .start-menu ul { list-style: none; margin: 0; padding: 0; }
+    .start-menu li {
+      padding: 7px 10px; font-size: 12px; cursor: var(--star-cursor); display: flex; align-items: center; gap: 8px;
+    }
+    .start-menu li:hover { background: #000080; color: #fff; }
+
+    .admin-only { display: none !important; }
+    body.admin-mode .admin-only { display: inline-flex !important; }
+    #hiddenAudioEngine, #hiddenYtIframe { display: none; }
+  </style>
+</head>
+<body onclick="handleGlobalClick(event)">
+
+  <!-- 1. 首頁開場動畫展示層 (burn-cd 風格：中央 3D 旋轉 CD，點擊進入) -->
+  <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
+    <div class="intro-title">WINTER CD PLAYER</div>
+    <div class="intro-cd-disc" id="introCdDisc">
+      <div class="intro-cd-hole"></div>
+    </div>
+    <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
+  </div>
+
+  <!-- 頂部管理列 -->
+  <div class="top-bar-wrapper" id="topBarWrapper">
+    <div class="top-actions-viewport" id="topActionsViewport">
+      <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
+      <button class="admin-only" onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
+      <button class="admin-only" onclick="addTrackToActiveVer()">+ 新增曲目</button>
+      <button class="admin-only" onclick="editCurrentVerName()">✏️ 改專輯名</button>
+      <button class="admin-only" onclick="copyCurrentTrack()">📋 複製曲目</button>
+      <button class="admin-only" onclick="cutCurrentTrack()">✂️ 剪下曲目</button>
+      <button class="admin-only" onclick="pasteTrack()" style="background:#ffffe0;">📌 貼上曲目</button>
+      <button class="admin-only" onclick="deleteCurrentTrack()">❌ 刪除選中曲目</button>
+      <button class="admin-only" onclick="changeWallpaper()">🎨 更換背景</button>
+      <button class="admin-only" style="background:#000080; color:#fff; font-weight:bold;" onclick="exportCurrentState()">💾 儲存並產出備份代碼</button>
+    </div>
+
+    <!-- 管理員實體滑桿條 -->
+    <div class="admin-scrollbar-bar" id="adminScrollbarBar">
+      <button type="button" class="scrollbar-btn" onclick="scrollAdminBar(-100)">◀</button>
+      <div class="scrollbar-track" id="scrollbarTrack" onclick="handleTrackClick(event)">
+        <div class="scrollbar-thumb" id="scrollbarThumb"></div>
+      </div>
+      <button type="button" class="scrollbar-btn" onclick="scrollAdminBar(100)">▶</button>
+    </div>
+  </div>
+
+  <!-- 主隨身聽視窗容器 -->
+  <div class="app-viewport">
+    
+    <!-- 3D 隨身聽主機與盤面 (支援拖曳立體旋轉) -->
+    <div class="cd-stage" id="cdStage">
+      <div class="walkman-base"></div>
+      <div class="walkman-tray"></div>
+      <div class="cd-disc-3d" id="disc3D" title="拖曳可立體旋轉光碟">
+        <img id="discCoverImg" class="cd-disc-art" src="https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax" alt="CD Cover">
+        <div class="cd-center-hole"></div>
+      </div>
+    </div>
+
+    <!-- 播放視窗 (支援上一步、下一步、縮放、還原、關閉) -->
+    <div class="window win-modal" id="playerModalWin" style="display:block; position:relative; top:auto; left:auto; transform:none;">
+      <div class="title-bar" onmousedown="dragElement(this.parentElement, event)">
+        <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
+        <div class="title-bar-controls">
+          <button type="button" onmousedown="event.stopPropagation()" aria-label="Minimize" onclick="minimizeWindow('playerModalWin', 'CD 播放器', event)" title="最小化"></button>
+          <button type="button" onmousedown="event.stopPropagation()" aria-label="Maximize" onclick="toggleMaximize('playerModalWin', event)" title="最大化/還原"></button>
+          <button type="button" onmousedown="event.stopPropagation()" aria-label="Close" onclick="closeWindow('playerModalWin', event)" title="關閉"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        
+        <!-- 導航按鈕列 (上一步 / 下一步) -->
+        <div class="folder-nav-bar">
+          <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步 (上一首/前一動作)">⬅ 上一步</button>
+          <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步 (下一首)">➡ 下一步</button>
+        </div>
+
+        <!-- 液晶顯示螢幕 -->
+        <div class="lcd-screen">
+          <span id="lcdTrackTitle">WINTER - Speed of summer</span>
+          <span id="lcdTimer">00:00</span>
+        </div>
+        <div class="lcd-progress-bar">
+          <div class="lcd-progress-fill" id="lcdProgressFill"></div>
+        </div>
+
+        <!-- 播放控制鍵 -->
+        <div class="player-ctrl-row">
+          <button type="button" onclick="prevCdTrack()">⏮</button>
+          <button type="button" id="btnPlayPause" onclick="togglePlayPause()">▶</button>
+          <button type="button" onclick="stopCdTrack()">⏹</button>
+          <button type="button" onclick="nextCdTrack()">⏭</button>
+          <button type="button" onclick="ejectCd()">⏏</button>
+        </div>
+
+        <!-- 三版專輯切換分頁 (每版＝一張實體 CD 專輯) -->
+        <div class="ver-tabs-row" id="verTabsRow">
+          <button type="button" class="active" onclick="switchPlaylistVer(0)">Ver 1. Summer</button>
+          <button type="button" onclick="switchPlaylistVer(1)">Ver 2. Armageddon</button>
+          <button type="button" onclick="switchPlaylistVer(2)">Ver 3. Solo & Live</button>
+        </div>
+
+        <!-- 曲目清單 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+          <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
+          <span class="admin-only" style="font-size:10px; color:#555;">(點擊選取可編輯/剪下)</span>
+        </div>
+        <ul class="track-list-box" id="cdTrackListBox"></ul>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WINTER 開始跳轉選單 -->
+  <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
+    <div class="start-menu-banner">🪟 WINTER MENU</div>
+    <ul>
+      <li onclick="goToOriginalDesktop()">🖥️ 1. 回到原始 Desktop 網頁</li>
+      <li onclick="location.reload()">💿 2. 重新整理 CD Player</li>
+      <hr style="margin:4px 0;">
+      <li onclick="toggleAdmin(event); toggleStartMenu(event);">⚙️ 切換管理員模式</li>
+    </ul>
+  </div>
+
+  <!-- 底部工作列 -->
+  <div class="taskbar">
+    <div class="taskbar-left">
+      <!-- WINTER 按鍵 -->
+      <button type="button" onclick="toggleStartMenu(event)" style="font-weight:bold; display:flex; align-items:center; gap:4px; height:26px; padding:0 6px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" width="16" height="16"> WINTER
+      </button>
+      <button type="button" onclick="openWindow('playerModalWin')" style="font-weight:bold; display:flex; align-items:center; gap:4px; height:26px; padding:0 6px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" width="16" height="16"> CD Player
+      </button>
+      <div id="taskbarItems" style="display:flex; gap:3px; align-items:center;"></div>
+    </div>
+    <!-- 最右方 Instagram 版權跳轉 -->
+    <div class="taskbar-right">
+      <a href="https://www.instagram.com/winter_tst" target="_blank">Copyright © : winter_tst</a>
+    </div>
+  </div>
+
+  <audio id="hiddenAudioEngine"></audio>
+  <iframe id="hiddenYtIframe" allow="autoplay"></iframe>
+
+  <script>
+    const ADMIN_PASSWORD = "admin";
+    let isAdmin = false;
+
+    /* ========== 核心永久儲存配置 (包含三版官方 CD 專屬歌單與封面) ========== */
+    const CD_MASTER_CONFIG = {
+      "wallpaper": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600",
+      "activeVerIndex": 0,
+      "versions": [
+        {
+          "name": "Ver 1. Summer",
+          "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
+          "tracks": [
+            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - What you want do for love", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
+            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
+            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" },
+            { "title": "Winter - Special Summer Track", "src": "YTeFLKMnwjg", "type": "youtube" }
+          ]
+        },
+        {
+          "name": "Ver 2. Armageddon",
+          "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
+          "tracks": [
+            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube" },
+            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
+            { "title": "aespa - Whiplash", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube" }
+          ]
+        },
+        {
+          "name": "Ver 3. Solo & Live",
+          "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+          "tracks": [
+            { "title": "Winter - Spark (Acoustic Solo)", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - With You (OST)", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
+            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - Voyage", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
+            { "title": "Winter - Bday Special Song", "src": "YTeFLKMnwjg", "type": "youtube" }
+          ]
+        }
+      ]
+    };
+
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_stable_v1";
+    let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
+
+    let cdState = {
+      verIndex: config.activeVerIndex || 0,
+      trackIndex: 0,
+      isPlaying: false,
+      timerInterval: null,
+      seconds: 0
+    };
+
+    let trackClipboard = null;
+    let isTrackCut = false;
+    let selectedTrackIdx = null;
+
+    // 導航歷史
+    let navHistory = [];
+    let navForwardStack = [];
+
+    function saveState() {
+      config.activeVerIndex = cdState.verIndex;
+      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+    }
+
+    function exportCurrentState() {
+      saveState();
+      const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
+      navigator.clipboard.writeText(output).then(() => {
+        alert("✅ 最新進度已儲存並複製程式碼！\n\n下次要更新 GitHub 時直接貼上這段 CD_MASTER_CONFIG 即可永久保留所有設定。");
+      }).catch(() => {
+        prompt("請複製以下最新代碼以備份：", output);
+      });
+    }
+
+    function enterCdPlayer() {
+      const overlay = document.getElementById('introOverlay');
+      overlay.classList.add('hidden');
+      openWindow('playerModalWin');
+      renderCdPlayerUI();
+    }
+
+    function extractDriveId(url) {
+      if (!url) return null;
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    function autoFormatMediaUrl(url, type) {
+      if (!url) return url;
+      const driveId = extractDriveId(url);
+      if (driveId) {
+        if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
+        return `https://drive.google.com/file/d/${driveId}/preview`;
+      }
+      return url.trim();
+    }
+
+    function toggleAdmin(e) {
+      if (e) e.stopPropagation();
+      if (isAdmin) {
+        isAdmin = false;
+        document.body.classList.remove('admin-mode');
+        document.getElementById('authBtn').innerText = "🔒 管理員";
+        alert("已退出管理員模式");
+      } else {
+        const input = prompt("請輸入管理員密碼：");
+        if (input === ADMIN_PASSWORD) {
+          isAdmin = true;
+          document.body.classList.add('admin-mode');
+          document.getElementById('authBtn').innerText = "🔓 退出管理";
+          setTimeout(updateScrollBarUI, 80);
+          alert("登入成功！已解鎖換CD封面、曲目增刪、複製剪下貼上功能。");
+        } else if (input !== null) {
+          alert("密碼錯誤！");
+        }
+      }
+      renderCdPlayerUI();
+    }
+
+    function renderCdPlayerUI() {
+      const curVer = config.versions[cdState.verIndex];
+      document.getElementById('discCoverImg').src = curVer.cover;
+
+      const tabsRow = document.getElementById('verTabsRow');
+      tabsRow.innerHTML = '';
+      config.versions.forEach((v, idx) => {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = (idx === cdState.verIndex) ? 'active' : '';
+        btn.innerText = v.name;
+        btn.onclick = () => switchPlaylistVer(idx);
+        tabsRow.appendChild(btn);
+      });
+
+      const listEl = document.getElementById('cdTrackListBox');
+      listEl.innerHTML = '';
+      curVer.tracks.forEach((t, idx) => {
+        const li = document.createElement('li');
+        const isPlayingThis = (idx === cdState.trackIndex && cdState.isPlaying);
+        const isSelected = (idx === selectedTrackIdx);
+        li.className = isPlayingThis ? 'active' : (isSelected ? 'selected' : '');
+        if (isSelected) li.style.background = "#ffffd0";
+
+        li.innerHTML = `
+          <span>${idx + 1}. ${t.title}</span>
+          ${isAdmin ? `<button type="button" style="font-size:9px; padding:1px 3px;" onclick="event.stopPropagation(); removeTrackAtIndex(${idx})">✕</button>` : ''}
+        `;
+        li.onclick = () => {
+          if (isAdmin) {
+            selectedTrackIdx = (selectedTrackIdx === idx) ? null : idx;
+            renderCdPlayerUI();
+          } else {
+            recordNavHistory();
+            cdState.trackIndex = idx;
+            playCurrentTrack();
+          }
+        };
+        li.ondblclick = () => {
+          recordNavHistory();
+          cdState.trackIndex = idx;
+          playCurrentTrack();
+        };
+        listEl.appendChild(li);
+      });
+
+      const curTrack = curVer.tracks[cdState.trackIndex];
+      document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
+      updateDiscSpinning();
+      updateNavButtons();
+    }
+
+    function switchPlaylistVer(vIdx) {
+      recordNavHistory();
+      stopCdTrack();
+      cdState.verIndex = vIdx;
+      cdState.trackIndex = 0;
+      selectedTrackIdx = null;
+      saveState();
+      renderCdPlayerUI();
+    }
+
+    function togglePlayPause() {
+      if (cdState.isPlaying) pauseCdTrack();
+      else playCurrentTrack();
+    }
+
+    function playCurrentTrack() {
+      const curVer = config.versions[cdState.verIndex];
+      if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
+
+      const track = curVer.tracks[cdState.trackIndex];
+      const audio = document.getElementById('hiddenAudioEngine');
+      const ytIframe = document.getElementById('hiddenYtIframe');
+
+      cdState.isPlaying = true;
+      document.getElementById('btnPlayPause').innerText = "⏸";
+
+      if (track.type === 'youtube') {
+        audio.pause();
+        ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&enablejsapi=1`;
+      } else {
+        ytIframe.src = '';
+        audio.src = track.src;
+        audio.play().catch(()=>{});
+      }
+
+      startLcdTimer();
+      renderCdPlayerUI();
+    }
+
+    function pauseCdTrack() {
+      cdState.isPlaying = false;
+      document.getElementById('btnPlayPause').innerText = "▶";
+      document.getElementById('hiddenAudioEngine').pause();
+      document.getElementById('hiddenYtIframe').src = '';
+      clearInterval(cdState.timerInterval);
+      updateDiscSpinning();
+    }
+
+    function stopCdTrack() {
+      pauseCdTrack();
+      cdState.seconds = 0;
+      updateLcdDisplay(0);
+      document.getElementById('lcdProgressFill').style.width = '0%';
+    }
+
+    function prevCdTrack() {
+      recordNavHistory();
+      const curVer = config.versions[cdState.verIndex];
+      cdState.trackIndex = (cdState.trackIndex - 1 + curVer.tracks.length) % curVer.tracks.length;
+      playCurrentTrack();
+    }
+
+    function nextCdTrack() {
+      recordNavHistory();
+      const curVer = config.versions[cdState.verIndex];
+      cdState.trackIndex = (cdState.trackIndex + 1) % curVer.tracks.length;
+      playCurrentTrack();
+    }
+
+    function ejectCd() {
+      stopCdTrack();
+      alert("⏏ 光碟已退出！");
+    }
+
+    function updateDiscSpinning() {
+      const disc = document.getElementById('disc3D');
+      if (cdState.isPlaying) disc.classList.add('spinning');
+      else disc.classList.remove('spinning');
+    }
+
+    function startLcdTimer() {
+      clearInterval(cdState.timerInterval);
+      cdState.timerInterval = setInterval(() => {
+        cdState.seconds++;
+        updateLcdDisplay(cdState.seconds);
+        const percent = (cdState.seconds % 210) / 2.1;
+        document.getElementById('lcdProgressFill').style.width = `${percent}%`;
+      }, 1000);
+    }
+
+    function updateLcdDisplay(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      document.getElementById('lcdTimer').innerText = `${m}:${s}`;
+    }
+
+    /* ========== 導航 (上一步 / 下一步) ========== */
+    function recordNavHistory() {
+      navHistory.push({ ver: cdState.verIndex, track: cdState.trackIndex });
+      navForwardStack = [];
+      updateNavButtons();
+    }
+
+    function navGoBack(e) {
+      if (e) e.stopPropagation();
+      if (navHistory.length === 0) return;
+      const prev = navHistory.pop();
+      navForwardStack.push({ ver: cdState.verIndex, track: cdState.trackIndex });
+      cdState.verIndex = prev.ver;
+      cdState.trackIndex = prev.track;
+      playCurrentTrack();
+      updateNavButtons();
+    }
+
+    function navGoForward(e) {
+      if (e) e.stopPropagation();
+      if (navForwardStack.length === 0) return;
+      const next = navForwardStack.pop();
+      navHistory.push({ ver: cdState.verIndex, track: cdState.trackIndex });
+      cdState.verIndex = next.ver;
+      cdState.trackIndex = next.track;
+      playCurrentTrack();
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      const bBtn = document.getElementById('btnNavBack');
+      const fBtn = document.getElementById('btnNavForward');
+      if (bBtn) bBtn.disabled = (navHistory.length === 0);
+      if (fBtn) fBtn.disabled = (navForwardStack.length === 0);
+    }
+
+    /* ========== 管理員功能 ========== */
+    function changeCurrentCdCover() {
+      const curVer = config.versions[cdState.verIndex];
+      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址 (支援 Google 雲端共享)：", curVer.cover);
+      if (raw) {
+        curVer.cover = autoFormatMediaUrl(raw, 'image');
+        saveState();
+        renderCdPlayerUI();
+      }
+    }
+
+    function editCurrentVerName() {
+      const curVer = config.versions[cdState.verIndex];
+      const newName = prompt("重新命名此版專輯名稱：", curVer.name);
+      if (newName) {
+        curVer.name = newName;
+        saveState();
+        renderCdPlayerUI();
+      }
+    }
+
+    function addTrackToActiveVer() {
+      const curVer = config.versions[cdState.verIndex];
+      const title = prompt("請輸入歌曲名稱：", "New Track");
+      if (!title) return;
+      const link = prompt("請輸入 YouTube 連結 或 Google 雲端(mp4/m4a)共享連結：");
+      if (!link) return;
+
+      let src = link.trim();
+      let type = "youtube";
+      const driveId = extractDriveId(link);
+      if (driveId) {
+        src = `https://drive.google.com/file/d/${driveId}/preview`;
+        type = "drive";
+      } else if (link.includes("v=")) {
+        src = link.split("v=")[1].substring(0, 11);
+      } else if (link.includes("youtu.be/")) {
+        src = link.split("youtu.be/")[1].substring(0, 11);
+      }
+
+      curVer.tracks.push({ title, src, type });
+      saveState();
+      renderCdPlayerUI();
+    }
+
+    function copyCurrentTrack() {
+      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
+      const curVer = config.versions[cdState.verIndex];
+      trackClipboard = { ...curVer.tracks[selectedTrackIdx] };
+      isTrackCut = false;
+      alert(`已複製「${trackClipboard.title}」！`);
+    }
+
+    function cutCurrentTrack() {
+      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
+      const curVer = config.versions[cdState.verIndex];
+      trackClipboard = { ...curVer.tracks[selectedTrackIdx] };
+      isTrackCut = true;
+      curVer.tracks.splice(selectedTrackIdx, 1);
+      selectedTrackIdx = null;
+      saveState();
+      renderCdPlayerUI();
+      alert(`已剪下「${trackClipboard.title}」！請切換到目標版本點擊貼上。`);
+    }
+
+    function pasteTrack() {
+      if (!trackClipboard) { alert("剪貼簿目前沒有歌曲！"); return; }
+      const curVer = config.versions[cdState.verIndex];
+      curVer.tracks.push({ ...trackClipboard, title: isTrackCut ? trackClipboard.title : trackClipboard.title + " (副本)" });
+      if (isTrackCut) trackClipboard = null;
+      saveState();
+      renderCdPlayerUI();
+    }
+
+    function deleteCurrentTrack() {
+      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
+      removeTrackAtIndex(selectedTrackIdx);
+    }
+
+    function removeTrackAtIndex(idx) {
+      const curVer = config.versions[cdState.verIndex];
+      if (confirm(`確定刪除歌曲「${curVer.tracks[idx].title}」？`)) {
+        curVer.tracks.splice(idx, 1);
+        if (cdState.trackIndex >= curVer.tracks.length) cdState.trackIndex = 0;
+        selectedTrackIdx = null;
+        saveState();
+        renderCdPlayerUI();
+      }
+    }
+
+    function changeWallpaper() {
+      const raw = prompt("請輸入背景圖片網址 (支援 Google 雲端共享)：", config.wallpaper);
+      if (raw) {
+        config.wallpaper = autoFormatMediaUrl(raw, 'image');
+        document.body.style.backgroundImage = `url('${config.wallpaper}')`;
+        saveState();
+      }
+    }
+
+    /* ========== WINTER 開始選單跳轉 ========== */
+    function toggleStartMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('startMenu');
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function goToOriginalDesktop() {
+      window.location.href = "https://u11150003-arch.github.io/2027-winter-bday-desktop/";
+    }
+
+    function handleGlobalClick(e) {
+      const menu = document.getElementById('startMenu');
+      if (menu) menu.style.display = 'none';
+    }
+
+    // 3D 光碟自由拖曳旋轉
+    (function init3dDiscDrag() {
+      const disc = document.getElementById('disc3D');
+      let isDragging = false, startX, startY, curX = 0, curY = 0;
+
+      function onStart(e) {
+        isDragging = true;
+        startX = (e.touches ? e.touches[0].clientX : e.clientX) - curX;
+        startY = (e.touches ? e.touches[0].clientY : e.clientY) - curY;
+      }
+      function onMove(e) {
+        if (!isDragging) return;
+        curX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+        curY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+        disc.style.transform = `translate(${curX}px, ${curY}px) rotateY(${curX * 0.3}deg) rotateX(${-curY * 0.3}deg)`;
+      }
+      function onEnd() { isDragging = false; }
+
+      disc.addEventListener('mousedown', onStart);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      disc.addEventListener('touchstart', onStart, { passive: true });
+      window.addEventListener('touchmove', onMove, { passive: true });
+      window.addEventListener('touchend', onEnd);
+    })();
+
+    /* ========== 視窗縮放還原 ========== */
+    let highestZ = 200;
+    const windowRestoreBounds = {};
+    const minimizedWindows = {};
+
+    function openWindow(id) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.display = 'block';
+      win.style.zIndex = ++highestZ;
+      delete minimizedWindows[id];
+      updateTaskbar();
+    }
+
+    function closeWindow(id, e) {
+      if (e) e.stopPropagation();
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.display = 'none';
+      win.classList.remove('maximized');
+      delete windowRestoreBounds[id];
+      delete minimizedWindows[id];
+      stopCdTrack();
+      updateTaskbar();
+    }
+
+    function minimizeWindow(id, title, e) {
+      if (e) e.stopPropagation();
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.display = 'none';
+      minimizedWindows[id] = title;
+      updateTaskbar();
+    }
+
+    function toggleMaximize(id, e) {
+      if (e) e.stopPropagation();
+      const win = document.getElementById(id);
+      if (!win) return;
+
+      if (win.classList.contains('maximized')) {
+        win.classList.remove('maximized');
+        const prev = windowRestoreBounds[id];
+        if (prev) {
+          win.style.top = prev.top; win.style.left = prev.left;
+          win.style.width = prev.width; win.style.height = prev.height;
+          win.style.position = prev.position || 'relative';
+        } else {
+          win.style.width = '94vw'; win.style.maxWidth = '440px'; win.style.height = 'auto';
+          win.style.position = 'relative'; win.style.top = 'auto'; win.style.left = 'auto';
+        }
+      } else {
+        windowRestoreBounds[id] = {
+          top: win.style.top, left: win.style.left,
+          width: win.style.width, height: win.style.height,
+          position: win.style.position
+        };
+        win.classList.add('maximized');
+      }
+    }
+
+    function updateTaskbar() {
+      const container = document.getElementById('taskbarItems');
+      if (!container) return;
+      container.innerHTML = '';
+      for (const [winId, title] of Object.entries(minimizedWindows)) {
+        const btn = document.createElement('button');
+        btn.className = 'task-item-btn';
+        btn.innerText = `📁 ${title}`;
+        btn.onclick = (e) => { e.stopPropagation(); openWindow(winId); };
+        container.appendChild(btn);
+      }
+    }
+
+    function dragElement(elmnt, event) {
+      if (elmnt.classList.contains('maximized')) return;
+      if (event.target.closest('.title-bar-controls')) return;
+      if (window.innerWidth < 600) return;
+
+      elmnt.style.zIndex = ++highestZ;
+      if (elmnt.style.position !== 'absolute' && elmnt.style.position !== 'fixed') {
+        const rect = elmnt.getBoundingClientRect();
+        elmnt.style.position = 'fixed';
+        elmnt.style.top = rect.top + 'px';
+        elmnt.style.left = rect.left + 'px';
+      }
+
+      let pos1 = 0, pos2 = 0, pos3 = event.clientX, pos4 = event.clientY;
+      document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+      document.onmousemove = (e) => {
+        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+      };
+    }
+
+    /* ========== 頂部滑桿 ========== */
+    const viewport = document.getElementById('topActionsViewport');
+    const track = document.getElementById('scrollbarTrack');
+    const thumb = document.getElementById('scrollbarThumb');
+
+    function updateScrollBarUI() {
+      if (!isAdmin || !viewport || !track || !thumb) return;
+      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+      if (maxScroll <= 0) {
+        thumb.style.width = '100%'; thumb.style.left = '0px'; return;
+      }
+      const trackWidth = track.clientWidth;
+      const thumbWidth = Math.max(30, (viewport.clientWidth / viewport.scrollWidth) * trackWidth);
+      thumb.style.width = thumbWidth + 'px';
+      const scrollRatio = viewport.scrollLeft / maxScroll;
+      thumb.style.left = (scrollRatio * (trackWidth - thumbWidth)) + 'px';
+    }
+
+    function scrollAdminBar(amount) {
+      if (!viewport) return;
+      viewport.scrollLeft += amount;
+      updateScrollBarUI();
+    }
+
+    function handleTrackClick(e) {
+      if (e.target === thumb) return;
+      const rect = track.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const thumbWidth = thumb.offsetWidth;
+      const trackWidth = track.clientWidth;
+      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+      const newScrollLeft = ((clickX - thumbWidth / 2) / (trackWidth - thumbWidth)) * maxScroll;
+      viewport.scrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
+      updateScrollBarUI();
+    }
+
+    if (thumb) {
+      let isDraggingThumb = false, thumbStartX = 0, thumbStartLeft = 0;
+      thumb.addEventListener('mousedown', (e) => {
+        isDraggingThumb = true;
+        thumbStartX = e.clientX;
+        thumbStartLeft = parseFloat(thumb.style.left) || 0;
+        document.body.style.userSelect = 'none';
+
+        function onMouseMove(moveEvent) {
+          if (!isDraggingThumb) return;
+          const dx = moveEvent.clientX - thumbStartX;
+          const trackWidth = track.clientWidth;
+          const thumbWidth = thumb.offsetWidth;
+          const maxThumbLeft = trackWidth - thumbWidth;
+          const newThumbLeft = Math.max(0, Math.min(maxThumbLeft, thumbStartLeft + dx));
+          thumb.style.left = newThumbLeft + 'px';
+          const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+          viewport.scrollLeft = (newThumbLeft / maxThumbLeft) * maxScroll;
+        }
+        function onMouseUp() {
+          isDraggingThumb = false;
+          document.body.style.userSelect = '';
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+        }
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
+    if (viewport) {
+      viewport.addEventListener('wheel', (e) => {
+        if (!isAdmin) return;
+        if (e.deltaY !== 0) {
+          viewport.scrollLeft += e.deltaY;
+          updateScrollBarUI();
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
+
+    window.addEventListener('resize', updateScrollBarUI);
+
+    if (config.wallpaper) {
+      document.body.style.backgroundImage = `url('${config.wallpaper}')`;
+    }
+  </script>
+</body>
+</html>
