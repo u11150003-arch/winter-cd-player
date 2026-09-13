@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
   <title>WINTER CD PLAYER</title>
 
   <meta property="og:title" content="WINTER CD PLAYER">
@@ -295,6 +296,14 @@
     }
     .start-menu li:hover { background: #000080; color: #fff; }
 
+    /* 雲端轉換器視窗 */
+    .converter-modal {
+      display: none; position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw; max-width: 400px; z-index: 9999;
+      box-shadow: 3px 3px 12px rgba(0,0,0,0.6);
+    }
+
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
     
@@ -314,6 +323,7 @@
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
+      <button class="admin-only" style="background:#e0f7fa; font-weight:bold;" onclick="openConverterModal()">🔄 雲端直連轉換器</button>
       <button class="admin-only" onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
       <button class="admin-only" onclick="addTrackToActiveVer()">+ 新增曲目</button>
       <button class="admin-only" onclick="editSelectedTrackPrompt()">✏️ 編輯選中曲目</button>
@@ -392,6 +402,32 @@
     </div>
   </div>
 
+  <!-- 雲端直連轉換器彈窗 -->
+  <div class="window converter-modal" id="converterModal" onclick="event.stopPropagation()">
+    <div class="title-bar">
+      <div class="title-bar-text">🔄 雲端直連與格式轉換器</div>
+      <div class="title-bar-controls">
+        <button aria-label="Close" onclick="closeConverterModal()"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <p style="font-size:11px; margin-top:0;">貼上 Google 雲端音訊／影片分享連結：</p>
+      <input type="text" id="convInputUrl" placeholder="https://drive.google.com/file/d/.../view" style="width:100%; font-size:11px; padding:3px; margin-bottom:6px;">
+      
+      <div style="display:flex; gap:4px; margin-bottom:8px;">
+        <button type="button" onclick="executeManualConvert()" style="flex:1; font-weight:bold;">⚡ 轉換為純串流直連</button>
+      </div>
+
+      <p style="font-size:11px; margin-bottom:2px;">轉換結果 (Direct Stream URL)：</p>
+      <input type="text" id="convResultUrl" readonly style="width:100%; font-size:11px; padding:3px; margin-bottom:8px; background:#eee;">
+      
+      <div style="display:flex; justify-content:space-between;">
+        <button type="button" onclick="copyConvertedResult()">📋 複製網址</button>
+        <button type="button" onclick="directAddConvertedToPlaylist()" style="background:#000080; color:#fff; font-weight:bold;">+ 直接新增至當前專輯</button>
+      </div>
+    </div>
+  </div>
+
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -416,8 +452,9 @@
     </div>
   </div>
 
+  <!-- 原生音訊核心 (防盜鏈攔截與穿透配置) -->
   <div class="media-engine-mount">
-    <audio id="hiddenAudioEngine" playsinline preload="auto"></audio>
+    <audio id="hiddenAudioEngine" playsinline preload="auto" referrerpolicy="no-referrer"></audio>
     <iframe id="hiddenYtIframe" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -425,7 +462,7 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    // 支援 Google 雲端音訊直接串流
+    // 核心資料庫 (BLUE 直連串流)
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 2,
@@ -435,7 +472,7 @@
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
           "tracks": [
             { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - What you want do for love", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" },
+            { "title": "Winter - What you want do for love", "src": "https://drive.usercontent.google.com/download?id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj&export=download&authuser=0", "type": "drive" },
             { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
             { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" }
           ]
@@ -455,10 +492,11 @@
           "name": "BLUE",
           "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
           "tracks": [
-            { "title": "BLUE (WINTER Solo)", "src": "https://docs.google.com/uc?export=download&id=1S-ph9I2finH0vNrL-vluaiIssaUz2Eji", "type": "drive" },
-            { "title": "Winter - With You (OST)", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" },
+            // 防跨域防盜鏈的最新 Google 雲端純音訊直連網址
+            { "title": "BLUE (WINTER Solo)", "src": "https://drive.usercontent.google.com/download?id=1S-ph9I2finH0vNrL-vluaiIssaUz2Eji&export=download&authuser=0", "type": "drive" },
+            { "title": "Winter - With You (OST)", "src": "https://drive.usercontent.google.com/download?id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj&export=download&authuser=0", "type": "drive" },
             { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - Voyage", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" }
+            { "title": "Winter - Voyage", "src": "https://drive.usercontent.google.com/download?id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj&export=download&authuser=0", "type": "drive" }
           ]
         },
         {
@@ -485,7 +523,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_auto_convert_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_multidrive_v2";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -504,7 +542,7 @@
     let navHistory = [];
     let navForwardStack = [];
 
-    // 自動轉換 Google Drive 各式連結為串流直連
+    // 雙重 Google 雲端格式自動轉換引擎
     function extractDriveId(url) {
       if (!url) return null;
       const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
@@ -518,7 +556,8 @@
       const driveId = extractDriveId(url);
       if (driveId) {
         if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
-        return `https://docs.google.com/uc?export=download&id=${driveId}`;
+        // 穿透防跨域的 direct stream
+        return `https://drive.usercontent.google.com/download?id=${driveId}&export=download&authuser=0`;
       }
       return url.trim();
     }
@@ -560,7 +599,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖曲目排序(▲▼)、編輯、換CD封面功能。");
+          alert("登入成功！已解鎖直連轉換器、曲目排序、編輯、換CD封面功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -668,6 +707,7 @@
       else playCurrentTrack();
     }
 
+    // 播放核心：支援備援切換機制
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -694,7 +734,13 @@
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(err => {
-            console.log("Play failed:", err);
+            console.log("Stream error, attempting fallback format...", err);
+            // 備援切換 export=download
+            const driveId = extractDriveId(track.src);
+            if (driveId) {
+              audio.src = `https://docs.google.com/uc?export=download&id=${driveId}`;
+              audio.play().catch(()=>{});
+            }
           });
         }
       }
@@ -865,7 +911,44 @@
       if (fBtn) fBtn.disabled = (navForwardStack.length === 0);
     }
 
-    // 自動轉換處理
+    // 轉換器彈窗系統
+    function openConverterModal() {
+      document.getElementById('converterModal').style.display = 'block';
+    }
+
+    function closeConverterModal() {
+      document.getElementById('converterModal').style.display = 'none';
+    }
+
+    function executeManualConvert() {
+      const raw = document.getElementById('convInputUrl').value.trim();
+      if (!raw) { alert("請先貼上網址！"); return; }
+      const converted = autoFormatMediaUrl(raw, 'audio');
+      document.getElementById('convResultUrl').value = converted;
+    }
+
+    function copyConvertedResult() {
+      const res = document.getElementById('convResultUrl').value;
+      if (!res) { alert("請先點擊轉換！"); return; }
+      navigator.clipboard.writeText(res).then(() => {
+        alert("已成功複製直連網址！");
+      });
+    }
+
+    function directAddConvertedToPlaylist() {
+      const res = document.getElementById('convResultUrl').value;
+      if (!res) { alert("請先點擊轉換！"); return; }
+      const title = prompt("請輸入歌曲名稱：", "New Track");
+      if (!title) return;
+
+      const curVer = config.versions[cdState.verIndex];
+      curVer.tracks.push({ title, src: res, type: "drive" });
+      saveState();
+      renderCdPlayerUI();
+      closeConverterModal();
+      alert(`已成功新增「${title}」至 ${curVer.name}！`);
+    }
+
     function editTrackAtIndex(idx) {
       const curVer = config.versions[cdState.verIndex];
       const track = curVer.tracks[idx];
@@ -882,8 +965,7 @@
         const link = newLink.trim();
         const driveId = extractDriveId(link);
         if (driveId) {
-          // 直接轉成純串流直連
-          track.src = `https://docs.google.com/uc?export=download&id=${driveId}`;
+          track.src = `https://drive.usercontent.google.com/download?id=${driveId}&export=download&authuser=0`;
           track.type = "drive";
         } else if (link.includes("v=")) {
           track.src = link.split("v=")[1].substring(0, 11);
@@ -899,7 +981,7 @@
 
       saveState();
       renderCdPlayerUI();
-      alert(`「${track.title}」已成功更新並自動套用直連！`);
+      alert(`「${track.title}」已成功更新！`);
     }
 
     function editSelectedTrackPrompt() {
@@ -943,7 +1025,7 @@
       let type = "youtube";
 
       if (driveId) {
-        src = `https://docs.google.com/uc?export=download&id=${driveId}`;
+        src = `https://drive.usercontent.google.com/download?id=${driveId}&export=download&authuser=0`;
         type = "drive";
       } else if (trimmed.includes("v=")) {
         src = trimmed.split("v=")[1].substring(0, 11);
@@ -1020,9 +1102,17 @@
       menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
     }
 
+    function goToOriginalDesktop() {
+      window.location.href = "https://u11150003-arch.github.io/2027-winter-bday-desktop/";
+    }
+
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
+      const conv = document.getElementById('converterModal');
+      if (conv && !conv.contains(e.target) && e.target.innerText !== "🔄 雲端直連轉換器") {
+        conv.style.display = 'none';
+      }
     }
 
     (function init3dDiscDrag() {
