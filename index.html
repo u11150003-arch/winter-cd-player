@@ -8,10 +8,9 @@
   <meta property="og:title" content="WINTER CD PLAYER">
   <meta property="og:description" content="A retro 3D CD player space for WINTER">
   <meta property="og:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
 
   <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     * { 
       box-sizing: border-box; 
@@ -29,10 +28,8 @@
     }
 
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       background: #b8d5ec;
@@ -55,46 +52,30 @@
       align-items: center !important;
       justify-content: center !important;
     }
-    button:active {
-      border: 2px inset #ffffff !important;
-    }
+    button:active { border: 2px inset #ffffff !important; }
 
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 1200;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #b8d5ec;
-      cursor: var(--star-cursor);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #b8d5ec; cursor: var(--star-cursor);
       transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
     }
     .intro-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.92);
+      opacity: 0; pointer-events: none; transform: scale(0.92);
     }
     .intro-title {
-      font-size: 18px;
-      letter-spacing: 2px;
-      color: #000080;
-      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      font-weight: bold;
-      margin-bottom: 24px;
-      text-align: center;
-      white-space: nowrap;
+      font-size: 18px; letter-spacing: 2px; color: #000080;
+      font-weight: bold; margin-bottom: 24px; text-align: center; white-space: nowrap;
     }
     .intro-cd-disc {
-      width: 170px; height: 170px;
-      border-radius: 50% !important;
+      width: 170px; height: 170px; border-radius: 50% !important;
       background: conic-gradient(from 0deg, #d8d8d8, #ffffff, #c8c8c8, #ffffff, #cfcfcf, #ffffff, #d8d8d8);
       box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 0 12px rgba(0,0,0,0.2);
       display: flex; align-items: center; justify-content: center;
-      animation: discSpin 3s linear infinite;
-      position: relative;
+      animation: discSpin 3s linear infinite; position: relative;
     }
     .intro-cd-hole {
       position: absolute; width: 42px; height: 42px; border-radius: 50% !important;
@@ -102,92 +83,49 @@
       border: 3px solid rgba(255,255,255,0.9);
     }
     .intro-hint {
-      margin-top: 24px; font-size: 11px; color: #000080;
+      margin-top: 24px; font-size: 11px; color: #000080; font-weight: bold;
       letter-spacing: 1px; animation: pulse 1.6s infinite ease-in-out;
-      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      font-weight: bold;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      background: transparent;
-      border: none;
-      pointer-events: none;
+      z-index: 50; display: flex; flex-direction: column; background: transparent;
+      border: none; pointer-events: none;
     }
     body.admin-mode .top-bar-wrapper {
-      background: #c0c0c0;
-      border: 2px outset #fff;
-      padding: 3px;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
-      pointer-events: auto;
+      background: #c0c0c0; border: 2px outset #fff; padding: 3px;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.4); pointer-events: auto;
     }
     .top-actions-viewport {
       display: flex; gap: 4px; overflow-x: hidden; white-space: nowrap; pointer-events: auto;
     }
-    .top-actions-viewport button, .top-actions-viewport span {
+    .top-actions-viewport button {
       flex-shrink: 0; font-size: 11px; padding: 2px 6px; cursor: pointer; height: 25px;
     }
     #authBtn { pointer-events: auto; align-self: flex-start; }
 
-    .admin-scrollbar-bar {
-      display: none; height: 16px; background: #c0c0c0; border-top: 1px solid #808080;
-      margin-top: 3px; align-items: center; position: relative;
-    }
-    body.admin-mode .admin-scrollbar-bar { display: flex; }
-    .scrollbar-btn {
-      width: 16px; height: 16px; padding: 0; font-size: 8px; font-weight: bold;
-      border: 1px outset #fff !important; background: #c0c0c0 !important;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; cursor: pointer;
-    }
-    .scrollbar-track {
-      flex: 1; height: 100%;
-      background: repeating-conic-gradient(#c0c0c0 0% 25%, #ffffff 0% 50%) 50% / 2px 2px;
-      position: relative; cursor: pointer;
-    }
-    .scrollbar-thumb {
-      position: absolute; top: 0; left: 0; width: 40px; height: 100%;
-      background: #c0c0c0; border: 1px outset #fff; cursor: grab;
-    }
-
     .app-viewport {
-      position: absolute;
-      top: 48px;
+      position: absolute; top: 48px;
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 6px 10px 24px 10px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      gap: 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
     .cd-stage {
-      position: relative;
-      width: 165px; height: 165px;
+      position: relative; width: 165px; height: 165px;
       display: flex; align-items: center; justify-content: center;
-      perspective: 800px; touch-action: none;
-      flex-shrink: 0; margin-top: 2px;
+      perspective: 800px; touch-action: none; flex-shrink: 0; margin-top: 2px;
     }
     .walkman-base {
       position: absolute; width: 165px; height: 165px; border-radius: 50% !important;
       background: radial-gradient(circle, #f0f4f8 30%, #a2b4c7 70%, #586e84 100%);
-      border: 3px solid #586e84;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.35), inset 0 2px 5px #fff;
+      border: 3px solid #586e84; box-shadow: 0 8px 16px rgba(0,0,0,0.35), inset 0 2px 5px #fff;
     }
     .walkman-tray {
       position: absolute; width: 126px; height: 126px; border-radius: 50% !important;
@@ -202,12 +140,8 @@
       background: conic-gradient(from 0deg, #e2e8f0, #fff, #cbd5e0, #fff, #a0aec0, #fff, #e2e8f0);
       overflow: hidden;
     }
-    .cd-disc-3d:active { cursor: grabbing; }
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
-    @keyframes discSpin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+    @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .cd-disc-art {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       object-fit: cover; pointer-events: none; opacity: 0.95;
@@ -223,236 +157,154 @@
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
-      background: #c0c0c0 !important;
-      border: 2px outset #ffffff !important;
+      background: #c0c0c0 !important; border: 2px outset #ffffff !important;
     }
     .player-subwin .title-bar {
       background: linear-gradient(90deg, #000080, #1084d0) !important;
-      color: #fff !important;
-      padding: 3px 4px !important;
-      font-weight: bold !important;
-      font-size: 11px !important;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      color: #fff !important; padding: 3px 4px !important; font-weight: bold !important; font-size: 11px !important;
     }
-    .player-subwin .window-body {
-      padding: 6px !important;
-      background: #c0c0c0 !important;
-    }
+    .player-subwin .window-body { padding: 6px !important; background: #c0c0c0 !important; }
 
     .folder-nav-bar {
       display: flex; gap: 4px; align-items: center; margin-bottom: 6px;
       background: #c0c0c0; padding: 3px; border: 2px groove #fff;
     }
-    .folder-nav-bar button {
-      font-size: 11px !important; padding: 2px 6px !important; height: 22px !important;
-    }
+    .folder-nav-bar button { font-size: 11px !important; padding: 2px 6px !important; height: 22px !important; }
 
     .lcd-screen {
       background: #000 !important; color: #39ff14 !important; font-family: monospace !important;
-      padding: 5px 8px; border: 2px inset #fff; display: flex;
-      justify-content: space-between; align-items: center;
-      font-size: 12px; letter-spacing: 1px; margin-bottom: 6px;
-      overflow: hidden;
+      padding: 5px 8px; border: 2px inset #fff; display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; overflow: hidden;
     }
-    #lcdTrackTitle {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;
-    }
+    #lcdTrackTitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+
+    /* 藍色進度條：支援點擊與拖曳跳轉 */
     .lcd-progress-bar {
-      width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
-      margin-bottom: 8px; position: relative;
+      width: 100%; height: 12px; background: #fff; border: 2px inset #dfdfdf;
+      margin-bottom: 8px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
-      height: 100%; width: 0%; background: #000080; transition: width 0.3s linear;
+      height: 100%; width: 0%; background: #000080; pointer-events: none;
     }
 
-    /* 播放控制列：強制等比格線與約束寬度，杜絕手機版右側溢出 */
     .player-ctrl-row {
-      display: grid !important;
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 3px !important;
-      margin-bottom: 8px !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      overflow: hidden !important;
-      box-sizing: border-box !important;
+      display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      gap: 3px !important; margin-bottom: 8px !important; width: 100% !important;
     }
     .player-ctrl-row button {
-      width: 100% !important;
-      min-width: 0 !important;
-      max-width: 100% !important;
-      height: 28px !important;
-      border: 2px outset #fff !important;
-      border-radius: 0px !important;
-      background: #c0c0c0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 0 !important;
+      width: 100% !important; height: 28px !important; border: 2px outset #fff !important;
+      background: #c0c0c0 !important; display: flex !important; align-items: center !important; justify-content: center !important;
     }
-    .player-ctrl-row button:active {
-      border: 2px inset #fff !important;
-    }
-    .player-ctrl-row svg {
-      width: 12px; height: 12px; fill: #000; pointer-events: none;
-    }
+    .player-ctrl-row svg { width: 12px; height: 12px; fill: #000; pointer-events: none; }
 
-    /* 五版專輯切換列 */
     .ver-tabs-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 3px;
-      margin-bottom: 6px;
-      width: 100%;
+      display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; width: 100%;
     }
     .ver-tabs-row button {
-      flex: 1 1 calc(33.33% - 3px);
-      min-width: 60px;
-      font-size: 10px !important;
-      padding: 4px 2px !important;
-      border: 2px outset #fff !important;
-      border-radius: 0 !important;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex: 1 1 calc(20% - 3px); min-width: 60px; font-size: 10px !important; padding: 4px 2px !important;
+      border: 2px outset #fff !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .ver-tabs-row button.active {
-      font-weight: bold; background: #000080 !important; color: #fff !important;
-      border: 2px inset #fff !important;
+      font-weight: bold; background: #000080 !important; color: #fff !important; border: 2px inset #fff !important;
     }
 
-    /* 曲目清單容器 */
+    /* 曲目列表 (支援拖曳排序) */
     .track-list-box {
-      list-style: none; margin: 0; padding: 0;
-      background: #fff; border: 2px inset #dfdfdf;
+      list-style: none; margin: 0; padding: 0; background: #fff; border: 2px inset #dfdfdf;
       max-height: 140px; overflow-y: auto; width: 100%;
     }
     .track-list-box li {
       padding: 4px 6px; font-size: 11px; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 4px;
+      display: flex; justify-content: space-between; align-items: center; gap: 4px;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .track-title-text {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+    .track-drag-handle {
+      cursor: grab; color: #888; font-weight: bold; padding: 0 4px;
     }
-    .track-ops-box {
-      display: none; gap: 2px; flex-shrink: 0;
-    }
-    body.admin-mode .track-ops-box {
-      display: inline-flex;
-    }
-    .track-ops-box button {
-      font-size: 9px !important; padding: 1px 4px !important; height: 18px !important;
-    }
+    .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .track-ops-box { display: none; gap: 2px; flex-shrink: 0; }
+    body.admin-mode .track-ops-box { display: inline-flex; }
+    .track-ops-box button { font-size: 9px !important; padding: 1px 4px !important; height: 18px !important; }
     .track-list-box li:hover { background: #000080; color: #fff; }
     .track-list-box li:hover .track-title-text { color: #fff; }
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
     .track-list-box li.active .track-title-text { color: #fff; }
 
-    /* 工作列 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      height: var(--taskbar-h); min-height: 38px;
-      background: #c0c0c0; border-top: 2px solid #fff;
+      height: var(--taskbar-h); min-height: 38px; background: #c0c0c0; border-top: 2px solid #fff;
       display: flex; align-items: flex-start; justify-content: space-between;
-      padding-top: 4px;
-      padding-left: max(8px, var(--safe-left));
-      padding-right: max(14px, var(--safe-right));
-      padding-bottom: max(6px, var(--safe-bottom));
-      z-index: 2500;
+      padding-top: 4px; padding-left: max(8px, var(--safe-left)); padding-right: max(14px, var(--safe-right));
+      padding-bottom: max(6px, var(--safe-bottom)); z-index: 2500;
     }
     .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
-    .task-item-btn { font-size: 11px; padding: 2px 6px; height: 26px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
     .taskbar-right { font-size: 11px; display: flex; align-items: center; padding-left: 8px; flex-shrink: 0; height: 26px; }
     .taskbar-right a { color: #000; text-decoration: none; font-weight: bold; border-bottom: 1px dotted #555; }
 
-    .start-menu {
-      position: fixed; bottom: var(--taskbar-h); left: max(6px, var(--safe-left));
-      width: 235px; background: #c0c0c0; border: 2px outset #fff;
-      box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 3000; padding: 3px;
+    /* 裁剪與編輯彈窗 */
+    #editModalWin {
+      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 90vw; max-width: 360px; z-index: 9999;
     }
-    .start-menu-banner {
-      background: linear-gradient(180deg, #104e8b, #1e90ff);
-      color: #fff; font-weight: bold; padding: 8px 10px; font-size: 13px; margin-bottom: 4px;
-      letter-spacing: 1px;
-    }
-    .start-menu ul { list-style: none; margin: 0; padding: 0; }
-    .start-menu li {
-      padding: 7px 10px; font-size: 12px; cursor: var(--star-cursor); display: flex; align-items: center; gap: 8px;
-    }
-    .start-menu li:hover { background: #000080; color: #fff; }
-
+    .edit-field-row { margin-bottom: 8px; display: flex; flex-direction: column; gap: 2px; }
+    .edit-field-row label { font-size: 11px; font-weight: bold; }
+    .edit-field-row input { font-size: 11px; padding: 3px 5px; width: 100%; border: 2px inset #dfdfdf; }
+    
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
-    #hiddenAudioEngine, #hiddenYtIframe { display: none; }
+    #ytPlayerContainer { position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px; }
   </style>
 </head>
-<body onclick="handleGlobalClick(event)">
+<body>
 
+  <!-- 首頁展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
-    <div class="intro-cd-disc" id="introCdDisc">
-      <div class="intro-cd-hole"></div>
-    </div>
+    <div class="intro-cd-disc"><div class="intro-cd-hole"></div></div>
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <div class="top-bar-wrapper" id="topBarWrapper">
-    <div class="top-actions-viewport" id="topActionsViewport">
+  <!-- 頂部管理列 -->
+  <div class="top-bar-wrapper">
+    <div class="top-actions-viewport">
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
       <button class="admin-only" onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
-      <button class="admin-only" onclick="addTrackToActiveVer()">+ 新增曲目</button>
-      <button class="admin-only" onclick="editSelectedTrackPrompt()">✏️ 編輯選中曲目</button>
+      <button class="admin-only" onclick="openTrackEditModal(-1)">+ 新增並裁剪曲目</button>
       <button class="admin-only" onclick="editCurrentVerName()">✏️ 改專輯名</button>
-      <button class="admin-only" onclick="copyCurrentTrack()">📋 複製曲目</button>
-      <button class="admin-only" onclick="cutCurrentTrack()">✂️ 剪下曲目</button>
-      <button class="admin-only" id="topPasteBtn" onclick="pasteTrack()" style="background:#ffffe0;">📌 貼上曲目</button>
-      <button class="admin-only" onclick="deleteCurrentTrack()">❌ 刪除選中曲目</button>
-      <button class="admin-only" onclick="changeWallpaper()">🎨 更換背景</button>
-      <button class="admin-only" style="background:#000080; color:#fff; font-weight:bold;" onclick="exportCurrentState()">💾 儲存並產出備份代碼</button>
-    </div>
-
-    <div class="admin-scrollbar-bar" id="adminScrollbarBar">
-      <button type="button" class="scrollbar-btn" onclick="scrollAdminBar(-100)">◀</button>
-      <div class="scrollbar-track" id="scrollbarTrack" onclick="handleTrackClick(event)">
-        <div class="scrollbar-thumb" id="scrollbarThumb"></div>
-      </div>
-      <button type="button" class="scrollbar-btn" onclick="scrollAdminBar(100)">▶</button>
+      <button class="admin-only" onclick="exportCurrentState()">💾 儲存備份代碼</button>
     </div>
   </div>
 
   <div class="app-viewport">
-    
-    <div class="cd-stage" id="cdStage">
+    <div class="cd-stage">
       <div class="walkman-base"></div>
       <div class="walkman-tray"></div>
-      <div class="cd-disc-3d" id="disc3D" title="拖曳可立體旋轉光碟">
+      <div class="cd-disc-3d" id="disc3D">
         <img id="discCoverImg" class="cd-disc-art" src="https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax" alt="CD Cover">
         <div class="cd-center-hole"></div>
       </div>
     </div>
 
-    <div class="window player-subwin" id="playerSubwin">
+    <div class="window player-subwin">
       <div class="title-bar">
-        <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
+        <div class="title-bar-text">💿 CD Player - WINTER Edition</div>
       </div>
       <div class="window-body">
-        
         <div class="folder-nav-bar">
-          <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
-          <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
+          <button type="button" id="btnNavBack" onclick="navGoBack()">⬅ 上一步</button>
+          <button type="button" id="btnNavForward" onclick="navGoForward()">➡ 下一步</button>
         </div>
 
         <div class="lcd-screen">
           <span id="lcdTrackTitle">Winter - Speed of summer</span>
-          <span id="lcdTimer">00:00</span>
+          <span id="lcdTimer">00:00 / 00:00</span>
         </div>
-        <div class="lcd-progress-bar">
+
+        <!-- 支援拖曳跳轉進度條 -->
+        <div class="lcd-progress-bar" id="progressBarTrack" onclick="handleSeek(event)">
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
         </div>
 
-        <!-- 播放控制按鈕列 (使用精準 Grid 彈性等比分布，絕對不溢出) -->
         <div class="player-ctrl-row">
           <button type="button" onclick="prevCdTrack()" title="上一首">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -471,39 +323,54 @@
           </button>
         </div>
 
-        <!-- 五版專輯切換列 (同步包含你修改的 Lips, Spark, Blue, Saddle Up, Speed of summer) -->
-        <div class="ver-tabs-row" id="verTabsRow">
-          <button type="button" class="active" onclick="switchPlaylistVer(0)">Lips</button>
-          <button type="button" onclick="switchPlaylistVer(1)">Spark</button>
-          <button type="button" onclick="switchPlaylistVer(2)">Blue</button>
-          <button type="button" onclick="switchPlaylistVer(3)">Saddle Up</button>
-          <button type="button" onclick="switchPlaylistVer(4)">Speed of Summer</button>
-        </div>
+        <div class="ver-tabs-row" id="verTabsRow"></div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
-          <span class="admin-only" style="font-size:10px; color:#555;">(點擊✏️可重新編輯內容)</span>
+          <span class="admin-only" style="font-size:10px; color:#555;">(長按≡可拖曳調換順序)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
-
       </div>
     </div>
-
   </div>
 
-  <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
-    <div class="start-menu-banner">🪟 WINTER MENU</div>
-    <ul>
-      <li onclick="goToOriginalDesktop()">🖥️ 1. 回到原始 Desktop 網頁</li>
-      <li onclick="location.reload()">💿 2. 重新整理 CD Player</li>
-      <hr style="margin:4px 0;">
-      <li onclick="toggleAdmin(event); toggleStartMenu(event);">⚙️ 切換管理員模式</li>
-    </ul>
+  <!-- 曲目裁剪編輯彈窗 -->
+  <div class="window" id="editModalWin">
+    <div class="title-bar">
+      <div class="title-bar-text" id="modalTitle">曲目設定與音源裁剪</div>
+      <div class="title-bar-controls">
+        <button aria-label="Close" onclick="closeTrackEditModal()"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="edit-field-row">
+        <label>歌曲名稱：</label>
+        <input type="text" id="editTrackTitle">
+      </div>
+      <div class="edit-field-row">
+        <label>音源連結 (YouTube 或 Google 雲端音訊)：</label>
+        <input type="text" id="editTrackSrc" placeholder="https://...">
+      </div>
+      <div style="display:flex; gap:6px;">
+        <div class="edit-field-row" style="flex:1;">
+          <label>起始時間 (秒)：</label>
+          <input type="number" id="editTrackStart" value="0" min="0">
+        </div>
+        <div class="edit-field-row" style="flex:1;">
+          <label>結束時間 (秒，0表不限)：</label>
+          <input type="number" id="editTrackEnd" value="0" min="0">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:8px;">
+        <button type="button" onclick="testPlayPreview()">▶ 試播片段</button>
+        <button type="button" onclick="saveTrackFromModal()" style="font-weight:bold; background:#000080; color:#fff;">確定儲存</button>
+      </div>
+    </div>
   </div>
 
   <div class="taskbar">
     <div class="taskbar-left">
-      <button type="button" onclick="toggleStartMenu(event)" style="font-weight:bold; display:flex; align-items:center; gap:4px; height:26px; padding:0 6px;">
+      <button type="button" onclick="window.location.href='https://u11150003-arch.github.io/2027-winter-bday-desktop/'" style="font-weight:bold; display:flex; align-items:center; gap:4px; height:26px; padding:0 6px;">
         <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" width="16" height="16"> WINTER
       </button>
       <button type="button" onclick="enterCdPlayer()" style="font-weight:bold; display:flex; align-items:center; gap:4px; height:26px; padding:0 6px;">
@@ -515,14 +382,13 @@
     </div>
   </div>
 
-  <audio id="hiddenAudioEngine"></audio>
-  <iframe id="hiddenYtIframe" allow="autoplay"></iframe>
+  <div id="ytPlayerContainer"></div>
+  <audio id="htmlAudio"></audio>
 
   <script>
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    /* 五版完整專輯資料庫 (同步自截圖最新專輯名與曲目內容) */
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 0,
@@ -531,61 +397,61 @@
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
           "tracks": [
-            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - What you want do for love", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
-            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
-            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" },
-            { "title": "Winter - Special Summer Track", "src": "YTeFLKMnwjg", "type": "youtube" }
+            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "Winter - What you want do for love", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive", "start": 0, "end": 0 },
+            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "Winter - Special Summer Track", "src": "YTeFLKMnwjg", "type": "youtube", "start": 0, "end": 0 }
           ]
         },
         {
           "name": "Spark",
           "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
           "tracks": [
-            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube" },
-            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
-            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube" },
-            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube" },
-            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube" }
+            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube", "start": 0, "end": 0 }
           ]
         },
         {
           "name": "Blue",
           "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
           "tracks": [
-            { "title": "Winter - Spark (Acoustic Solo)", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - With You (OST)", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
-            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
-            { "title": "Winter - Voyage", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive" },
-            { "title": "Winter - Bday Special Song", "src": "YTeFLKMnwjg", "type": "youtube" }
+            { "title": "Winter - Spark (Acoustic Solo)", "src": "YTeFLKMnwjg", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "Winter - With You (OST)", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive", "start": 0, "end": 0 },
+            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "Winter - Voyage", "src": "https://drive.google.com/file/d/1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj/preview", "type": "drive", "start": 0, "end": 0 },
+            { "title": "Winter - Bday Special Song", "src": "YTeFLKMnwjg", "type": "youtube", "start": 0, "end": 0 }
           ]
         },
         {
           "name": "Saddle Up",
           "cover": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400",
           "tracks": [
-            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
-            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
-            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube" },
-            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube" },
-            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube" }
+            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube", "start": 0, "end": 0 }
           ]
         },
         {
           "name": "Speed of Summer",
           "cover": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
           "tracks": [
-            { "title": "aespa - Whiplash", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "aespa - Kill It", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" }
+            { "title": "aespa - Whiplash", "src": "jWQx2f-CErU", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Kill It", "src": "jWQx2f-CErU", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube", "start": 0, "end": 0 },
+            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube", "start": 0, "end": 0 }
           ]
         }
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_v7_edit_fix";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_pro";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -593,15 +459,31 @@
       trackIndex: 0,
       isPlaying: false,
       timerInterval: null,
-      seconds: 0
+      currentSec: 0,
+      totalDuration: 0
     };
 
-    let trackClipboard = null;
-    let isTrackCut = false;
-    let selectedTrackIdx = null;
+    let ytPlayer = null;
+    let ytReady = false;
+    const htmlAudio = document.getElementById('htmlAudio');
 
-    let navHistory = [];
-    let navForwardStack = [];
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('ytPlayerContainer', {
+        height: '1',
+        width: '1',
+        playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0 },
+        events: {
+          'onReady': () => { ytReady = true; },
+          'onStateChange': onYtStateChange
+        }
+      });
+    }
+
+    function onYtStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        nextCdTrack();
+      }
+    }
 
     function saveState() {
       config.activeVerIndex = cdState.verIndex;
@@ -612,32 +494,15 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已儲存並複製程式碼！\n\n下次更新 GitHub 時直接替換 CD_MASTER_CONFIG 即可永久保留所有設定。");
+        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 GitHub index.html 的 CD_MASTER_CONFIG 區域。");
       }).catch(() => {
-        prompt("請複製以下最新代碼以備份：", output);
+        prompt("請複製以下最新備份代碼：", output);
       });
     }
 
     function enterCdPlayer() {
-      const overlay = document.getElementById('introOverlay');
-      overlay.classList.add('hidden');
+      document.getElementById('introOverlay').classList.add('hidden');
       renderCdPlayerUI();
-    }
-
-    function extractDriveId(url) {
-      if (!url) return null;
-      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
-    }
-
-    function autoFormatMediaUrl(url, type) {
-      if (!url) return url;
-      const driveId = extractDriveId(url);
-      if (driveId) {
-        if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
-        return `https://drive.google.com/file/d/${driveId}/preview`;
-      }
-      return url.trim();
     }
 
     function toggleAdmin(e) {
@@ -646,23 +511,17 @@
         isAdmin = false;
         document.body.classList.remove('admin-mode');
         document.getElementById('authBtn').innerText = "🔒 管理員";
-        alert("已退出管理員模式");
       } else {
         const input = prompt("請輸入管理員密碼：");
         if (input === ADMIN_PASSWORD) {
           isAdmin = true;
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
-          setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖曲目✏️編輯按鈕、換CD封面、曲目增刪功能。");
-        } else if (input !== null) {
-          alert("密碼錯誤！");
         }
       }
       renderCdPlayerUI();
     }
 
-    /* 渲染曲目列表 (含管理員專屬 [✏️ 編輯] 與 [✕ 刪除] 按鈕) */
     function renderCdPlayerUI() {
       const curVer = config.versions[cdState.verIndex];
       document.getElementById('discCoverImg').src = curVer.cover;
@@ -682,97 +541,58 @@
       listEl.innerHTML = '';
       curVer.tracks.forEach((t, idx) => {
         const li = document.createElement('li');
-        const isPlayingThis = (idx === cdState.trackIndex && cdState.isPlaying);
-        const isSelected = (idx === selectedTrackIdx);
-        li.className = isPlayingThis ? 'active' : (isSelected ? 'selected' : '');
-        if (isSelected) {
-          li.style.background = "#000080";
-          li.style.color = "#fff";
-        } else {
-          li.style.background = "";
-          li.style.color = "";
-        }
+        li.draggable = isAdmin;
+        li.className = (idx === cdState.trackIndex && cdState.isPlaying) ? 'active' : '';
 
         li.innerHTML = `
+          ${isAdmin ? `<span class="track-drag-handle" title="長按拖曳排序">≡</span>` : ''}
           <span class="track-title-text">${idx + 1}. ${t.title}</span>
           <div class="track-ops-box">
-            <button type="button" title="編輯曲目名稱與連結" onclick="event.stopPropagation(); editTrackAtIndex(${idx})">✏️</button>
-            <button type="button" title="刪除此曲目" onclick="event.stopPropagation(); removeTrackAtIndex(${idx})">✕</button>
+            <button type="button" title="編輯/裁剪曲目" onclick="event.stopPropagation(); openTrackEditModal(${idx})">✏️</button>
+            <button type="button" title="刪除曲目" onclick="event.stopPropagation(); removeTrackAtIndex(${idx})">✕</button>
           </div>
         `;
+
         li.onclick = () => {
-          if (isAdmin) {
-            selectedTrackIdx = (selectedTrackIdx === idx) ? null : idx;
-            renderCdPlayerUI();
-          } else {
-            recordNavHistory();
-            cdState.trackIndex = idx;
-            playCurrentTrack();
-          }
-        };
-        li.ondblclick = () => {
-          recordNavHistory();
           cdState.trackIndex = idx;
+          cdState.currentSec = 0;
           playCurrentTrack();
         };
+
+        if (isAdmin) {
+          li.addEventListener('dragstart', (e) => handleDragStart(e, idx));
+          li.addEventListener('dragover', handleDragOver);
+          li.addEventListener('drop', (e) => handleDrop(e, idx));
+        }
+
         listEl.appendChild(li);
       });
 
       const curTrack = curVer.tracks[cdState.trackIndex];
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
       updateDiscSpinning();
-      updateNavButtons();
     }
 
-    /* 編輯曲目功能 (包含修改名稱與更換音訊/YouTube連結) */
-    function editTrackAtIndex(idx) {
+    /* 拖曳換曲目順序 */
+    let draggedIdx = null;
+    function handleDragStart(e, idx) { draggedIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
+    function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+    function handleDrop(e, targetIdx) {
+      e.preventDefault();
+      if (draggedIdx === null || draggedIdx === targetIdx) return;
       const curVer = config.versions[cdState.verIndex];
-      const track = curVer.tracks[idx];
-      if (!track) return;
-
-      const newTitle = prompt("【修改曲目名稱】", track.title);
-      if (newTitle !== null && newTitle.trim() !== "") {
-        track.title = newTitle.trim();
-      }
-
-      const currentLink = (track.type === "youtube") ? `https://youtu.be/${track.src}` : track.src;
-      const newLink = prompt("【修改音訊連結】(支援 YouTube 影片網址或 Google 雲端共享連結)：", currentLink);
-      if (newLink !== null && newLink.trim() !== "") {
-        const link = newLink.trim();
-        let src = link;
-        let type = "youtube";
-        const driveId = extractDriveId(link);
-        if (driveId) {
-          src = `https://drive.google.com/file/d/${driveId}/preview`;
-          type = "drive";
-        } else if (link.includes("v=")) {
-          src = link.split("v=")[1].substring(0, 11);
-        } else if (link.includes("youtu.be/")) {
-          src = link.split("youtu.be/")[1].substring(0, 11);
-        }
-        track.src = src;
-        track.type = type;
-      }
-
+      const movedItem = curVer.tracks.splice(draggedIdx, 1)[0];
+      curVer.tracks.splice(targetIdx, 0, movedItem);
+      if (cdState.trackIndex === draggedIdx) cdState.trackIndex = targetIdx;
       saveState();
       renderCdPlayerUI();
-      alert(`歌曲「${track.title}」已成功更新！`);
-    }
-
-    function editSelectedTrackPrompt() {
-      if (selectedTrackIdx === null) {
-        alert("請先在下方清單中點擊選取一首要編輯的歌曲！");
-        return;
-      }
-      editTrackAtIndex(selectedTrackIdx);
     }
 
     function switchPlaylistVer(vIdx) {
-      recordNavHistory();
       stopCdTrack();
       cdState.verIndex = vIdx;
       cdState.trackIndex = 0;
-      selectedTrackIdx = null;
+      cdState.currentSec = 0;
       saveState();
       renderCdPlayerUI();
     }
@@ -782,63 +602,146 @@
       else playCurrentTrack();
     }
 
+    /* 播放當前曲目 (支援暫停續播、裁剪區間) */
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
-
       const track = curVer.tracks[cdState.trackIndex];
-      const audio = document.getElementById('hiddenAudioEngine');
-      const ytIframe = document.getElementById('hiddenYtIframe');
 
       cdState.isPlaying = true;
       document.getElementById('playIconSvg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
-      if (track.type === 'youtube') {
-        audio.pause();
-        ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&enablejsapi=1`;
+      const startOffset = track.start || 0;
+
+      if (track.type === 'youtube' && ytReady) {
+        htmlAudio.pause();
+        const currentVideoId = ytPlayer.getVideoData ? ytPlayer.getVideoData().video_id : '';
+        if (currentVideoId !== track.src) {
+          ytPlayer.loadVideoById({
+            videoId: track.src,
+            startSeconds: cdState.currentSec > 0 ? cdState.currentSec : startOffset
+          });
+        } else {
+          ytPlayer.playVideo();
+        }
       } else {
-        ytIframe.src = '';
-        audio.src = track.src;
-        audio.play().catch(()=>{});
+        if (ytReady) ytPlayer.pauseVideo();
+        if (htmlAudio.src !== track.src) {
+          htmlAudio.src = track.src;
+          htmlAudio.currentTime = cdState.currentSec > 0 ? cdState.currentSec : startOffset;
+        }
+        htmlAudio.play().catch(()=>{});
       }
 
-      startLcdTimer();
-      renderCdPlayerUI();
+      startProgressTracker();
+      updateDiscSpinning();
     }
 
+    /* 暫停：保留當前秒數，絕不重頭開始 */
     function pauseCdTrack() {
       cdState.isPlaying = false;
       document.getElementById('playIconSvg').innerHTML = '<path d="M8 5v14l11-7z"/>';
-      document.getElementById('hiddenAudioEngine').pause();
-      document.getElementById('hiddenYtIframe').src = '';
+
+      if (ytReady) ytPlayer.pauseVideo();
+      htmlAudio.pause();
+
       clearInterval(cdState.timerInterval);
       updateDiscSpinning();
     }
 
     function stopCdTrack() {
       pauseCdTrack();
-      cdState.seconds = 0;
-      updateLcdDisplay(0);
+      cdState.currentSec = 0;
+      if (ytReady) ytPlayer.seekTo(0, true);
+      htmlAudio.currentTime = 0;
+      updateLcdDisplay(0, cdState.totalDuration);
       document.getElementById('lcdProgressFill').style.width = '0%';
     }
 
     function prevCdTrack() {
-      recordNavHistory();
       const curVer = config.versions[cdState.verIndex];
       cdState.trackIndex = (cdState.trackIndex - 1 + curVer.tracks.length) % curVer.tracks.length;
+      cdState.currentSec = 0;
       playCurrentTrack();
+      renderCdPlayerUI();
     }
 
     function nextCdTrack() {
-      recordNavHistory();
       const curVer = config.versions[cdState.verIndex];
       cdState.trackIndex = (cdState.trackIndex + 1) % curVer.tracks.length;
+      cdState.currentSec = 0;
       playCurrentTrack();
+      renderCdPlayerUI();
     }
 
     function ejectCd() {
       stopCdTrack();
       alert("⏏ 光碟已退出！");
+    }
+
+    /* 進度條跳轉 (Seek) */
+    function handleSeek(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+
+      const curVer = config.versions[cdState.verIndex];
+      const track = curVer.tracks[cdState.trackIndex];
+      const duration = cdState.totalDuration || 200;
+      const targetSec = ratio * duration;
+
+      cdState.currentSec = targetSec;
+
+      if (track.type === 'youtube' && ytReady) {
+        ytPlayer.seekTo(targetSec, true);
+      } else {
+        htmlAudio.currentTime = targetSec;
+      }
+      updateLcdDisplay(targetSec, duration);
+      document.getElementById('lcdProgressFill').style.width = (ratio * 100) + '%';
+    }
+
+    /* 即時進度更新計時器 */
+    function startProgressTracker() {
+      clearInterval(cdState.timerInterval);
+      cdState.timerInterval = setInterval(() => {
+        const curVer = config.versions[cdState.verIndex];
+        const track = curVer.tracks[cdState.trackIndex];
+
+        let curr = 0;
+        let dur = 0;
+
+        if (track.type === 'youtube' && ytReady) {
+          curr = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+          dur = ytPlayer.getDuration ? ytPlayer.getDuration() : 0;
+        } else {
+          curr = htmlAudio.currentTime || 0;
+          dur = htmlAudio.duration || 0;
+        }
+
+        cdState.currentSec = curr;
+        cdState.totalDuration = dur;
+
+        // 裁剪結束秒數判定
+        if (track.end && track.end > 0 && curr >= track.end) {
+          nextCdTrack();
+          return;
+        }
+
+        updateLcdDisplay(curr, dur);
+        if (dur > 0) {
+          const percent = Math.min(100, (curr / dur) * 100);
+          document.getElementById('lcdProgressFill').style.width = `${percent}%`;
+        }
+      }, 500);
+    }
+
+    function updateLcdDisplay(sec, totalSec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(Math.floor(sec % 60)).padStart(2, '0');
+      const tm = String(Math.floor((totalSec || 0) / 60)).padStart(2, '0');
+      const ts = String(Math.floor((totalSec || 0) % 60)).padStart(2, '0');
+      document.getElementById('lcdTimer').innerText = `${m}:${s} / ${tm}:${ts}`;
     }
 
     function updateDiscSpinning() {
@@ -847,62 +750,102 @@
       else disc.classList.remove('spinning');
     }
 
-    function startLcdTimer() {
-      clearInterval(cdState.timerInterval);
-      cdState.timerInterval = setInterval(() => {
-        cdState.seconds++;
-        updateLcdDisplay(cdState.seconds);
-        const percent = (cdState.seconds % 210) / 2.1;
-        document.getElementById('lcdProgressFill').style.width = `${percent}%`;
-      }, 1000);
+    /* 裁剪彈窗相關操作 */
+    let editingIndex = -1;
+    function openTrackEditModal(idx) {
+      editingIndex = idx;
+      const curVer = config.versions[cdState.verIndex];
+      const modal = document.getElementById('editModalWin');
+
+      if (idx >= 0) {
+        const t = curVer.tracks[idx];
+        document.getElementById('modalTitle').innerText = "編輯曲目與裁剪片段";
+        document.getElementById('editTrackTitle').value = t.title;
+        document.getElementById('editTrackSrc').value = t.type === 'youtube' ? `https://youtu.be/${t.src}` : t.src;
+        document.getElementById('editTrackStart').value = t.start || 0;
+        document.getElementById('editTrackEnd').value = t.end || 0;
+      } else {
+        document.getElementById('modalTitle').innerText = "新增曲目與裁剪片段";
+        document.getElementById('editTrackTitle').value = "";
+        document.getElementById('editTrackSrc').value = "";
+        document.getElementById('editTrackStart').value = 0;
+        document.getElementById('editTrackEnd').value = 0;
+      }
+      modal.style.display = 'block';
     }
 
-    function updateLcdDisplay(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
-      document.getElementById('lcdTimer').innerText = `${m}:${s}`;
+    function closeTrackEditModal() {
+      document.getElementById('editModalWin').style.display = 'none';
+      stopTestPreview();
     }
 
-    function recordNavHistory() {
-      navHistory.push({ ver: cdState.verIndex, track: cdState.trackIndex });
-      navForwardStack = [];
-      updateNavButtons();
+    function testPlayPreview() {
+      const link = document.getElementById('editTrackSrc').value.trim();
+      const start = parseFloat(document.getElementById('editTrackStart').value) || 0;
+      if (!link) { alert("請先填寫連結！"); return; }
+
+      let src = link;
+      let type = "youtube";
+      if (link.includes("v=")) src = link.split("v=")[1].substring(0, 11);
+      else if (link.includes("youtu.be/")) src = link.split("youtu.be/")[1].substring(0, 11);
+      else type = "drive";
+
+      if (type === 'youtube' && ytReady) {
+        ytPlayer.loadVideoById({ videoId: src, startSeconds: start });
+        ytPlayer.playVideo();
+      } else {
+        htmlAudio.src = src;
+        htmlAudio.currentTime = start;
+        htmlAudio.play();
+      }
     }
 
-    function navGoBack(e) {
-      if (e) e.stopPropagation();
-      if (navHistory.length === 0) return;
-      const prev = navHistory.pop();
-      navForwardStack.push({ ver: cdState.verIndex, track: cdState.trackIndex });
-      cdState.verIndex = prev.ver;
-      cdState.trackIndex = prev.track;
-      playCurrentTrack();
-      updateNavButtons();
+    function stopTestPreview() {
+      if (ytReady) ytPlayer.pauseVideo();
+      htmlAudio.pause();
     }
 
-    function navGoForward(e) {
-      if (e) e.stopPropagation();
-      if (navForwardStack.length === 0) return;
-      const next = navForwardStack.pop();
-      navHistory.push({ ver: cdState.verIndex, track: cdState.trackIndex });
-      cdState.verIndex = next.ver;
-      cdState.trackIndex = next.track;
-      playCurrentTrack();
-      updateNavButtons();
+    function saveTrackFromModal() {
+      const title = document.getElementById('editTrackTitle').value.trim();
+      const link = document.getElementById('editTrackSrc').value.trim();
+      const start = parseFloat(document.getElementById('editTrackStart').value) || 0;
+      const end = parseFloat(document.getElementById('editTrackEnd').value) || 0;
+
+      if (!title || !link) { alert("請填寫曲目名稱與音訊連結！"); return; }
+
+      let src = link;
+      let type = "youtube";
+      if (link.includes("v=")) src = link.split("v=")[1].substring(0, 11);
+      else if (link.includes("youtu.be/")) src = link.split("youtu.be/")[1].substring(0, 11);
+      else type = "drive";
+
+      const curVer = config.versions[cdState.verIndex];
+      const trackObj = { title, src, type, start, end };
+
+      if (editingIndex >= 0) curVer.tracks[editingIndex] = trackObj;
+      else curVer.tracks.push(trackObj);
+
+      stopTestPreview();
+      closeTrackEditModal();
+      saveState();
+      renderCdPlayerUI();
     }
 
-    function updateNavButtons() {
-      const bBtn = document.getElementById('btnNavBack');
-      const fBtn = document.getElementById('btnNavForward');
-      if (bBtn) bBtn.disabled = (navHistory.length === 0);
-      if (fBtn) fBtn.disabled = (navForwardStack.length === 0);
+    function removeTrackAtIndex(idx) {
+      const curVer = config.versions[cdState.verIndex];
+      if (confirm(`確定刪除歌曲「${curVer.tracks[idx].title}」？`)) {
+        curVer.tracks.splice(idx, 1);
+        if (cdState.trackIndex >= curVer.tracks.length) cdState.trackIndex = 0;
+        saveState();
+        renderCdPlayerUI();
+      }
     }
 
     function changeCurrentCdCover() {
       const curVer = config.versions[cdState.verIndex];
-      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址 (支援 Google 雲端共享)：", curVer.cover);
+      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址：", curVer.cover);
       if (raw) {
-        curVer.cover = autoFormatMediaUrl(raw, 'image');
+        curVer.cover = raw.trim();
         saveState();
         renderCdPlayerUI();
       }
@@ -918,108 +861,11 @@
       }
     }
 
-    function addTrackToActiveVer() {
-      const curVer = config.versions[cdState.verIndex];
-      const title = prompt("請輸入歌曲名稱：", "New Track");
-      if (!title) return;
-      const link = prompt("請輸入 YouTube 連結 或 Google 雲端(mp4/m4a)共享連結：");
-      if (!link) return;
-
-      let src = link.trim();
-      let type = "youtube";
-      const driveId = extractDriveId(link);
-      if (driveId) {
-        src = `https://drive.google.com/file/d/${driveId}/preview`;
-        type = "drive";
-      } else if (link.includes("v=")) {
-        src = link.split("v=")[1].substring(0, 11);
-      } else if (link.includes("youtu.be/")) {
-        src = link.split("youtu.be/")[1].substring(0, 11);
-      }
-
-      curVer.tracks.push({ title, src, type });
-      saveState();
-      renderCdPlayerUI();
-    }
-
-    function copyCurrentTrack() {
-      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
-      const curVer = config.versions[cdState.verIndex];
-      trackClipboard = { ...curVer.tracks[selectedTrackIdx] };
-      isTrackCut = false;
-      alert(`已複製「${trackClipboard.title}」！`);
-    }
-
-    function cutCurrentTrack() {
-      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
-      const curVer = config.versions[cdState.verIndex];
-      trackClipboard = { ...curVer.tracks[selectedTrackIdx] };
-      isTrackCut = true;
-      curVer.tracks.splice(selectedTrackIdx, 1);
-      selectedTrackIdx = null;
-      saveState();
-      renderCdPlayerUI();
-      alert(`已剪下「${trackClipboard.title}」！請切換到目標版本點擊貼上。`);
-    }
-
-    function pasteTrack() {
-      if (!trackClipboard) { alert("剪貼簿目前沒有歌曲！"); return; }
-      const curVer = config.versions[cdState.verIndex];
-      curVer.tracks.push({ ...trackClipboard, title: isTrackCut ? trackClipboard.title : trackClipboard.title + " (副本)" });
-      if (isTrackCut) trackClipboard = null;
-      saveState();
-      renderCdPlayerUI();
-    }
-
-    function deleteCurrentTrack() {
-      if (selectedTrackIdx === null) { alert("請先在清單中點選一首歌曲！"); return; }
-      removeTrackAtIndex(selectedTrackIdx);
-    }
-
-    function removeTrackAtIndex(idx) {
-      const curVer = config.versions[cdState.verIndex];
-      if (confirm(`確定刪除歌曲「${curVer.tracks[idx].title}」？`)) {
-        curVer.tracks.splice(idx, 1);
-        if (cdState.trackIndex >= curVer.tracks.length) cdState.trackIndex = 0;
-        selectedTrackIdx = null;
-        saveState();
-        renderCdPlayerUI();
-      }
-    }
-
-    function changeWallpaper() {
-      const raw = prompt("請輸入背景顏色或圖片網址 (輸入 clear 恢復純淡藍色)：", "");
-      if (raw === "clear") {
-        config.wallpaper = "";
-        document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = "#b8d5ec";
-      } else if (raw) {
-        config.wallpaper = autoFormatMediaUrl(raw, 'image');
-        document.body.style.backgroundImage = `url('${config.wallpaper}')`;
-      }
-      saveState();
-    }
-
-    function toggleStartMenu(e) {
-      if (e) e.stopPropagation();
-      const menu = document.getElementById('startMenu');
-      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function goToOriginalDesktop() {
-      window.location.href = "https://u11150003-arch.github.io/2027-winter-bday-desktop/";
-    }
-
-    function handleGlobalClick(e) {
-      const menu = document.getElementById('startMenu');
-      if (menu) menu.style.display = 'none';
-    }
-
-    /* 3D 光碟邊界鉗制：防止拖動飛離可視範圍 */
+    /* 3D 光碟阻尼邊界防脫離 */
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
-      const MAX_DRAG_OFFSET = 32;
+      const MAX_OFFSET = 32;
 
       function onStart(e) {
         isDragging = true;
@@ -1030,10 +876,8 @@
         if (!isDragging) return;
         const rawX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
         const rawY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
-        
-        curX = Math.max(-MAX_DRAG_OFFSET, Math.min(MAX_DRAG_OFFSET, rawX));
-        curY = Math.max(-MAX_DRAG_OFFSET, Math.min(MAX_DRAG_OFFSET, rawY));
-        
+        curX = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, rawX));
+        curY = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, rawY));
         disc.style.transform = `translate(${curX}px, ${curY}px) rotateY(${curX * 0.4}deg) rotateX(${-curY * 0.4}deg)`;
       }
       function onEnd() { 
@@ -1049,87 +893,6 @@
       window.addEventListener('touchmove', onMove, { passive: true });
       window.addEventListener('touchend', onEnd);
     })();
-
-    const viewport = document.getElementById('topActionsViewport');
-    const track = document.getElementById('scrollbarTrack');
-    const thumb = document.getElementById('scrollbarThumb');
-
-    function updateScrollBarUI() {
-      if (!isAdmin || !viewport || !track || !thumb) return;
-      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
-      if (maxScroll <= 0) {
-        thumb.style.width = '100%'; thumb.style.left = '0px'; return;
-      }
-      const trackWidth = track.clientWidth;
-      const thumbWidth = Math.max(30, (viewport.clientWidth / viewport.scrollWidth) * trackWidth);
-      thumb.style.width = thumbWidth + 'px';
-      const scrollRatio = viewport.scrollLeft / maxScroll;
-      thumb.style.left = (scrollRatio * (trackWidth - thumbWidth)) + 'px';
-    }
-
-    function scrollAdminBar(amount) {
-      if (!viewport) return;
-      viewport.scrollLeft += amount;
-      updateScrollBarUI();
-    }
-
-    function handleTrackClick(e) {
-      if (e.target === thumb) return;
-      const rect = track.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const thumbWidth = thumb.offsetWidth;
-      const trackWidth = track.clientWidth;
-      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
-      const newScrollLeft = ((clickX - thumbWidth / 2) / (trackWidth - thumbWidth)) * maxScroll;
-      viewport.scrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
-      updateScrollBarUI();
-    }
-
-    if (thumb) {
-      let isDraggingThumb = false, thumbStartX = 0, thumbStartLeft = 0;
-      thumb.addEventListener('mousedown', (e) => {
-        isDraggingThumb = true;
-        thumbStartX = e.clientX;
-        thumbStartLeft = parseFloat(thumb.style.left) || 0;
-        document.body.style.userSelect = 'none';
-
-        function onMouseMove(moveEvent) {
-          if (!isDraggingThumb) return;
-          const dx = moveEvent.clientX - thumbStartX;
-          const trackWidth = track.clientWidth;
-          const thumbWidth = thumb.offsetWidth;
-          const maxThumbLeft = trackWidth - thumbWidth;
-          const newThumbLeft = Math.max(0, Math.min(maxThumbLeft, thumbStartLeft + dx));
-          thumb.style.left = newThumbLeft + 'px';
-          viewport.scrollLeft = (newThumbLeft / maxThumbLeft) * (viewport.scrollWidth - viewport.clientWidth);
-        }
-        function onMouseUp() {
-          isDraggingThumb = false;
-          document.body.style.userSelect = '';
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-        }
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
-      });
-    }
-
-    if (viewport) {
-      viewport.addEventListener('wheel', (e) => {
-        if (!isAdmin) return;
-        if (e.deltaY !== 0) {
-          viewport.scrollLeft += e.deltaY;
-          updateScrollBarUI();
-          e.preventDefault();
-        }
-      }, { passive: false });
-    }
-
-    window.addEventListener('resize', updateScrollBarUI);
-
-    if (config.wallpaper) {
-      document.body.style.backgroundImage = `url('${config.wallpaper}')`;
-    }
   </script>
 </body>
 </html>
