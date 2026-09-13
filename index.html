@@ -395,7 +395,7 @@
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
-      <li onclick="goToOriginalDesktop()">🖥️ 1. 回到原始 Desktop 網頁</li>
+      <li><a href="https://u11150003-arch.github.io/2027-winter-bday-desktop/" style="color:#000; text-decoration:none; display:flex; align-items:center; gap:8px;">🖥️ 1. 回到原始 Desktop 網頁</a></li>
       <li onclick="location.reload()">💿 2. 重新整理 CD Player</li>
       <hr style="margin:4px 0;">
       <li onclick="toggleAdmin(event); toggleStartMenu(event);">⚙️ 切換管理員模式</li>
@@ -416,9 +416,8 @@
     </div>
   </div>
 
-  <!-- 原生音訊核心 (加入跨網域直連設定) -->
   <div class="media-engine-mount">
-    <audio id="hiddenAudioEngine" playsinline preload="auto" crossorigin="anonymous"></audio>
+    <audio id="hiddenAudioEngine" playsinline preload="auto"></audio>
     <iframe id="hiddenYtIframe" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -426,10 +425,10 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    // 核心資料庫 (已修正 BLUE 的雲端純音訊直連網址)
+    // 支援 Google 雲端音訊直接串流
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
-      "activeVerIndex": 2, // 預設停在 BLUE
+      "activeVerIndex": 2,
       "versions": [
         {
           "name": "Lips",
@@ -456,7 +455,6 @@
           "name": "BLUE",
           "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
           "tracks": [
-            // 正確轉換的 Google 雲端純音訊直連網址
             { "title": "BLUE (WINTER Solo)", "src": "https://docs.google.com/uc?export=download&id=1S-ph9I2finH0vNrL-vluaiIssaUz2Eji", "type": "drive" },
             { "title": "Winter - With You (OST)", "src": "https://docs.google.com/uc?export=download&id=1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive" },
             { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -487,7 +485,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_drivefix_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_auto_convert_v1";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -506,10 +504,12 @@
     let navHistory = [];
     let navForwardStack = [];
 
-    // 核心網址自動轉換引擎
+    // 自動轉換 Google Drive 各式連結為串流直連
     function extractDriveId(url) {
       if (!url) return null;
-      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                    url.match(/id=([a-zA-Z0-9_-]+)/) || 
+                    url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     }
 
@@ -518,7 +518,6 @@
       const driveId = extractDriveId(url);
       if (driveId) {
         if (type === 'image') return `https://lh3.googleusercontent.com/d/${driveId}`;
-        // 純音訊檔案必須使用 export=download 直連
         return `https://docs.google.com/uc?export=download&id=${driveId}`;
       }
       return url.trim();
@@ -669,7 +668,6 @@
       else playCurrentTrack();
     }
 
-    // 播放核心 (支援 Google 雲端純音訊直連與真實時間同步)
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -687,7 +685,6 @@
         ytIframe.src = `https://www.youtube-nocookie.com/embed/${track.src}?autoplay=1&start=${startSec}&playsinline=1&enablejsapi=1`;
       } else {
         ytIframe.src = '';
-        // 確保轉為純音訊下載直連
         const finalSrc = autoFormatMediaUrl(track.src, 'audio');
         if (audio.src !== finalSrc) {
           audio.src = finalSrc;
@@ -697,7 +694,7 @@
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(err => {
-            console.log("Audio play error, retrying...", err);
+            console.log("Play failed:", err);
           });
         }
       }
@@ -778,7 +775,6 @@
       }
     }
 
-    // 監聽 HTML5 Audio 元數據，直接讀取雲端 MP3 檔案的真實歌曲長度
     const globalAudio = document.getElementById('hiddenAudioEngine');
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
@@ -869,6 +865,7 @@
       if (fBtn) fBtn.disabled = (navForwardStack.length === 0);
     }
 
+    // 自動轉換處理
     function editTrackAtIndex(idx) {
       const curVer = config.versions[cdState.verIndex];
       const track = curVer.tracks[idx];
@@ -880,27 +877,29 @@
       }
 
       const currentLink = (track.type === "youtube") ? `https://youtu.be/${track.src}` : track.src;
-      const newLink = prompt("更改播放連結 (YouTube 或 Google 雲端共享連結)：", currentLink);
+      const newLink = prompt("更改播放連結 (可直接貼上 Google 雲端分享連結或 YouTube)：", currentLink);
       if (newLink !== null && newLink.trim() !== "") {
         const link = newLink.trim();
-        let src = link;
-        let type = "youtube";
         const driveId = extractDriveId(link);
         if (driveId) {
-          src = `https://docs.google.com/uc?export=download&id=${driveId}`;
-          type = "drive";
+          // 直接轉成純串流直連
+          track.src = `https://docs.google.com/uc?export=download&id=${driveId}`;
+          track.type = "drive";
         } else if (link.includes("v=")) {
-          src = link.split("v=")[1].substring(0, 11);
+          track.src = link.split("v=")[1].substring(0, 11);
+          track.type = "youtube";
         } else if (link.includes("youtu.be/")) {
-          src = link.split("youtu.be/")[1].substring(0, 11);
+          track.src = link.split("youtu.be/")[1].substring(0, 11);
+          track.type = "youtube";
+        } else {
+          track.src = link;
+          track.type = "drive";
         }
-        track.src = src;
-        track.type = type;
       }
 
       saveState();
       renderCdPlayerUI();
-      alert(`「${track.title}」已成功更新！`);
+      alert(`「${track.title}」已成功更新並自動套用直連！`);
     }
 
     function editSelectedTrackPrompt() {
@@ -913,7 +912,7 @@
 
     function changeCurrentCdCover() {
       const curVer = config.versions[cdState.verIndex];
-      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址 (支援 Google 雲端共享)：", curVer.cover);
+      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址 (支援 Google 雲端分享連結)：", curVer.cover);
       if (raw) {
         curVer.cover = autoFormatMediaUrl(raw, 'image');
         saveState();
@@ -935,19 +934,21 @@
       const curVer = config.versions[cdState.verIndex];
       const title = prompt("請輸入歌曲名稱：", "New Track");
       if (!title) return;
-      const link = prompt("請輸入 YouTube 連結 或 Google 雲端共享連結：");
+      const link = prompt("請貼上 YouTube 或 Google 雲端分享連結：");
       if (!link) return;
 
-      let src = link.trim();
+      const trimmed = link.trim();
+      const driveId = extractDriveId(trimmed);
+      let src = trimmed;
       let type = "youtube";
-      const driveId = extractDriveId(link);
+
       if (driveId) {
         src = `https://docs.google.com/uc?export=download&id=${driveId}`;
         type = "drive";
-      } else if (link.includes("v=")) {
-        src = link.split("v=")[1].substring(0, 11);
-      } else if (link.includes("youtu.be/")) {
-        src = link.split("youtu.be/")[1].substring(0, 11);
+      } else if (trimmed.includes("v=")) {
+        src = trimmed.split("v=")[1].substring(0, 11);
+      } else if (trimmed.includes("youtu.be/")) {
+        src = trimmed.split("youtu.be/")[1].substring(0, 11);
       }
 
       curVer.tracks.push({ title, src, type });
@@ -1019,16 +1020,11 @@
       menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
     }
 
-    function goToOriginalDesktop() {
-      window.location.href = "https://u11150003-arch.github.io/2027-winter-bday-desktop/";
-    }
-
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
     }
 
-    // 3D 光碟阻尼邊界防脫離
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
