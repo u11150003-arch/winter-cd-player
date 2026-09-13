@@ -13,7 +13,12 @@
 
   <link rel="stylesheet" href="https://unpkg.com/98.css">
   <style>
-    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    * { 
+      box-sizing: border-box; 
+      user-select: none; 
+      -webkit-tap-highlight-color: transparent; 
+      -webkit-font-smoothing: none;
+    }
     
     :root {
       --star-cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9' fill='%23FFD700' stroke='%23B8860B' stroke-width='1.5'/></svg>") 4 4, auto;
@@ -27,17 +32,35 @@
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
-      /* 像素天空背景 (Pixel Sky) */
-      background: #7ca8d9 url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600') no-repeat center center;
-      background-size: cover;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
+      /* 乾淨優雅的純淡藍色背景 */
+      background: #b8d5ec;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
       cursor: var(--star-cursor) !important;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
     }
 
-    /* 首頁全螢幕封面動畫展示層 */
+    /* 強制所有按鈕遵循 Windows 98 復古凸起外觀，徹底消除手機圓弧與膠囊形狀 */
+    button {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      border-radius: 0px !important;
+      background: #c0c0c0 !important;
+      border: 2px outset #ffffff !important;
+      color: #000000 !important;
+      font-size: 11px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    button:active {
+      border: 2px inset #ffffff !important;
+      padding: 3px 1px 1px 3px !important;
+    }
+
+    /* 首頁開場動畫展示層 (純淡藍色底) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -46,46 +69,44 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: inherit;
+      background: #b8d5ec;
       cursor: var(--star-cursor);
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
     }
     .intro-overlay.hidden {
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.9);
+      transform: scale(0.92);
     }
-    /* 封面標題使用像素字體，並防止折行擠壓 */
     .intro-title {
-      font-size: 20px;
+      font-size: 18px;
       letter-spacing: 2px;
       color: #000080;
-      font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       font-weight: bold;
       margin-bottom: 24px;
       text-align: center;
       white-space: nowrap;
-      text-shadow: 1px 1px 0 #fff;
     }
     .intro-cd-disc {
       width: 170px; height: 170px;
-      border-radius: 50%;
+      border-radius: 50% !important;
       background: conic-gradient(from 0deg, #d8d8d8, #ffffff, #c8c8c8, #ffffff, #cfcfcf, #ffffff, #d8d8d8);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 12px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 0 12px rgba(0,0,0,0.2);
       display: flex; align-items: center; justify-content: center;
       animation: discSpin 3s linear infinite;
       position: relative;
     }
     .intro-cd-hole {
-      position: absolute; width: 42px; height: 42px; border-radius: 50%;
-      background: radial-gradient(circle, transparent 12px, rgba(255,255,255,0.8) 13px, #7da2c8 16px);
+      position: absolute; width: 42px; height: 42px; border-radius: 50% !important;
+      background: radial-gradient(circle, transparent 12px, rgba(255,255,255,0.8) 13px, #b8d5ec 16px);
       border: 3px solid rgba(255,255,255,0.9);
     }
     .intro-hint {
-      margin-top: 24px; font-size: 12px; color: #000080;
+      margin-top: 24px; font-size: 11px; color: #000080;
       letter-spacing: 1px; animation: pulse 1.6s infinite ease-in-out;
-      font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       font-weight: bold;
     }
     @keyframes pulse {
@@ -93,6 +114,7 @@
       50% { opacity: 1; }
     }
 
+    /* 頂部管理列容器 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
@@ -127,10 +149,10 @@
     body.admin-mode .admin-scrollbar-bar { display: flex; }
     .scrollbar-btn {
       width: 16px; height: 16px; padding: 0; font-size: 8px; font-weight: bold;
-      border: 1px outset #fff; background: #c0c0c0; display: flex; align-items: center; justify-content: center;
+      border: 1px outset #fff !important; background: #c0c0c0 !important;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; cursor: pointer;
     }
-    .scrollbar-btn:active { border: 1px inset #fff; }
     .scrollbar-track {
       flex: 1; height: 100%;
       background: repeating-conic-gradient(#c0c0c0 0% 25%, #ffffff 0% 50%) 50% / 2px 2px;
@@ -140,11 +162,11 @@
       position: absolute; top: 0; left: 0; width: 40px; height: 100%;
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
-    .scrollbar-thumb:active { cursor: grabbing; border: 1px inset #fff; }
 
+    /* 主應用容器 */
     .app-viewport {
       position: absolute;
-      top: 50px;
+      top: 48px;
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
@@ -154,31 +176,31 @@
       justify-content: flex-start;
       padding: 6px 10px;
       overflow-y: auto;
-      gap: 8px;
+      gap: 6px;
     }
 
-    /* 3D 隨身聽正圓舞台 (避免變形) */
+    /* 3D 隨身聽正圓舞台 (百分之百正圓，不受擠壓) */
     .cd-stage {
       position: relative;
-      width: 175px; height: 175px;
+      width: 170px; height: 170px;
       display: flex; align-items: center; justify-content: center;
       perspective: 1000px; touch-action: none;
-      flex-shrink: 0; margin-top: 4px;
+      flex-shrink: 0; margin-top: 2px;
     }
     .walkman-base {
-      position: absolute; width: 175px; height: 175px; border-radius: 50%;
-      background: radial-gradient(circle, #e2e8f0 30%, #a0aec0 70%, #4a5568 100%);
-      border: 3px solid #4a5568;
-      box-shadow: 0 10px 18px rgba(0,0,0,0.5), inset 0 2px 5px #fff;
+      position: absolute; width: 170px; height: 170px; border-radius: 50% !important;
+      background: radial-gradient(circle, #f0f4f8 30%, #a2b4c7 70%, #586e84 100%);
+      border: 3px solid #586e84;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.35), inset 0 2px 5px #fff;
     }
     .walkman-tray {
-      position: absolute; width: 135px; height: 135px; border-radius: 50%;
-      background: #1a202c; box-shadow: inset 0 4px 10px #000;
+      position: absolute; width: 130px; height: 130px; border-radius: 50% !important;
+      background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
     .cd-disc-3d {
-      position: absolute; width: 130px; height: 130px; border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      position: absolute; width: 126px; height: 126px; border-radius: 50% !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       cursor: grab; transition: transform 0.08s ease-out;
       background: conic-gradient(from 0deg, #e2e8f0, #fff, #cbd5e0, #fff, #a0aec0, #fff, #e2e8f0);
@@ -191,82 +213,104 @@
       to { transform: rotate(360deg); }
     }
     .cd-disc-art {
-      position: absolute; width: 100%; height: 100%; border-radius: 50%;
+      position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       object-fit: cover; pointer-events: none; opacity: 0.95;
       mask: radial-gradient(circle, transparent 18px, black 19px);
       -webkit-mask: radial-gradient(circle, transparent 18px, black 19px);
     }
     .cd-center-hole {
-      position: absolute; width: 32px; height: 32px; border-radius: 50%;
-      background: radial-gradient(circle, transparent 8px, rgba(255,255,255,0.7) 9px, #7da2c8 12px);
+      position: absolute; width: 32px; height: 32px; border-radius: 50% !important;
+      background: radial-gradient(circle, transparent 8px, rgba(255,255,255,0.7) 9px, #b8d5ec 12px);
       border: 2px solid rgba(255,255,255,0.8); z-index: 10;
     }
 
-    /* 播放器面板視窗 */
+    /* 播放器視窗：百分之百 Windows 98 經典邊框樣式 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
-      box-shadow: 2px 2px 14px rgba(0,0,0,0.5); flex-shrink: 0;
+      box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
+      background: #c0c0c0 !important;
+      border: 2px outset #ffffff !important;
+    }
+    .player-subwin .title-bar {
+      background: linear-gradient(90deg, #000080, #1084d0) !important;
+      color: #fff !important;
+      padding: 3px 4px !important;
+      font-weight: bold !important;
+      font-size: 11px !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .player-subwin .window-body {
-      padding: 6px;
+      padding: 6px !important;
+      background: #c0c0c0 !important;
     }
 
     .folder-nav-bar {
-      display: flex; gap: 4px; align-items: center; margin-bottom: 6px; background: #dfdfdf;
-      padding: 3px 5px; border: 1px solid #7f9db9;
+      display: flex; gap: 4px; align-items: center; margin-bottom: 6px;
+      background: #c0c0c0; padding: 3px; border: 2px groove #fff;
     }
     .folder-nav-bar button {
-      font-size: 11px; padding: 2px 5px; height: 22px; cursor: pointer;
+      font-size: 11px !important; padding: 2px 5px !important; height: 22px !important;
     }
 
     .lcd-screen {
-      background: #0a0a0a; color: #39ff14; font-family: monospace;
-      padding: 5px 8px; border-radius: 2px; display: flex;
+      background: #000 !important; color: #39ff14 !important; font-family: monospace !important;
+      padding: 5px 8px; border: 2px inset #fff; display: flex;
       justify-content: space-between; align-items: center;
-      font-size: 13px; letter-spacing: 1px; margin-bottom: 6px;
-      box-shadow: inset 0 0 6px rgba(57, 255, 20, 0.4);
+      font-size: 12px; letter-spacing: 1px; margin-bottom: 6px;
     }
     .lcd-progress-bar {
-      width: 100%; height: 8px; background: #222; border: 1px inset #555;
+      width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
       margin-bottom: 8px; position: relative;
     }
     .lcd-progress-fill {
-      height: 100%; width: 0%; background: #39ff14; transition: width 0.3s linear;
+      height: 100%; width: 0%; background: #000080; transition: width 0.3s linear;
     }
 
-    /* 控制按鍵：使用 SVG 圖形，排除純黑方塊問題 */
+    /* 控制按鈕：強制復古方形按鈕，拒絕圓弧 */
     .player-ctrl-row {
-      display: flex; justify-content: center; gap: 6px; margin-bottom: 8px;
+      display: flex; justify-content: center; gap: 4px; margin-bottom: 8px;
     }
     .player-ctrl-row button {
-      min-width: 42px; height: 28px; display: flex; align-items: center; justify-content: center; padding: 2px;
+      width: 42px !important; height: 26px !important;
+      border: 2px outset #fff !important;
+      border-radius: 0px !important;
+      background: #c0c0c0 !important;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .player-ctrl-row button:active {
+      border: 2px inset #fff !important;
     }
     .player-ctrl-row svg {
-      width: 14px; height: 14px; fill: #000;
+      width: 12px; height: 12px; fill: #000; pointer-events: none;
     }
 
     .ver-tabs-row {
       display: flex; gap: 4px; margin-bottom: 6px;
     }
     .ver-tabs-row button {
-      flex: 1; font-size: 11px; padding: 4px 2px; cursor: pointer;
+      flex: 1; font-size: 11px !important; padding: 4px 2px !important;
+      border: 2px outset #fff !important; border-radius: 0 !important;
     }
     .ver-tabs-row button.active {
-      font-weight: bold; background: #000080; color: #fff;
+      font-weight: bold; background: #000080 !important; color: #fff !important;
+      border: 2px inset #fff !important;
     }
 
     .track-list-box {
       list-style: none; margin: 0; padding: 0;
       background: #fff; border: 2px inset #dfdfdf;
-      max-height: 125px; overflow-y: auto;
+      max-height: 120px; overflow-y: auto;
     }
     .track-list-box li {
-      padding: 5px 8px; font-size: 11px; cursor: pointer;
+      padding: 4px 6px; font-size: 11px; cursor: pointer;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .track-list-box li:hover { background: #e0e0ff; }
+    .track-list-box li:hover { background: #000080; color: #fff; }
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
 
+    /* 底部工作列：與原始 Desktop 完全一致 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: var(--taskbar-h); min-height: 36px;
@@ -278,7 +322,6 @@
       z-index: 2500;
     }
     .taskbar-left { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
-    .task-item-btn { font-size: 11px; padding: 2px 6px; height: 26px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
     .taskbar-right { font-size: 11px; display: flex; align-items: center; padding-left: 8px; flex-shrink: 0; height: 26px; }
     .taskbar-right a { color: #000; text-decoration: none; font-weight: bold; border-bottom: 1px dotted #555; }
 
@@ -305,7 +348,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 -->
+  <!-- 開場封面展示層 (點擊直接淡出開機) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc" id="introCdDisc">
@@ -340,7 +383,7 @@
 
   <div class="app-viewport">
     
-    <!-- 3D 隨身聽主機與正圓盤面 -->
+    <!-- 3D 隨身聽主機與正圓盤面 (不受任何長寬比扭曲) -->
     <div class="cd-stage" id="cdStage">
       <div class="walkman-base"></div>
       <div class="walkman-tray"></div>
@@ -350,7 +393,7 @@
       </div>
     </div>
 
-    <!-- Win98 播放器面板視窗 -->
+    <!-- Win98 播放器面板視窗 (全風格復古化) -->
     <div class="window player-subwin" id="playerSubwin">
       <div class="title-bar">
         <div class="title-bar-text" id="playerWinTitle">💿 CD Player - WINTER Edition</div>
@@ -363,14 +406,14 @@
         </div>
 
         <div class="lcd-screen">
-          <span id="lcdTrackTitle">WINTER - Speed of summer</span>
+          <span id="lcdTrackTitle">Winter - Speed of summer</span>
           <span id="lcdTimer">00:00</span>
         </div>
         <div class="lcd-progress-bar">
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
         </div>
 
-        <!-- 播放控制鍵：使用 SVG 圖標排除黑方塊 -->
+        <!-- 播放控制鍵：清晰黑白純復古向量圖示 -->
         <div class="player-ctrl-row">
           <button type="button" onclick="prevCdTrack()" title="上一首">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -397,7 +440,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
-          <span class="admin-only" style="font-size:10px; color:#555;">(點擊選取可編輯/剪下)</span>
+          <span class="admin-only" style="font-size:10px; color:#555;">(點擊可選取編輯)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
 
@@ -406,6 +449,7 @@
 
   </div>
 
+  <!-- WINTER 開始選單跳轉 -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -438,7 +482,7 @@
     let isAdmin = false;
 
     const CD_MASTER_CONFIG = {
-      "wallpaper": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600",
+      "wallpaper": "",
       "activeVerIndex": 0,
       "versions": [
         {
@@ -477,7 +521,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_player_config_stable_v2";
+    const CONFIG_STORAGE_KEY = "winter_cd_player_config_pureblue_v3";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -504,7 +548,7 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已儲存並複製程式碼！\n\n下次要更新 GitHub 時直接貼上這段 CD_MASTER_CONFIG 即可永久保留所有設定。");
+        alert("✅ 最新進度已儲存並複製程式碼！\n\n下次更新 GitHub 時直接替換 CD_MASTER_CONFIG 即可。");
       }).catch(() => {
         prompt("請複製以下最新代碼以備份：", output);
       });
@@ -576,7 +620,13 @@
         const isPlayingThis = (idx === cdState.trackIndex && cdState.isPlaying);
         const isSelected = (idx === selectedTrackIdx);
         li.className = isPlayingThis ? 'active' : (isSelected ? 'selected' : '');
-        if (isSelected) li.style.background = "#ffffd0";
+        if (isSelected) {
+          li.style.background = "#000080";
+          li.style.color = "#fff";
+        } else {
+          li.style.background = "";
+          li.style.color = "";
+        }
 
         li.innerHTML = `
           <span>${idx + 1}. ${t.title}</span>
@@ -827,12 +877,16 @@
     }
 
     function changeWallpaper() {
-      const raw = prompt("請輸入背景圖片網址 (支援 Google 雲端共享)：", config.wallpaper);
-      if (raw) {
+      const raw = prompt("請輸入背景顏色或圖片網址 (輸入 clear 恢復淡藍色)：", "");
+      if (raw === "clear") {
+        config.wallpaper = "";
+        document.body.style.backgroundImage = "none";
+        document.body.style.backgroundColor = "#b8d5ec";
+      } else if (raw) {
         config.wallpaper = autoFormatMediaUrl(raw, 'image');
         document.body.style.backgroundImage = `url('${config.wallpaper}')`;
-        saveState();
       }
+      saveState();
     }
 
     function toggleStartMenu(e) {
@@ -850,6 +904,7 @@
       if (menu) menu.style.display = 'none';
     }
 
+    // 3D 光碟自由拖曳旋轉系統
     (function init3dDiscDrag() {
       const disc = document.getElementById('disc3D');
       let isDragging = false, startX, startY, curX = 0, curY = 0;
