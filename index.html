@@ -53,6 +53,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
+    /* 開場全螢幕封面展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -140,6 +141,7 @@
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
+    /* 3D 隨身聽正圓舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -298,8 +300,8 @@
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
     
-    /* 雙引擎播放隱藏載體 */
-    .media-engine-mount {
+    /* 播放引擎隱藏掛載點 */
+    .audio-mount-box {
       position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.001; pointer-events: none; overflow: hidden;
     }
   </style>
@@ -417,17 +419,17 @@
     </div>
   </div>
 
-  <!-- 雙播放載體：完全分開獨立排解衝突 -->
-  <div class="media-engine-mount">
-    <iframe id="engineIframe" allow="autoplay"></iframe>
-    <audio id="engineAudio" playsinline preload="auto"></audio>
+  <!-- 純淨雙軌播放引擎：本機音訊用 HTML5 Audio，YouTube 用 iframe -->
+  <div class="audio-mount-box">
+    <audio id="audioCore" preload="auto" playsinline></audio>
+    <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
   </div>
 
   <script>
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    // 核心資料庫 (5 版完整配置)
+    // 核心預設資料庫
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
       "activeVerIndex": 2, // 預設 BLUE
@@ -436,58 +438,59 @@
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
           "tracks": [
-            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 188 },
-            { "title": "Winter - What you want do for love", "src": "1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive", "duration": 210 },
-            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube", "duration": 195 },
-            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube", "duration": 180 }
+            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
+            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" }
           ]
         },
         {
           "name": "Spark",
           "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
           "tracks": [
-            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube", "duration": 200 },
-            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube", "duration": 182 },
-            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube", "duration": 190 },
-            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube", "duration": 178 },
-            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube", "duration": 215 }
+            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube" },
+            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
+            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube" },
+            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube" },
+            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube" }
           ]
         },
         {
           "name": "BLUE",
           "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
           "tracks": [
-            { "title": "BLUE (WINTER Solo)", "src": "1S-ph9I2finH0vNrL-vluaiIssaUz2Eji", "type": "drive", "duration": 211 },
-            { "title": "Winter - With You (OST)", "src": "1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive", "duration": 220 },
-            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 190 },
-            { "title": "Winter - Voyage", "src": "1jeg0LS14Swh44kU4ymm7L5hU3kP_TJxj", "type": "drive", "duration": 215 }
+            { "title": "BLUE (WINTER Solo)", "src": "./blue.mp3", "type": "file" },
+            { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Winter - Voyage", "src": "YTeFLKMnwjg", "type": "youtube" }
           ]
         },
         {
           "name": "Saddle Up",
           "cover": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400",
           "tracks": [
-            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 215 },
-            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 190 },
-            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 185 },
-            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 200 },
-            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 188 }
+            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube" }
           ]
         },
         {
           "name": "Speed of Summer",
           "cover": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
           "tracks": [
-            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube", "duration": 182 },
-            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube", "duration": 175 },
-            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube", "duration": 192 },
-            { "title": "Winter - Speed of Summer", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 188 }
+            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" },
+            { "title": "Winter - Speed of Summer", "src": "YTeFLKMnwjg", "type": "youtube" }
           ]
         }
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_stable_v10";
+    // 使用全新版本號，強制洗掉瀏覽器殘留的舊快取
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_clean_sound_v1";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
@@ -496,7 +499,7 @@
       isPlaying: false,
       timerInterval: null,
       currentSec: 0,
-      totalDuration: 211
+      totalDuration: 0
     };
 
     let trackClipboard = null;
@@ -506,16 +509,6 @@
     let navHistory = [];
     let navForwardStack = [];
 
-    // 精準提取 Google Drive 檔案 ID
-    function extractDriveId(url) {
-      if (!url) return null;
-      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
-                    url.match(/id=([a-zA-Z0-9_-]+)/) || 
-                    url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : (url.length > 20 && !url.includes("/") ? url.trim() : null);
-    }
-
-    // 精準提取 YouTube ID
     function extractYoutubeId(url) {
       if (!url) return null;
       if (url.includes("v=")) return url.split("v=")[1].substring(0, 11);
@@ -533,15 +526,23 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已複製至剪貼簿！請替換 CD_MASTER_CONFIG 儲存。");
+        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 GitHub index.html 的 CD_MASTER_CONFIG 區域。");
       }).catch(() => {
         prompt("請複製以下最新備份代碼：", output);
       });
     }
 
+    // 點擊開場層時，徹底喚醒瀏覽器硬體聲音權限
     function enterCdPlayer() {
       document.getElementById('introOverlay').classList.add('hidden');
       renderCdPlayerUI();
+      
+      const audio = document.getElementById('audioCore');
+      audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; // 極短無聲音效解鎖 Safari
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(()=>{});
     }
 
     function toggleAdmin(e) {
@@ -558,7 +559,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖曲目排序、編輯、換CD封面功能。");
+          alert("登入成功！已解鎖曲目排序(▲▼)、編輯、換CD封面功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -624,10 +625,6 @@
 
       const curTrack = curVer.tracks[cdState.trackIndex];
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
-      if (curTrack && curTrack.duration) {
-        cdState.totalDuration = curTrack.duration;
-      }
-      updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
       updateDiscSpinning();
       updateNavButtons();
     }
@@ -670,33 +667,51 @@
       else playCurrentTrack();
     }
 
-    // 雙引擎獨立切換播控架構
+    // 核心雙軌播放引擎：絕對純淨
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
 
       const track = curVer.tracks[cdState.trackIndex];
-      const iframe = document.getElementById('engineIframe');
-      const audio = document.getElementById('engineAudio');
+      const audio = document.getElementById('audioCore');
+      const ytIframe = document.getElementById('ytCore');
 
       cdState.isPlaying = true;
       document.getElementById('playIconSvg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
-      if (track.duration) cdState.totalDuration = track.duration;
+      const ytId = extractYoutubeId(track.src);
 
-      if (track.type === 'youtube') {
+      if (ytId) {
+        // --- 軌道一：YouTube 播放 ---
         audio.pause();
         audio.src = '';
-        const ytId = extractYoutubeId(track.src) || track.src;
         const startSec = Math.floor(cdState.currentSec || 0);
-        // 標準官方安全嵌入網址，保證 YouTube 授權通過
-        iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&modestbranding=1`;
+        // 使用最標準的嵌入網址，移除可能造成衝突的限制參數
+        ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
+        cdState.totalDuration = 210;
       } else {
-        // Google Drive 音訊：採用免 CORS 限制的直穿預覽串流引擎
-        const driveId = extractDriveId(track.src) || track.src;
-        audio.pause();
-        audio.src = '';
-        iframe.src = `https://drive.google.com/file/d/${driveId}/preview`;
+        // --- 軌道二：本機音訊 (blue.mp3) 播放 ---
+        ytIframe.src = '';
+        
+        // 解析正確路徑
+        const cleanPath = track.src.replace('./', '');
+        const targetUrl = new URL(cleanPath, window.location.href).href;
+
+        if (audio.src !== targetUrl) {
+          audio.src = targetUrl;
+          audio.load();
+        }
+
+        audio.muted = false;
+        audio.volume = 1.0;
+        audio.currentTime = cdState.currentSec || 0;
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.error("Audio playback error:", err);
+          });
+        }
       }
 
       startProgressTracker();
@@ -707,8 +722,14 @@
       cdState.isPlaying = false;
       document.getElementById('playIconSvg').innerHTML = '<path d="M8 5v14l11-7z"/>';
 
-      document.getElementById('engineIframe').src = '';
-      document.getElementById('engineAudio').pause();
+      const audio = document.getElementById('audioCore');
+      const ytIframe = document.getElementById('ytCore');
+
+      if (audio.src && !audio.paused) {
+        cdState.currentSec = audio.currentTime;
+      }
+      audio.pause();
+      ytIframe.src = '';
 
       clearInterval(cdState.timerInterval);
       updateDiscSpinning();
@@ -723,8 +744,9 @@
     function stopCdTrack() {
       pauseCdTrack();
       cdState.currentSec = 0;
-      document.getElementById('engineIframe').src = '';
-      document.getElementById('engineAudio').src = '';
+      const audio = document.getElementById('audioCore');
+      audio.currentTime = 0;
+      document.getElementById('ytCore').src = '';
       updateLcdDisplay(0, cdState.totalDuration);
       document.getElementById('lcdProgressFill').style.width = '0%';
     }
@@ -757,6 +779,9 @@
       const duration = cdState.totalDuration || 211;
       cdState.currentSec = ratio * duration;
 
+      const audio = document.getElementById('audioCore');
+      if (audio.src) audio.currentTime = cdState.currentSec;
+
       if (cdState.isPlaying) {
         playCurrentTrack();
       } else {
@@ -765,15 +790,37 @@
       }
     }
 
+    // 本機音訊自動同步真實秒數
+    const globalAudio = document.getElementById('audioCore');
+    globalAudio.addEventListener('loadedmetadata', () => {
+      if (globalAudio.duration && !isNaN(globalAudio.duration)) {
+        cdState.totalDuration = globalAudio.duration;
+        updateLcdDisplay(globalAudio.currentTime, globalAudio.duration);
+      }
+    });
+
+    globalAudio.addEventListener('ended', () => {
+      nextCdTrack();
+    });
+
     function startProgressTracker() {
       clearInterval(cdState.timerInterval);
       cdState.timerInterval = setInterval(() => {
-        if (!cdState.isPlaying) return;
-        cdState.currentSec++;
+        const audio = document.getElementById('audioCore');
+        const curVer = config.versions[cdState.verIndex];
+        const track = curVer.tracks[cdState.trackIndex];
+        const isYt = extractYoutubeId(track.src);
 
-        if (cdState.currentSec >= cdState.totalDuration) {
-          nextCdTrack();
-          return;
+        if (!isYt) {
+          if (audio.src) {
+            cdState.currentSec = audio.currentTime || 0;
+            if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+              cdState.totalDuration = audio.duration;
+            }
+          }
+        } else {
+          cdState.currentSec++;
+          if (!cdState.totalDuration) cdState.totalDuration = 210;
         }
 
         updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
@@ -781,7 +828,7 @@
           const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
           document.getElementById('lcdProgressFill').style.width = percent + '%';
         }
-      }, 1000);
+      }, 500);
     }
 
     function updateLcdDisplay(sec, totalSec) {
@@ -845,26 +892,17 @@
         track.title = newTitle.trim();
       }
 
-      const newLink = prompt("更改播放連結 (可貼 YouTube 或 Google 雲端分享連結)：", track.src);
+      const newLink = prompt("更改播放來源 (本機音訊輸入 ./檔名.mp3，或貼上 YouTube 連結)：", track.src);
       if (newLink !== null && newLink.trim() !== "") {
         const link = newLink.trim();
-        const driveId = extractDriveId(link);
         const ytId = extractYoutubeId(link);
-
-        if (driveId) {
-          track.src = driveId;
-          track.type = "drive";
-        } else if (ytId) {
+        if (ytId) {
           track.src = ytId;
           track.type = "youtube";
         } else {
-          track.src = link;
+          track.src = link.startsWith("./") || link.startsWith("http") ? link : "./" + link;
+          track.type = "file";
         }
-      }
-
-      const newDur = prompt("設定歌曲總長度 (秒數，例如 3分31秒 請輸入 211)：", track.duration || 211);
-      if (newDur && !isNaN(newDur)) {
-        track.duration = parseInt(newDur, 10);
       }
 
       saveState();
@@ -884,8 +922,7 @@
       const curVer = config.versions[cdState.verIndex];
       const raw = prompt("請貼上正方形 CD 光碟盤面封面網址：", curVer.cover);
       if (raw) {
-        const driveId = extractDriveId(raw);
-        curVer.cover = driveId ? `https://lh3.googleusercontent.com/d/${driveId}` : raw.trim();
+        curVer.cover = raw.trim();
         saveState();
         renderCdPlayerUI();
       }
@@ -905,27 +942,22 @@
       const curVer = config.versions[cdState.verIndex];
       const title = prompt("請輸入歌曲名稱：", "New Track");
       if (!title) return;
-      const link = prompt("請貼上 YouTube 或 Google 雲端分享連結：");
+      const link = prompt("請輸入本機檔案名稱 (例如 ./song.mp3) 或 YouTube 連結：");
       if (!link) return;
 
       const trimmed = link.trim();
-      const driveId = extractDriveId(trimmed);
       const ytId = extractYoutubeId(trimmed);
-
       let src = trimmed;
-      let type = "youtube";
-      if (driveId) {
-        src = driveId;
-        type = "drive";
-      } else if (ytId) {
+      let type = "file";
+
+      if (ytId) {
         src = ytId;
         type = "youtube";
+      } else {
+        src = trimmed.startsWith("./") || trimmed.startsWith("http") ? trimmed : "./" + trimmed;
       }
 
-      const durInput = prompt("請輸入歌曲長度 (秒數，預設 210 秒)：", "210");
-      const duration = parseInt(durInput, 10) || 210;
-
-      curVer.tracks.push({ title, src, type, duration });
+      curVer.tracks.push({ title, src, type });
       saveState();
       renderCdPlayerUI();
     }
@@ -982,8 +1014,7 @@
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = "#b8d5ec";
       } else if (raw) {
-        const driveId = extractDriveId(raw);
-        config.wallpaper = driveId ? `https://lh3.googleusercontent.com/d/${driveId}` : raw.trim();
+        config.wallpaper = raw.trim();
         document.body.style.backgroundImage = `url('${config.wallpaper}')`;
       }
       saveState();
