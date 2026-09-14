@@ -56,7 +56,6 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (中心完全挖空透視背景) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -80,7 +79,6 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
-    /* 逼真 CD 光碟：金屬虹彩無灰圈 + 實體中心挖空 */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
       background: conic-gradient(
@@ -120,7 +118,6 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
@@ -172,7 +169,6 @@
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
-    /* 3D 隨身聽舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -191,7 +187,6 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
-    /* 播放器 CD 光碟 (實體中心挖空) */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -219,7 +214,6 @@
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
     @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* CD 封面容器 */
     .cd-disc-art-wrap {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       overflow: hidden; pointer-events: none;
@@ -235,7 +229,6 @@
       transform-origin: center center;
     }
 
-    /* CD 隨身聽內圈透明壓克力反光環 (中間透空) */
     .cd-center-hole {
       position: absolute; top: 50%; left: 50%;
       width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
@@ -245,7 +238,6 @@
       z-index: 10; pointer-events: none;
     }
 
-    /* Win98 播放器視窗 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
@@ -344,7 +336,7 @@
 
     .start-menu {
       position: fixed; bottom: var(--taskbar-h); left: max(6px, var(--safe-left));
-      width: 235px; background: #c0c0c0; border: 2px outset #fff;
+      width: 260px; background: #c0c0c0; border: 2px outset #fff;
       box-shadow: 3px 3px 12px rgba(0,0,0,0.5); display: none; z-index: 3000; padding: 3px;
     }
     .start-menu-banner {
@@ -357,8 +349,8 @@
       padding: 7px 10px; font-size: 12px; cursor: var(--star-cursor); display: flex; align-items: center; gap: 8px;
     }
     .start-menu li:hover { background: #000080; color: #fff; }
+    .start-menu a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; width: 100%; }
 
-    /* 縮放與位置調整面板 */
     .adjust-modal {
       display: none; position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -381,7 +373,6 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 (中心完全挖空) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -475,7 +466,6 @@
     </div>
   </div>
 
-  <!-- 縮放與位置調整面板 -->
   <div class="window adjust-modal" id="adjustModal" onclick="event.stopPropagation()">
     <div class="title-bar">
       <div class="title-bar-text" id="adjustModalTitle">🔍 調微細節</div>
@@ -506,11 +496,21 @@
     </div>
   </div>
 
+  <!-- 開始選單 (三網頁一鍵互通) -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
-      <li><a href="https://u11150003-arch.github.io/2027-winter-bday-desktop/" style="color:#000; text-decoration:none; display:flex; align-items:center; gap:8px;">🖥️ 1. 回到原始 Desktop 網頁</a></li>
-      <li onclick="location.reload()">💿 2. 重新整理 CD Player</li>
+      <li>
+        <a href="https://u11150003-arch.github.io/2027-winter-bday-desktop/">
+          🖥️ <strong>1. 回到原始 Desktop 網頁</strong>
+        </a>
+      </li>
+      <li>
+        <a href="https://u11150003-arch.github.io/winter-galaxy/">
+          🪐 <strong>2. 前往 WINTER GALAXY 視訊</strong>
+        </a>
+      </li>
+      <li onclick="location.reload()">💿 3. 重新整理 CD Player</li>
       <hr style="margin:4px 0;">
       <li onclick="toggleAdmin(event); toggleStartMenu(event);">⚙️ 切換管理員模式</li>
     </ul>
@@ -554,7 +554,6 @@
       return url.trim();
     }
 
-    // 內嵌最新配置資料庫
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -567,11 +566,7 @@
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
-          "adjust": {
-            "scale": 105,
-            "x": 48,
-            "y": 50
-          },
+          "adjust": { "scale": 105, "x": 48, "y": 50 },
           "tracks": [
             { "title": "Lips", "src": "./lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -582,11 +577,7 @@
         {
           "name": "Spark",
           "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
-          "adjust": {
-            "scale": 130,
-            "x": 41,
-            "y": 52
-          },
+          "adjust": { "scale": 130, "x": 41, "y": 52 },
           "tracks": [
             { "title": "Spark", "src": "./spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -598,11 +589,7 @@
         {
           "name": "BLUE",
           "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
-          "adjust": {
-            "scale": 123,
-            "x": 46,
-            "y": 52
-          },
+          "adjust": { "scale": 123, "x": 46, "y": 52 },
           "tracks": [
             { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -613,11 +600,7 @@
         {
           "name": "Saddle Up",
           "cover": "https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi",
-          "adjust": {
-            "scale": 108,
-            "x": 50,
-            "y": 50
-          },
+          "adjust": { "scale": 108, "x": 50, "y": 50 },
           "tracks": [
             { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -629,11 +612,7 @@
         {
           "name": "Speed of Summer",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
-          "adjust": {
-            "scale": 100,
-            "x": 50,
-            "y": 50
-          },
+          "adjust": { "scale": 100, "x": 50, "y": 50 },
           "tracks": [
             { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
@@ -644,7 +623,6 @@
       ]
     };
 
-    // 強制比對並儲存，確保重整後持久生效
     const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_saddleup_sync_v1";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
@@ -683,7 +661,7 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 GitHub index.html 的 CD_MASTER_CONFIG 區域。");
+        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 index.html 的 CD_MASTER_CONFIG 區域。");
       }).catch(() => {
         prompt("請複製以下最新備份代碼：", output);
       });
@@ -716,7 +694,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖縮放調節(🔍/🖼️)、曲目排序、編輯功能。");
+          alert("登入成功！已解鎖縮放調節、曲目排序、編輯功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -724,7 +702,6 @@
       renderCdPlayerUI();
     }
 
-    // CD 封面平移縮放演算法
     function applyCoverStyles() {
       const curVer = config.versions[cdState.verIndex];
       const img = document.getElementById('discCoverImg');
@@ -738,7 +715,6 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 背景連動開場與主畫面
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const intro = document.getElementById('introOverlay');
@@ -1178,7 +1154,7 @@
         curVer.cover = formatCoverUrl(raw);
         saveState();
         renderCdPlayerUI();
-        alert("✅ CD 封面已成功更新！若需微調大小，請使用頂部「🔍 調封面大小位置」按鈕。");
+        alert("✅ CD 封面已成功更新！");
       }
     }
 
@@ -1269,7 +1245,7 @@
       } else if (raw) {
         config.wallpaper = formatCoverUrl(raw);
         applyWallpaperStyles();
-        alert("✅ 背景已更新！若需微調大小，請使用頂部「🖼️ 調背景大小位置」按鈕。");
+        alert("✅ 背景已更新！");
       }
       saveState();
     }
@@ -1283,10 +1259,6 @@
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
-      const adj = document.getElementById('adjustModal');
-      if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
-        // 點擊面板外部保留
-      }
     }
 
     (function init3dDiscDrag() {
