@@ -30,7 +30,7 @@
       width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      background: #b8d5ec;
+      background-color: #b8d5ec;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -56,13 +56,17 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 */
+    /* 開場全螢幕展示層 (背景與後頁完全連動) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 1200;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #b8d5ec; cursor: var(--star-cursor);
+      background-color: #b8d5ec;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: var(--star-cursor);
       transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
     }
@@ -73,42 +77,41 @@
       font-size: 18px; letter-spacing: 2px; color: #000080;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       font-weight: bold; margin-bottom: 24px; text-align: center; white-space: nowrap;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
-    /* 逼真無水印光碟材質 (開場專用) */
+    /* 逼真無灰圈 CD 光碟 (開場專用) */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
-      background: 
-        radial-gradient(circle, transparent 20%, rgba(200,200,200,0.4) 21%, transparent 22%),
-        radial-gradient(circle, transparent 33%, rgba(80,80,80,0.6) 34%, rgba(160,160,160,0.8) 48%, transparent 49%),
-        conic-gradient(
-          from 15deg,
-          #e3e7eb 0deg,
-          #ecd8e3 40deg,
-          #e0e4cd 80deg,
-          #ffffff 120deg,
-          #d8dce2 150deg,
-          #9ba6b2 180deg,
-          #e0d2d8 210deg,
-          #dfe8d2 250deg,
-          #fefefe 300deg,
-          #ccd2db 330deg,
-          #e3e7eb 360deg
-        );
-      box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 0 1px 1px rgba(255,255,255,0.8), inset 0 0 0 2px rgba(120,120,120,0.4);
+      background: conic-gradient(
+        from 25deg,
+        #e5e9ed 0deg,
+        #f3e2ec 35deg,
+        #e9ecd8 75deg,
+        #ffffff 115deg,
+        #d8dce2 150deg,
+        #b8c2cc 180deg,
+        #ebd9e0 215deg,
+        #e4ebd8 255deg,
+        #ffffff 295deg,
+        #d0d6df 330deg,
+        #e5e9ed 360deg
+      );
+      box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 0 1px 1px rgba(255,255,255,0.8);
       display: flex; align-items: center; justify-content: center;
       animation: discSpin 3s linear infinite; position: relative;
     }
     .intro-cd-hole {
       position: absolute; width: 44px; height: 44px; border-radius: 50% !important;
-      background: radial-gradient(circle, #b8d5ec 13px, rgba(255,255,255,0.95) 14px, #a8a8a8 16px, rgba(220,220,220,0.6) 21px, #fff 22px);
-      border: 1px solid rgba(150,150,150,0.6);
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 13px, rgba(255,255,255,0.8) 14px, #cfd7de 16px, rgba(240,240,240,0.7) 21px, #fff 22px);
+      border: 1px solid rgba(180,180,180,0.5);
     }
     .intro-hint {
       margin-top: 24px; font-size: 11px; color: #000080;
       letter-spacing: 1px; animation: pulse 1.6s infinite ease-in-out;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
@@ -183,35 +186,33 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
-    /* 播放器光碟本體：逼真虹彩無水印底色 */
+    /* 播放器光碟本體：去除灰圈，全面虹彩漸層 */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       cursor: grab; transition: transform 0.15s ease-out;
-      background: 
-        radial-gradient(circle, transparent 30%, rgba(90,90,90,0.5) 32%, rgba(170,170,170,0.7) 48%, transparent 50%),
-        conic-gradient(
-          from 20deg,
-          #e3e7eb 0deg,
-          #ecd8e3 40deg,
-          #e0e4cd 80deg,
-          #ffffff 120deg,
-          #d8dce2 150deg,
-          #9ba6b2 180deg,
-          #e0d2d8 210deg,
-          #dfe8d2 250deg,
-          #fefefe 300deg,
-          #ccd2db 330deg,
-          #e3e7eb 360deg
-        );
+      background: conic-gradient(
+        from 25deg,
+        #e5e9ed 0deg,
+        #f3e2ec 35deg,
+        #e9ecd8 75deg,
+        #ffffff 115deg,
+        #d8dce2 150deg,
+        #b8c2cc 180deg,
+        #ebd9e0 215deg,
+        #e4ebd8 255deg,
+        #ffffff 295deg,
+        #d0d6df 330deg,
+        #e5e9ed 360deg
+      );
       overflow: hidden;
     }
     .cd-disc-3d:active { cursor: grabbing; }
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
     @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* CD 封面容器：支援動態位移與縮放 */
+    /* CD 封面容器與絕對位移控制 */
     .cd-disc-art-wrap {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       overflow: hidden; pointer-events: none;
@@ -219,7 +220,11 @@
       -webkit-mask: radial-gradient(circle, transparent 16px, black 17px);
     }
     .cd-disc-art {
-      width: 100%; height: 100%; object-fit: cover; opacity: 0.95;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.95;
       transform-origin: center center;
     }
 
@@ -355,9 +360,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 8px; font-size: 11px;
     }
-    .adjust-modal input[type="range"] {
-      width: 160px;
-    }
+    .adjust-modal input[type="range"] { width: 160px; }
 
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
@@ -369,7 +372,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 逼真無水印光碟開場層 -->
+  <!-- 開場封面展示層 (已去除灰圈，背景全幅連動) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -463,7 +466,7 @@
     </div>
   </div>
 
-  <!-- 縮放與位置控制器視窗 -->
+  <!-- 縮放與位置調整面板 -->
   <div class="window adjust-modal" id="adjustModal" onclick="event.stopPropagation()">
     <div class="title-bar">
       <div class="title-bar-text" id="adjustModalTitle">🔍 調微細節</div>
@@ -542,15 +545,24 @@
       return url.trim();
     }
 
+    // 內嵌最新全部配置資料庫
     const CD_MASTER_CONFIG = {
-      "wallpaper": formatCoverUrl("https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy"),
-      "wallpaperAdjust": { "scale": 100, "x": 50, "y": 50 },
+      "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
+      "wallpaperAdjust": {
+        "scale": 100,
+        "x": 50,
+        "y": 50
+      },
       "activeVerIndex": 0,
       "versions": [
         {
           "name": "Lips",
-          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6"),
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
+          "adjust": {
+            "scale": 105,
+            "x": 44,
+            "y": 50
+          },
           "tracks": [
             { "title": "Lips", "src": "./lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -560,8 +572,12 @@
         },
         {
           "name": "Spark",
-          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB"),
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
+          "adjust": {
+            "scale": 129,
+            "x": 74,
+            "y": 33
+          },
           "tracks": [
             { "title": "Spark", "src": "./spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -572,8 +588,12 @@
         },
         {
           "name": "BLUE",
-          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7"),
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
+          "adjust": {
+            "scale": 113,
+            "x": 38,
+            "y": 52
+          },
           "tracks": [
             { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -583,8 +603,12 @@
         },
         {
           "name": "Saddle Up",
-          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi"),
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "cover": "https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi",
+          "adjust": {
+            "scale": 108,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
             { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -595,8 +619,12 @@
         },
         {
           "name": "Speed of Summer",
-          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax"),
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
+          "adjust": {
+            "scale": 100,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
             { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
@@ -607,11 +635,13 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_adjust_v5";
-    let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
+    // 強制比對並儲存
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_adjust_final_sync";
+    let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
+    let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
     let cdState = {
-      verIndex: config.activeVerIndex !== undefined ? config.activeVerIndex : 0,
+      verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 0,
       trackIndex: 0,
       isPlaying: false,
       timerInterval: null,
@@ -635,6 +665,7 @@
       return null;
     }
 
+    // 每次改動立即存入 localStorage
     function saveState() {
       config.activeVerIndex = cdState.verIndex;
       localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
@@ -685,25 +716,46 @@
       renderCdPlayerUI();
     }
 
+    // CD 封面位置縮放演算法 (改用 translate 絕對生效)
     function applyCoverStyles() {
       const curVer = config.versions[cdState.verIndex];
       const img = document.getElementById('discCoverImg');
       img.src = formatCoverUrl(curVer.cover);
+
       const adj = curVer.adjust || { scale: 100, x: 50, y: 50 };
-      img.style.transform = `scale(${adj.scale / 100})`;
-      img.style.objectPosition = `${adj.x}% ${adj.y}%`;
+      const scale = (adj.scale || 100) / 100;
+      // 50% 為居中基準點，0~100% 映射為 -50% ~ +50% 的動態平移
+      const translateX = (adj.x - 50);
+      const translateY = (adj.y - 50);
+
+      img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
+    // 背景連動開場與主頁面
     function applyWallpaperStyles() {
-      if (!config.wallpaper) {
+      const bgUrl = formatCoverUrl(config.wallpaper);
+      const intro = document.getElementById('introOverlay');
+
+      if (!bgUrl) {
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = "#b8d5ec";
+        intro.style.backgroundImage = "none";
+        intro.style.backgroundColor = "#b8d5ec";
         return;
       }
-      document.body.style.backgroundImage = `url('${formatCoverUrl(config.wallpaper)}')`;
+
       const adj = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
-      document.body.style.backgroundSize = `${adj.scale}% auto`;
-      document.body.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
+      const bgStyleSize = `${adj.scale}% auto`;
+      const bgStylePos = `${adj.x}% ${adj.y}%`;
+
+      document.body.style.backgroundImage = `url('${bgUrl}')`;
+      document.body.style.backgroundSize = bgStyleSize;
+      document.body.style.backgroundPosition = bgStylePos;
+
+      // 同步開場畫面背景
+      intro.style.backgroundImage = `url('${bgUrl}')`;
+      intro.style.backgroundSize = bgStyleSize;
+      intro.style.backgroundPosition = bgStylePos;
     }
 
     function renderCdPlayerUI() {
@@ -769,7 +821,7 @@
       updateNavButtons();
     }
 
-    /* 縮放微調控制器邏輯 */
+    // 縮放微調控制器邏輯
     function openAdjustModal(target) {
       activeAdjustTarget = target;
       const modal = document.getElementById('adjustModal');
@@ -779,7 +831,7 @@
       if (target === 'cover') {
         const curVer = config.versions[cdState.verIndex];
         adj = curVer.adjust = curVer.adjust || { scale: 100, x: 50, y: 50 };
-        title.innerText = `🔍 調 CD 封面大小位置 (${curVer.name})`;
+        title.innerText = `🔍 調 CD 封面 (${curVer.name})`;
       } else {
         adj = config.wallpaperAdjust = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
         title.innerText = "🖼️ 調背景大小位置";
@@ -828,7 +880,7 @@
     function saveAndCloseAdjust() {
       saveState();
       closeAdjustModal();
-      alert("✅ 大小與位置已儲存！");
+      alert("✅ 大小與位置已即時更新並儲存！");
     }
 
     function moveTrackOrder(idx, direction) {
@@ -1226,10 +1278,6 @@
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
-      const adj = document.getElementById('adjustModal');
-      if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
-        // 點擊面板外部保留
-      }
     }
 
     (function init3dDiscDrag() {
@@ -1340,6 +1388,9 @@
     }
 
     window.addEventListener('resize', updateScrollBarUI);
+    window.addEventListener('DOMContentLoaded', () => {
+      applyWallpaperStyles();
+    });
   </script>
 </body>
 </html>
