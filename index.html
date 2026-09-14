@@ -56,7 +56,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層 (背景完全連動) */
+    /* 開場展示層 (中心完全挖空透視背景) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -80,7 +80,7 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
-    /* 逼真 CD 光碟 (實體中心挖空透視) */
+    /* 逼真 CD 光碟：金屬虹彩無灰圈 + 實體中心挖空 */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
       background: conic-gradient(
@@ -100,12 +100,10 @@
       box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 0 1px 1px rgba(255,255,255,0.8);
       display: flex; align-items: center; justify-content: center;
       animation: discSpin 3s linear infinite; position: relative;
-      /* 實體物理挖空最內圈 12px */
       mask: radial-gradient(circle, transparent 12px, black 13px);
       -webkit-mask: radial-gradient(circle, transparent 12px, black 13px);
     }
     
-    /* 壓克力內環透明圈與真實反光階梯 */
     .intro-cd-hole {
       position: absolute; width: 50px; height: 50px; border-radius: 50% !important;
       background: radial-gradient(circle, transparent 13px, rgba(255,255,255,0.7) 14px, rgba(220,225,230,0.4) 18px, rgba(255,255,255,0.85) 23px, rgba(160,160,160,0.3) 24px, transparent 25px);
@@ -237,7 +235,7 @@
       transform-origin: center center;
     }
 
-    /* CD 隨身聽內圈透明壓克力反光環 (中間透明透空) */
+    /* CD 隨身聽內圈透明壓克力反光環 (中間透空) */
     .cd-center-hole {
       position: absolute; top: 50%; left: 50%;
       width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
@@ -564,14 +562,14 @@
         "x": 50,
         "y": 50
       },
-      "activeVerIndex": 0,
+      "activeVerIndex": 3,
       "versions": [
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
           "adjust": {
             "scale": 105,
-            "x": 44,
+            "x": 48,
             "y": 50
           },
           "tracks": [
@@ -585,9 +583,9 @@
           "name": "Spark",
           "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
           "adjust": {
-            "scale": 129,
-            "x": 74,
-            "y": 33
+            "scale": 130,
+            "x": 41,
+            "y": 52
           },
           "tracks": [
             { "title": "Spark", "src": "./spark.mp3", "type": "file" },
@@ -601,8 +599,8 @@
           "name": "BLUE",
           "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
           "adjust": {
-            "scale": 113,
-            "x": 38,
+            "scale": 123,
+            "x": 46,
             "y": 52
           },
           "tracks": [
@@ -646,12 +644,13 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_hole_hollow_v1";
+    // 強制比對並儲存，確保重整後持久生效
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_saddleup_sync_v1";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
     let cdState = {
-      verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 0,
+      verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 3,
       trackIndex: 0,
       isPlaying: false,
       timerInterval: null,
@@ -725,6 +724,7 @@
       renderCdPlayerUI();
     }
 
+    // CD 封面平移縮放演算法
     function applyCoverStyles() {
       const curVer = config.versions[cdState.verIndex];
       const img = document.getElementById('discCoverImg');
@@ -738,6 +738,7 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
+    // 背景連動開場與主畫面
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const intro = document.getElementById('introOverlay');
@@ -1282,6 +1283,10 @@
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
+      const adj = document.getElementById('adjustModal');
+      if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
+        // 點擊面板外部保留
+      }
     }
 
     (function init3dDiscDrag() {
