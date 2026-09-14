@@ -56,7 +56,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層 (背景與後頁完全連動) */
+    /* 開場全螢幕展示層 (背景完全連動) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -80,7 +80,7 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
-    /* 逼真無灰圈 CD 光碟 (開場專用) */
+    /* 逼真 CD 光碟 (實體中心挖空透視) */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
       background: conic-gradient(
@@ -100,12 +100,19 @@
       box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 0 1px 1px rgba(255,255,255,0.8);
       display: flex; align-items: center; justify-content: center;
       animation: discSpin 3s linear infinite; position: relative;
+      /* 實體物理挖空最內圈 12px */
+      mask: radial-gradient(circle, transparent 12px, black 13px);
+      -webkit-mask: radial-gradient(circle, transparent 12px, black 13px);
     }
+    
+    /* 壓克力內環透明圈與真實反光階梯 */
     .intro-cd-hole {
-      position: absolute; width: 44px; height: 44px; border-radius: 50% !important;
-      background: radial-gradient(circle, rgba(255,255,255,0.2) 13px, rgba(255,255,255,0.8) 14px, #cfd7de 16px, rgba(240,240,240,0.7) 21px, #fff 22px);
-      border: 1px solid rgba(180,180,180,0.5);
+      position: absolute; width: 50px; height: 50px; border-radius: 50% !important;
+      background: radial-gradient(circle, transparent 13px, rgba(255,255,255,0.7) 14px, rgba(220,225,230,0.4) 18px, rgba(255,255,255,0.85) 23px, rgba(160,160,160,0.3) 24px, transparent 25px);
+      border: 1px solid rgba(255,255,255,0.4);
+      pointer-events: none;
     }
+
     .intro-hint {
       margin-top: 24px; font-size: 11px; color: #000080;
       letter-spacing: 1px; animation: pulse 1.6s infinite ease-in-out;
@@ -186,7 +193,7 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
-    /* 播放器光碟本體：去除灰圈，全面虹彩漸層 */
+    /* 播放器 CD 光碟 (實體中心挖空) */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -207,17 +214,19 @@
         #e5e9ed 360deg
       );
       overflow: hidden;
+      mask: radial-gradient(circle, transparent 9px, black 10px);
+      -webkit-mask: radial-gradient(circle, transparent 9px, black 10px);
     }
     .cd-disc-3d:active { cursor: grabbing; }
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
     @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* CD 封面容器與絕對位移控制 */
+    /* CD 封面容器 */
     .cd-disc-art-wrap {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       overflow: hidden; pointer-events: none;
-      mask: radial-gradient(circle, transparent 16px, black 17px);
-      -webkit-mask: radial-gradient(circle, transparent 16px, black 17px);
+      mask: radial-gradient(circle, transparent 13px, black 14px);
+      -webkit-mask: radial-gradient(circle, transparent 13px, black 14px);
     }
     .cd-disc-art {
       position: absolute;
@@ -228,12 +237,14 @@
       transform-origin: center center;
     }
 
+    /* CD 隨身聽內圈透明壓克力反光環 (中間透明透空) */
     .cd-center-hole {
       position: absolute; top: 50%; left: 50%;
       width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
       border-radius: 50% !important;
-      background: radial-gradient(circle, transparent 8px, rgba(255,255,255,0.7) 9px, #b8d5ec 12px);
-      border: 2px solid rgba(255,255,255,0.8); z-index: 10; pointer-events: none;
+      background: radial-gradient(circle, transparent 9px, rgba(255,255,255,0.7) 10px, rgba(230,235,240,0.4) 12px, rgba(255,255,255,0.85) 15px, transparent 16px);
+      border: 1px solid rgba(255,255,255,0.5);
+      z-index: 10; pointer-events: none;
     }
 
     /* Win98 播放器視窗 */
@@ -372,7 +383,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 (已去除灰圈，背景全幅連動) -->
+  <!-- 開場封面展示層 (中心完全挖空) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -545,7 +556,7 @@
       return url.trim();
     }
 
-    // 內嵌最新全部配置資料庫
+    // 內嵌最新配置資料庫
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -635,8 +646,7 @@
       ]
     };
 
-    // 強制比對並儲存
-    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_adjust_final_sync";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_hole_hollow_v1";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -665,7 +675,6 @@
       return null;
     }
 
-    // 每次改動立即存入 localStorage
     function saveState() {
       config.activeVerIndex = cdState.verIndex;
       localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
@@ -716,7 +725,6 @@
       renderCdPlayerUI();
     }
 
-    // CD 封面位置縮放演算法 (改用 translate 絕對生效)
     function applyCoverStyles() {
       const curVer = config.versions[cdState.verIndex];
       const img = document.getElementById('discCoverImg');
@@ -724,14 +732,12 @@
 
       const adj = curVer.adjust || { scale: 100, x: 50, y: 50 };
       const scale = (adj.scale || 100) / 100;
-      // 50% 為居中基準點，0~100% 映射為 -50% ~ +50% 的動態平移
       const translateX = (adj.x - 50);
       const translateY = (adj.y - 50);
 
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 背景連動開場與主頁面
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const intro = document.getElementById('introOverlay');
@@ -752,7 +758,6 @@
       document.body.style.backgroundSize = bgStyleSize;
       document.body.style.backgroundPosition = bgStylePos;
 
-      // 同步開場畫面背景
       intro.style.backgroundImage = `url('${bgUrl}')`;
       intro.style.backgroundSize = bgStyleSize;
       intro.style.backgroundPosition = bgStylePos;
@@ -821,7 +826,6 @@
       updateNavButtons();
     }
 
-    // 縮放微調控制器邏輯
     function openAdjustModal(target) {
       activeAdjustTarget = target;
       const modal = document.getElementById('adjustModal');
