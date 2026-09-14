@@ -31,6 +31,9 @@
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       background: #b8d5ec;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       user-select: none;
     }
     
@@ -53,7 +56,6 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕封面展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -141,7 +143,6 @@
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
-    /* 3D 隨身聽正圓舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -300,7 +301,6 @@
     .admin-only { display: none !important; }
     body.admin-mode .admin-only { display: inline-flex !important; }
     
-    /* 播放引擎隱藏掛載點 */
     .audio-mount-box {
       position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.001; pointer-events: none; overflow: hidden;
     }
@@ -343,7 +343,7 @@
       <div class="walkman-base"></div>
       <div class="walkman-tray"></div>
       <div class="cd-disc-3d" id="disc3D" title="拖曳可立體旋轉光碟">
-        <img id="discCoverImg" class="cd-disc-art" src="https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax" alt="CD Cover">
+        <img id="discCoverImg" class="cd-disc-art" src="" alt="CD Cover">
         <div class="cd-center-hole"></div>
       </div>
     </div>
@@ -359,7 +359,7 @@
         </div>
 
         <div class="lcd-screen">
-          <span id="lcdTrackTitle">Winter - Speed of summer</span>
+          <span id="lcdTrackTitle">--</span>
           <span id="lcdTimer">00:00 / 00:00</span>
         </div>
         <div class="lcd-progress-bar" id="progressBarTrack" onclick="handleSeek(event)">
@@ -419,7 +419,6 @@
     </div>
   </div>
 
-  <!-- 純淨雙軌播放引擎：本機音訊用 HTML5 Audio，YouTube 用 iframe -->
   <div class="audio-mount-box">
     <audio id="audioCore" preload="auto" playsinline></audio>
     <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
@@ -429,16 +428,35 @@
     const ADMIN_PASSWORD = "admin";
     let isAdmin = false;
 
-    // 核心預設資料庫
+    // 智能提取 Google Drive 檔案 ID
+    function extractDriveId(url) {
+      if (!url) return null;
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                    url.match(/id=([a-zA-Z0-9_-]+)/) || 
+                    url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    // 自動轉換雲端圖片連結為純圖片串流直連
+    function formatCoverUrl(url) {
+      if (!url) return url;
+      const driveId = extractDriveId(url);
+      if (driveId) {
+        return `https://lh3.googleusercontent.com/d/${driveId}`;
+      }
+      return url.trim();
+    }
+
+    // 完整資料庫（已內嵌你提供的全部曲目與 Saddle Up 雲端封面）
     const CD_MASTER_CONFIG = {
       "wallpaper": "",
-      "activeVerIndex": 2, // 預設 BLUE
+      "activeVerIndex": 4,
       "versions": [
         {
           "name": "Lips",
-          "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
+          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax"),
           "tracks": [
-            { "title": "Winter - Speed of summer", "src": "YTeFLKMnwjg", "type": "youtube" },
+            { "title": "Lips", "src": "./lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
             { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" }
@@ -446,9 +464,9 @@
         },
         {
           "name": "Spark",
-          "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
+          "cover": formatCoverUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400"),
           "tracks": [
-            { "title": "aespa - Armageddon", "src": "nFYwcndNuZY", "type": "youtube" },
+            { "title": "Spark", "src": "./spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
             { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube" },
             { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -457,9 +475,9 @@
         },
         {
           "name": "BLUE",
-          "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400",
+          "cover": formatCoverUrl("https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400"),
           "tracks": [
-            { "title": "BLUE (WINTER Solo)", "src": "./blue.mp3", "type": "file" },
+            { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "Winter - Voyage", "src": "YTeFLKMnwjg", "type": "youtube" }
@@ -467,7 +485,7 @@
         },
         {
           "name": "Saddle Up",
-          "cover": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400",
+          "cover": formatCoverUrl("https://drive.google.com/file/d/13xnuEhcNLLqHDMykphr--yc2ZFPtfqZG/view?usp=drive_link"),
           "tracks": [
             { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -478,23 +496,23 @@
         },
         {
           "name": "Speed of Summer",
-          "cover": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400",
+          "cover": formatCoverUrl("https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax"),
           "tracks": [
+            { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
             { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" },
-            { "title": "Winter - Speed of Summer", "src": "YTeFLKMnwjg", "type": "youtube" }
+            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" }
           ]
         }
       ]
     };
 
-    // 使用全新版本號，強制洗掉瀏覽器殘留的舊快取
-    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_clean_sound_v1";
+    // 強制重設為新版本快取鍵
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_speed_summer_v3";
     let config = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || CD_MASTER_CONFIG;
 
     let cdState = {
-      verIndex: config.activeVerIndex || 0,
+      verIndex: config.activeVerIndex !== undefined ? config.activeVerIndex : 4,
       trackIndex: 0,
       isPlaying: false,
       timerInterval: null,
@@ -532,13 +550,12 @@
       });
     }
 
-    // 點擊開場層時，徹底喚醒瀏覽器硬體聲音權限
     function enterCdPlayer() {
       document.getElementById('introOverlay').classList.add('hidden');
       renderCdPlayerUI();
       
       const audio = document.getElementById('audioCore');
-      audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; // 極短無聲音效解鎖 Safari
+      audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
@@ -569,7 +586,7 @@
 
     function renderCdPlayerUI() {
       const curVer = config.versions[cdState.verIndex];
-      document.getElementById('discCoverImg').src = curVer.cover;
+      document.getElementById('discCoverImg').src = formatCoverUrl(curVer.cover);
 
       const tabsRow = document.getElementById('verTabsRow');
       tabsRow.innerHTML = `
@@ -667,7 +684,7 @@
       else playCurrentTrack();
     }
 
-    // 核心雙軌播放引擎：絕對純淨
+    // 播放核心：包含檔名空格轉義與本機/YouTube 雙模式
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -682,20 +699,19 @@
       const ytId = extractYoutubeId(track.src);
 
       if (ytId) {
-        // --- 軌道一：YouTube 播放 ---
+        // YouTube 播放軌道
         audio.pause();
         audio.src = '';
         const startSec = Math.floor(cdState.currentSec || 0);
-        // 使用最標準的嵌入網址，移除可能造成衝突的限制參數
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
       } else {
-        // --- 軌道二：本機音訊 (blue.mp3) 播放 ---
+        // 本機音訊軌道 (含檔名空白字元轉義)
         ytIframe.src = '';
         
-        // 解析正確路徑
         const cleanPath = track.src.replace('./', '');
-        const targetUrl = new URL(cleanPath, window.location.href).href;
+        const encodedPath = encodeURI(cleanPath);
+        const targetUrl = new URL(encodedPath, window.location.href).href;
 
         if (audio.src !== targetUrl) {
           audio.src = targetUrl;
@@ -790,7 +806,6 @@
       }
     }
 
-    // 本機音訊自動同步真實秒數
     const globalAudio = document.getElementById('audioCore');
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
@@ -918,13 +933,15 @@
       editTrackAtIndex(selectedTrackIdx);
     }
 
+    // 更換 CD 封面（支援 Google 雲端直接貼上）
     function changeCurrentCdCover() {
       const curVer = config.versions[cdState.verIndex];
-      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址：", curVer.cover);
+      const raw = prompt("請貼上正方形 CD 光碟盤面封面網址 (可直接貼 Google 雲端分享連結)：", curVer.cover);
       if (raw) {
-        curVer.cover = raw.trim();
+        curVer.cover = formatCoverUrl(raw);
         saveState();
         renderCdPlayerUI();
+        alert("✅ CD 封面已成功更新並自動套用直連！");
       }
     }
 
@@ -1007,15 +1024,17 @@
       }
     }
 
+    // 更換背景（支援 Google 雲端直接貼上）
     function changeWallpaper() {
-      const raw = prompt("請輸入背景顏色或圖片網址 (輸入 clear 恢復純淡藍色)：", "");
+      const raw = prompt("請輸入背景圖片網址 (可直接貼 Google 雲端分享連結，輸入 clear 恢復預設淡藍色)：", "");
       if (raw === "clear") {
         config.wallpaper = "";
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = "#b8d5ec";
       } else if (raw) {
-        config.wallpaper = raw.trim();
+        config.wallpaper = formatCoverUrl(raw);
         document.body.style.backgroundImage = `url('${config.wallpaper}')`;
+        alert("✅ 背景已成功更新！");
       }
       saveState();
     }
