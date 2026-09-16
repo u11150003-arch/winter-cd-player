@@ -56,6 +56,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
+    /* 開場全螢幕展示層 (中心完全挖空透視背景) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -79,6 +80,7 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
+    /* 逼真 CD 光碟：金屬虹彩無灰圈 + 實體中心挖空 */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
       background: conic-gradient(
@@ -118,6 +120,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
+    /* 頂部管理列 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, env(safe-area-inset-top, 6px));
@@ -169,6 +172,7 @@
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
 
+    /* 3D 隨身聽舞台 */
     .cd-stage {
       position: relative;
       width: 165px; height: 165px;
@@ -187,6 +191,7 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
+    /* 播放器 CD 光碟 (實體中心挖空) */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -214,6 +219,7 @@
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
     @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+    /* CD 封面容器 */
     .cd-disc-art-wrap {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       overflow: hidden; pointer-events: none;
@@ -229,6 +235,7 @@
       transform-origin: center center;
     }
 
+    /* CD 隨身聽內圈透明壓克力反光環 (中間透空) */
     .cd-center-hole {
       position: absolute; top: 50%; left: 50%;
       width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
@@ -238,6 +245,7 @@
       z-index: 10; pointer-events: none;
     }
 
+    /* Win98 播放器視窗 */
     .player-subwin {
       width: 100%; max-width: 440px; margin: 0 auto;
       box-shadow: 2px 2px 14px rgba(0,0,0,0.4); flex-shrink: 0;
@@ -351,6 +359,7 @@
     .start-menu li:hover { background: #000080; color: #fff; }
     .start-menu a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; width: 100%; }
 
+    /* 縮放與位置調整面板 */
     .adjust-modal {
       display: none; position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -373,6 +382,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
+  <!-- 開場封面展示層 (中心完全挖空) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -466,6 +476,7 @@
     </div>
   </div>
 
+  <!-- 縮放與位置調整面板 -->
   <div class="window adjust-modal" id="adjustModal" onclick="event.stopPropagation()">
     <div class="title-bar">
       <div class="title-bar-text" id="adjustModalTitle">🔍 調微細節</div>
@@ -506,8 +517,8 @@
         </a>
       </li>
       <li>
-        <a href="https://u11150003-arch.github.io/winter-galaxy/">
-          🪐 <strong>2. 前往 WINTER GALAXY 視訊</strong>
+        <a href="https://u11150003-arch.github.io/winter-wildwest/">
+          🤠 <strong>2. 前往 WINTER WILD WEST</strong>
         </a>
       </li>
       <li onclick="location.reload()">💿 3. 重新整理 CD Player</li>
@@ -554,6 +565,7 @@
       return url.trim();
     }
 
+    // 內嵌最新配置資料庫
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -566,7 +578,11 @@
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
-          "adjust": { "scale": 105, "x": 48, "y": 50 },
+          "adjust": {
+            "scale": 105,
+            "x": 48,
+            "y": 50
+          },
           "tracks": [
             { "title": "Lips", "src": "./lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -577,7 +593,11 @@
         {
           "name": "Spark",
           "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
-          "adjust": { "scale": 130, "x": 41, "y": 52 },
+          "adjust": {
+            "scale": 130,
+            "x": 41,
+            "y": 52
+          },
           "tracks": [
             { "title": "Spark", "src": "./spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -589,7 +609,11 @@
         {
           "name": "BLUE",
           "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
-          "adjust": { "scale": 123, "x": 46, "y": 52 },
+          "adjust": {
+            "scale": 123,
+            "x": 46,
+            "y": 52
+          },
           "tracks": [
             { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -600,9 +624,13 @@
         {
           "name": "Saddle Up",
           "cover": "https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi",
-          "adjust": { "scale": 108, "x": 50, "y": 50 },
+          "adjust": {
+            "scale": 108,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
-            { "title": "aespa - Drama", "src": "D8VEhcPeSlc", "type": "youtube" },
+            { "title": "Saddle Up", "src": "./saddle up.mp3", "type": "file" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -612,7 +640,11 @@
         {
           "name": "Speed of Summer",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "adjust": {
+            "scale": 100,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
             { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
@@ -623,7 +655,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_saddleup_sync_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_wildwest_sync_v2";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -631,9 +663,9 @@
       verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 3,
       trackIndex: 0,
       isPlaying: false,
-      timerInterval: null,
       currentSec: 0,
-      totalDuration: 0
+      totalDuration: 0,
+      ytTimer: null
     };
 
     let trackClipboard = null;
@@ -661,7 +693,7 @@
       saveState();
       const output = `const CD_MASTER_CONFIG = ${JSON.stringify(config, null, 2)};`;
       navigator.clipboard.writeText(output).then(() => {
-        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 index.html 的 CD_MASTER_CONFIG 區域。");
+        alert("✅ 最新進度已複製至剪貼簿！可直接貼回 GitHub index.html 的 CD_MASTER_CONFIG 區域。");
       }).catch(() => {
         prompt("請複製以下最新備份代碼：", output);
       });
@@ -672,11 +704,8 @@
       renderCdPlayerUI();
       
       const audio = document.getElementById('audioCore');
-      audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      }).catch(()=>{});
+      audio.muted = false;
+      audio.volume = 1.0;
     }
 
     function toggleAdmin(e) {
@@ -902,6 +931,7 @@
       else playCurrentTrack();
     }
 
+    // 重構音訊播放核心：原生事件驅動，保證秒點秒播
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -916,35 +946,40 @@
       const ytId = extractYoutubeId(track.src);
 
       if (ytId) {
+        // YouTube 播放軌道
         audio.pause();
         audio.src = '';
         const startSec = Math.floor(cdState.currentSec || 0);
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
+        startXpYtTimer();
       } else {
+        // 本機音訊軌道
+        clearInterval(cdState.ytTimer);
         ytIframe.src = '';
+        
         const cleanPath = track.src.replace('./', '');
         const encodedPath = encodeURI(cleanPath);
         const targetUrl = new URL(encodedPath, window.location.href).href;
 
         if (audio.src !== targetUrl) {
           audio.src = targetUrl;
-          audio.load();
         }
 
         audio.muted = false;
         audio.volume = 1.0;
-        audio.currentTime = cdState.currentSec || 0;
+        if (cdState.currentSec > 0 && Math.abs(audio.currentTime - cdState.currentSec) > 1) {
+          audio.currentTime = cdState.currentSec;
+        }
 
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(err => {
-            console.error("Audio playback error:", err);
+            console.warn("Audio play blocked, retrying on next tap:", err);
           });
         }
       }
 
-      startProgressTracker();
       renderCdPlayerUI();
     }
 
@@ -961,7 +996,7 @@
       audio.pause();
       ytIframe.src = '';
 
-      clearInterval(cdState.timerInterval);
+      clearInterval(cdState.ytTimer);
       updateDiscSpinning();
     }
 
@@ -1020,6 +1055,7 @@
       }
     }
 
+    // 原生 Audio 事件監聽
     const globalAudio = document.getElementById('audioCore');
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
@@ -1028,36 +1064,36 @@
       }
     });
 
+    globalAudio.addEventListener('timeupdate', () => {
+      if (!cdState.isPlaying) return;
+      cdState.currentSec = globalAudio.currentTime;
+      if (globalAudio.duration && !isNaN(globalAudio.duration) && globalAudio.duration > 0) {
+        cdState.totalDuration = globalAudio.duration;
+      }
+      updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
+      if (cdState.totalDuration > 0) {
+        const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
+        document.getElementById('lcdProgressFill').style.width = percent + '%';
+      }
+    });
+
     globalAudio.addEventListener('ended', () => {
       nextCdTrack();
     });
 
-    function startProgressTracker() {
-      clearInterval(cdState.timerInterval);
-      cdState.timerInterval = setInterval(() => {
-        const audio = document.getElementById('audioCore');
-        const curVer = config.versions[cdState.verIndex];
-        const track = curVer.tracks[cdState.trackIndex];
-        const isYt = extractYoutubeId(track.src);
-
-        if (!isYt) {
-          if (audio.src) {
-            cdState.currentSec = audio.currentTime || 0;
-            if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
-              cdState.totalDuration = audio.duration;
-            }
-          }
-        } else {
-          cdState.currentSec++;
-          if (!cdState.totalDuration) cdState.totalDuration = 210;
-        }
-
+    function startXpYtTimer() {
+      clearInterval(cdState.ytTimer);
+      cdState.ytTimer = setInterval(() => {
+        if (!cdState.isPlaying) return;
+        cdState.currentSec++;
+        if (!cdState.totalDuration) cdState.totalDuration = 210;
         updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
-        if (cdState.totalDuration > 0) {
-          const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
-          document.getElementById('lcdProgressFill').style.width = percent + '%';
+        const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
+        document.getElementById('lcdProgressFill').style.width = percent + '%';
+        if (cdState.currentSec >= cdState.totalDuration) {
+          nextCdTrack();
         }
-      }, 500);
+      }, 1000);
     }
 
     function updateLcdDisplay(sec, totalSec) {
@@ -1154,7 +1190,7 @@
         curVer.cover = formatCoverUrl(raw);
         saveState();
         renderCdPlayerUI();
-        alert("✅ CD 封面已成功更新！");
+        alert("✅ CD 封面已成功更新！若需微調大小，請使用頂部「🔍 調封面大小位置」按鈕。");
       }
     }
 
@@ -1245,7 +1281,7 @@
       } else if (raw) {
         config.wallpaper = formatCoverUrl(raw);
         applyWallpaperStyles();
-        alert("✅ 背景已更新！");
+        alert("✅ 背景已更新！若需微調大小，請使用頂部「🖼️ 調背景大小位置」按鈕。");
       }
       saveState();
     }
@@ -1259,6 +1295,10 @@
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
+      const adj = document.getElementById('adjustModal');
+      if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
+        // 點擊面板外部保留
+      }
     }
 
     (function init3dDiscDrag() {
