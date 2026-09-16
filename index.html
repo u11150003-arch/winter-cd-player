@@ -80,7 +80,6 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     }
 
-    /* 逼真 CD 光碟：金屬虹彩無灰圈 + 實體中心挖空 */
     .intro-cd-disc {
       width: 190px; height: 190px; border-radius: 50% !important;
       background: conic-gradient(
@@ -191,7 +190,6 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
-    /* 播放器 CD 光碟 (實體中心挖空) */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -219,7 +217,6 @@
     .cd-disc-3d.spinning { animation: discSpin 2.4s linear infinite; }
     @keyframes discSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* CD 封面容器 */
     .cd-disc-art-wrap {
       position: absolute; width: 100%; height: 100%; border-radius: 50% !important;
       overflow: hidden; pointer-events: none;
@@ -235,7 +232,6 @@
       transform-origin: center center;
     }
 
-    /* CD 隨身聽內圈透明壓克力反光環 (中間透空) */
     .cd-center-hole {
       position: absolute; top: 50%; left: 50%;
       width: 32px; height: 32px; margin-left: -16px; margin-top: -16px;
@@ -258,11 +254,20 @@
     }
     .player-subwin .window-body { padding: 6px !important; background: #c0c0c0 !important; }
 
+    /* 頂部導航列 (YouTube 圖示按鈕置於右側) */
     .folder-nav-bar {
-      display: flex; gap: 4px; align-items: center; margin-bottom: 6px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
       background: #c0c0c0; padding: 3px; border: 2px groove #fff;
     }
+    .nav-left-group { display: flex; gap: 4px; align-items: center; }
     .folder-nav-bar button { font-size: 11px !important; padding: 2px 6px !important; height: 22px !important; }
+
+    .yt-icon-btn {
+      height: 22px !important; padding: 0 6px !important;
+      display: inline-flex !important; align-items: center !important; justify-content: center !important;
+      background: #c0c0c0 !important; border: 2px outset #fff !important; text-decoration: none !important;
+    }
+    .yt-icon-btn:active { border: 2px inset #fff !important; }
 
     .lcd-screen {
       background: #000 !important; color: #39ff14 !important; font-family: monospace !important;
@@ -274,24 +279,11 @@
 
     .lcd-progress-bar {
       width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
-      margin-bottom: 6px; position: relative; cursor: pointer;
+      margin-bottom: 8px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
       height: 100%; width: 0%; background: #000080; transition: width 0.3s linear; pointer-events: none;
     }
-
-    /* 外部 YouTube 清單專屬按鈕列 */
-    .external-playlist-bar {
-      margin-bottom: 6px; width: 100%;
-    }
-    .external-playlist-btn {
-      width: 100% !important; height: 26px !important;
-      background: #f0f0f0 !important; border: 2px outset #fff !important;
-      font-weight: bold !important; color: #b71c1c !important;
-      display: flex !important; align-items: center !important; justify-content: center !important;
-      gap: 6px !important; text-decoration: none !important;
-    }
-    .external-playlist-btn:active { border: 2px inset #fff !important; }
 
     .player-ctrl-row {
       display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
@@ -395,7 +387,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場封面展示層 (中心完全挖空) -->
+  <!-- 開場展示層 (中心完全挖空) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -449,8 +441,14 @@
       </div>
       <div class="window-body">
         <div class="folder-nav-bar">
-          <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
-          <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
+          <div class="nav-left-group">
+            <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
+            <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
+          </div>
+          <!-- 放置在秒數正上方的純 YouTube Icon 按鈕 -->
+          <a id="btnExternalPlaylist" class="yt-icon-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯播放清單">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
         </div>
 
         <div class="lcd-screen">
@@ -459,14 +457,6 @@
         </div>
         <div class="lcd-progress-bar" id="progressBarTrack" onclick="handleSeek(event)">
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
-        </div>
-
-        <!-- 外部 YouTube 播放清單前往按鍵 -->
-        <div class="external-playlist-bar">
-          <a id="btnExternalPlaylist" class="external-playlist-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯完整播放清單">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            <span id="externalPlaylistLabel">在 YouTube 開啟此專輯播放清單 (Playlist)</span>
-          </a>
         </div>
 
         <div class="player-ctrl-row">
@@ -529,7 +519,7 @@
     </div>
   </div>
 
-  <!-- 開始選單 (三網頁一鍵互通) -->
+  <!-- 開始選單 -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -587,7 +577,6 @@
       return url.trim();
     }
 
-    // 內嵌完整資料庫：包含 5 張專輯對應的專屬 YouTube 播放清單連結
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -662,7 +651,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_yt_playlist_sync_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_yt_icon_pos_v2";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -730,7 +719,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖縮放調節、YT清單設定、曲目編輯功能。");
+          alert("登入成功！已解鎖管理功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -781,15 +770,13 @@
       applyCoverStyles();
       applyWallpaperStyles();
 
-      // 更新 YouTube 播放清單跳轉按鈕
+      // 更新 YouTube 純 Icon 按鈕連結
       const ytBtn = document.getElementById('btnExternalPlaylist');
-      const ytLabel = document.getElementById('externalPlaylistLabel');
       if (curVer.ytPlaylistUrl) {
         ytBtn.href = curVer.ytPlaylistUrl;
-        ytBtn.style.display = 'flex';
-        ytLabel.innerText = `在 YouTube 開啟《${curVer.name}》完整清單`;
+        ytBtn.style.visibility = 'visible';
       } else {
-        ytBtn.style.display = 'none';
+        ytBtn.style.visibility = 'hidden';
       }
 
       const tabsRow = document.getElementById('verTabsRow');
@@ -850,7 +837,6 @@
       updateNavButtons();
     }
 
-    // 管理員自訂 YouTube 播放清單網址
     function editCurrentYtPlaylistUrl() {
       const curVer = config.versions[cdState.verIndex];
       const newUrl = prompt(`請輸入《${curVer.name}》對應的 YouTube 播放清單網址：`, curVer.ytPlaylistUrl || "");
@@ -961,6 +947,7 @@
       else playCurrentTrack();
     }
 
+    // 播放核心：最佳化秒開載入
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -975,7 +962,6 @@
       const ytId = extractYoutubeId(track.src);
 
       if (ytId) {
-        // YouTube 播放軌道
         audio.pause();
         audio.src = '';
         const startSec = Math.floor(cdState.currentSec || 0);
@@ -983,16 +969,16 @@
         cdState.totalDuration = 210;
         startXpYtTimer();
       } else {
-        // 本機音訊軌道
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
         
+        // 修正檔名轉義與直接載入
         const cleanPath = track.src.replace('./', '');
-        const encodedPath = encodeURI(cleanPath);
-        const targetUrl = new URL(encodedPath, window.location.href).href;
+        const encodedSrc = encodeURI(cleanPath);
 
-        if (audio.src !== targetUrl) {
-          audio.src = targetUrl;
+        if (!audio.src.endsWith(encodedSrc)) {
+          audio.src = encodedSrc;
+          audio.load();
         }
 
         audio.muted = false;
@@ -1001,10 +987,11 @@
           audio.currentTime = cdState.currentSec;
         }
 
+        // 直接觸發播放
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(err => {
-            console.warn("Audio play blocked:", err);
+            console.warn("Audio play wait/block:", err);
           });
         }
       }
@@ -1218,7 +1205,7 @@
         curVer.cover = formatCoverUrl(raw);
         saveState();
         renderCdPlayerUI();
-        alert("✅ CD 封面已成功更新！若需微調大小，請使用頂部「🔍 調封面大小位置」按鈕。");
+        alert("✅ CD 封面已成功更新！");
       }
     }
 
@@ -1309,7 +1296,7 @@
       } else if (raw) {
         config.wallpaper = formatCoverUrl(raw);
         applyWallpaperStyles();
-        alert("✅ 背景已更新！若需微調大小，請使用頂部「🖼️ 調背景大小位置」按鈕。");
+        alert("✅ 背景已更新！");
       }
       saveState();
     }
