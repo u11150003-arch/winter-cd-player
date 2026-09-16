@@ -56,7 +56,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層 (中心完全挖空透視背景) */
+    /* 開場展示層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -274,11 +274,24 @@
 
     .lcd-progress-bar {
       width: 100%; height: 10px; background: #fff; border: 2px inset #dfdfdf;
-      margin-bottom: 8px; position: relative; cursor: pointer;
+      margin-bottom: 6px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
       height: 100%; width: 0%; background: #000080; transition: width 0.3s linear; pointer-events: none;
     }
+
+    /* 外部 YouTube 清單專屬按鈕列 */
+    .external-playlist-bar {
+      margin-bottom: 6px; width: 100%;
+    }
+    .external-playlist-btn {
+      width: 100% !important; height: 26px !important;
+      background: #f0f0f0 !important; border: 2px outset #fff !important;
+      font-weight: bold !important; color: #b71c1c !important;
+      display: flex !important; align-items: center !important; justify-content: center !important;
+      gap: 6px !important; text-decoration: none !important;
+    }
+    .external-playlist-btn:active { border: 2px inset #fff !important; }
 
     .player-ctrl-row {
       display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
@@ -396,6 +409,7 @@
       <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
       <button class="admin-only" style="background:#fff2b2; font-weight:bold;" onclick="openAdjustModal('cover')">🔍 調封面大小位置</button>
       <button class="admin-only" style="background:#e0f7fa; font-weight:bold;" onclick="openAdjustModal('wallpaper')">🖼️ 調背景大小位置</button>
+      <button class="admin-only" style="background:#ffebee; color:#c62828; font-weight:bold;" onclick="editCurrentYtPlaylistUrl()">🔗 改YT清單網址</button>
       <button class="admin-only" onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
       <button class="admin-only" onclick="addTrackToActiveVer()">+ 新增曲目</button>
       <button class="admin-only" onclick="editSelectedTrackPrompt()">✏️ 編輯選中曲目</button>
@@ -445,6 +459,14 @@
         </div>
         <div class="lcd-progress-bar" id="progressBarTrack" onclick="handleSeek(event)">
           <div class="lcd-progress-fill" id="lcdProgressFill"></div>
+        </div>
+
+        <!-- 外部 YouTube 播放清單前往按鍵 -->
+        <div class="external-playlist-bar">
+          <a id="btnExternalPlaylist" class="external-playlist-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯完整播放清單">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span id="externalPlaylistLabel">在 YouTube 開啟此專輯播放清單 (Playlist)</span>
+          </a>
         </div>
 
         <div class="player-ctrl-row">
@@ -565,7 +587,7 @@
       return url.trim();
     }
 
-    // 內嵌最新配置資料庫
+    // 內嵌完整資料庫：包含 5 張專輯對應的專屬 YouTube 播放清單連結
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -578,11 +600,8 @@
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
-          "adjust": {
-            "scale": 105,
-            "x": 48,
-            "y": 50
-          },
+          "ytPlaylistUrl": "https://youtube.com/playlist?list=PLRULrLYCQiLE",
+          "adjust": { "scale": 105, "x": 48, "y": 50 },
           "tracks": [
             { "title": "Lips", "src": "./lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -593,11 +612,8 @@
         {
           "name": "Spark",
           "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
-          "adjust": {
-            "scale": 130,
-            "x": 41,
-            "y": 52
-          },
+          "ytPlaylistUrl": "https://youtube.com/playlist?list=PLaMTkiOdIubY",
+          "adjust": { "scale": 130, "x": 41, "y": 52 },
           "tracks": [
             { "title": "Spark", "src": "./spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -609,11 +625,8 @@
         {
           "name": "BLUE",
           "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
-          "adjust": {
-            "scale": 123,
-            "x": 46,
-            "y": 52
-          },
+          "ytPlaylistUrl": "https://youtube.com/playlist?list=PLCNrMOBKYIl8",
+          "adjust": { "scale": 123, "x": 46, "y": 52 },
           "tracks": [
             { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
@@ -624,11 +637,8 @@
         {
           "name": "Saddle Up",
           "cover": "https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi",
-          "adjust": {
-            "scale": 108,
-            "x": 50,
-            "y": 50
-          },
+          "ytPlaylistUrl": "https://youtube.com/playlist?list=PLUdyUn-FboWs",
+          "adjust": { "scale": 108, "x": 50, "y": 50 },
           "tracks": [
             { "title": "Saddle Up", "src": "./saddle up.mp3", "type": "file" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -640,11 +650,8 @@
         {
           "name": "Speed of Summer",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
-          "adjust": {
-            "scale": 100,
-            "x": 50,
-            "y": 50
-          },
+          "ytPlaylistUrl": "https://youtube.com/playlist?list=PLcq-xBkOq1is",
+          "adjust": { "scale": 100, "x": 50, "y": 50 },
           "tracks": [
             { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
@@ -655,7 +662,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_v2026_wildwest_sync_v2";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_yt_playlist_sync_v1";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -723,7 +730,7 @@
           document.body.classList.add('admin-mode');
           document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖縮放調節、曲目排序、編輯功能。");
+          alert("登入成功！已解鎖縮放調節、YT清單設定、曲目編輯功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -773,6 +780,17 @@
       const curVer = config.versions[cdState.verIndex];
       applyCoverStyles();
       applyWallpaperStyles();
+
+      // 更新 YouTube 播放清單跳轉按鈕
+      const ytBtn = document.getElementById('btnExternalPlaylist');
+      const ytLabel = document.getElementById('externalPlaylistLabel');
+      if (curVer.ytPlaylistUrl) {
+        ytBtn.href = curVer.ytPlaylistUrl;
+        ytBtn.style.display = 'flex';
+        ytLabel.innerText = `在 YouTube 開啟《${curVer.name}》完整清單`;
+      } else {
+        ytBtn.style.display = 'none';
+      }
 
       const tabsRow = document.getElementById('verTabsRow');
       tabsRow.innerHTML = `
@@ -830,6 +848,18 @@
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
       updateDiscSpinning();
       updateNavButtons();
+    }
+
+    // 管理員自訂 YouTube 播放清單網址
+    function editCurrentYtPlaylistUrl() {
+      const curVer = config.versions[cdState.verIndex];
+      const newUrl = prompt(`請輸入《${curVer.name}》對應的 YouTube 播放清單網址：`, curVer.ytPlaylistUrl || "");
+      if (newUrl !== null) {
+        curVer.ytPlaylistUrl = newUrl.trim();
+        saveState();
+        renderCdPlayerUI();
+        alert(`✅《${curVer.name}》的 YouTube 播放清單已更新！`);
+      }
     }
 
     function openAdjustModal(target) {
@@ -931,7 +961,6 @@
       else playCurrentTrack();
     }
 
-    // 重構音訊播放核心：原生事件驅動，保證秒點秒播
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -975,7 +1004,7 @@
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(err => {
-            console.warn("Audio play blocked, retrying on next tap:", err);
+            console.warn("Audio play blocked:", err);
           });
         }
       }
@@ -1055,7 +1084,6 @@
       }
     }
 
-    // 原生 Audio 事件監聽
     const globalAudio = document.getElementById('audioCore');
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
@@ -1297,7 +1325,7 @@
       if (menu) menu.style.display = 'none';
       const adj = document.getElementById('adjustModal');
       if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
-        // 點擊面板外部保留
+        // 保留面板
       }
     }
 
