@@ -190,6 +190,7 @@
       background: #1c242c; box-shadow: inset 0 4px 10px #000;
     }
 
+    /* 播放器 CD 光碟 (實體中心挖空) */
     .cd-disc-3d {
       position: absolute; width: 120px; height: 120px; border-radius: 50% !important;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -254,7 +255,7 @@
     }
     .player-subwin .window-body { padding: 6px !important; background: #c0c0c0 !important; }
 
-    /* 頂部導航列 (YouTube 圖示按鈕置於右側) */
+    /* 頂部導航列 (YouTube 圖示置於右側) */
     .folder-nav-bar {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
       background: #c0c0c0; padding: 3px; border: 2px groove #fff;
@@ -282,7 +283,7 @@
       margin-bottom: 8px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
-      height: 100%; width: 0%; background: #000080; transition: width 0.3s linear; pointer-events: none;
+      height: 100%; width: 0%; background: #000080; transition: width 0.15s linear; pointer-events: none;
     }
 
     .player-ctrl-row {
@@ -554,7 +555,7 @@
   </div>
 
   <div class="audio-mount-box">
-    <audio id="audioCore" preload="auto" playsinline></audio>
+    <audio id="audioCore" preload="metadata" playsinline></audio>
     <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -651,7 +652,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_yt_icon_pos_v2";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_smooth_play_v3";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -661,7 +662,8 @@
       isPlaying: false,
       currentSec: 0,
       totalDuration: 0,
-      ytTimer: null
+      ytTimer: null,
+      lastThrottleTime: 0
     };
 
     let trackClipboard = null;
@@ -702,6 +704,11 @@
       const audio = document.getElementById('audioCore');
       audio.muted = false;
       audio.volume = 1.0;
+      // 觸發使用者點擊授權，消除 Safari/Chrome 的 Autoplay 封鎖
+      const dummyPlay = audio.play();
+      if (dummyPlay !== undefined) {
+        dummyPlay.then(() => audio.pause()).catch(() => {});
+      }
     }
 
     function toggleAdmin(e) {
@@ -947,7 +954,7 @@
       else playCurrentTrack();
     }
 
-    // 播放核心：最佳化秒開載入
+    // 重構音訊引擎：秒點秒播 + 串流防延遲
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -962,23 +969,24 @@
       const ytId = extractYoutubeId(track.src);
 
       if (ytId) {
+        // YouTube 播放
         audio.pause();
-        audio.src = '';
+        audio.removeAttribute('src'); // 釋放本機音訊通道，防止電腦/手機音訊搶佔
         const startSec = Math.floor(cdState.currentSec || 0);
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
         startXpYtTimer();
       } else {
+        // 本機 MP3 播放
         clearInterval(cdState.ytTimer);
-        ytIframe.src = '';
-        
-        // 修正檔名轉義與直接載入
-        const cleanPath = track.src.replace('./', '');
-        const encodedSrc = encodeURI(cleanPath);
+        ytIframe.src = ''; // 徹底關閉 iframe，節省 CPU 與頻寬
 
-        if (!audio.src.endsWith(encodedSrc)) {
-          audio.src = encodedSrc;
-          audio.load();
+        const cleanPath = track.src.replace('./', '');
+        const targetSrc = encodeURI(cleanPath);
+
+        // 僅在來源不同時賦值，避免重複 load() 造成斷續
+        if (!audio.src.endsWith(targetSrc)) {
+          audio.src = targetSrc;
         }
 
         audio.muted = false;
@@ -987,11 +995,11 @@
           audio.currentTime = cdState.currentSec;
         }
 
-        // 直接觸發播放
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => {
-            console.warn("Audio play wait/block:", err);
+        // 立即觸發播放
+        const p = audio.play();
+        if (p !== undefined) {
+          p.catch(err => {
+            console.warn("Audio autoplay blocked by system:", err);
           });
         }
       }
@@ -1027,6 +1035,7 @@
       cdState.currentSec = 0;
       const audio = document.getElementById('audioCore');
       audio.currentTime = 0;
+      audio.removeAttribute('src');
       document.getElementById('ytCore').src = '';
       updateLcdDisplay(0, cdState.totalDuration);
       document.getElementById('lcdProgressFill').style.width = '0%';
@@ -1071,6 +1080,7 @@
       }
     }
 
+    // 輕量化 Native Audio 監聽（加入節流，解決手機音樂斷續）
     const globalAudio = document.getElementById('audioCore');
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
@@ -1081,6 +1091,11 @@
 
     globalAudio.addEventListener('timeupdate', () => {
       if (!cdState.isPlaying) return;
+      const now = Date.now();
+      // 節流 250ms，減輕手機渲染壓力
+      if (now - cdState.lastThrottleTime < 250) return;
+      cdState.lastThrottleTime = now;
+
       cdState.currentSec = globalAudio.currentTime;
       if (globalAudio.duration && !isNaN(globalAudio.duration) && globalAudio.duration > 0) {
         cdState.totalDuration = globalAudio.duration;
@@ -1310,10 +1325,6 @@
     function handleGlobalClick(e) {
       const menu = document.getElementById('startMenu');
       if (menu) menu.style.display = 'none';
-      const adj = document.getElementById('adjustModal');
-      if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
-        // 保留面板
-      }
     }
 
     (function init3dDiscDrag() {
