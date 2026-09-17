@@ -554,7 +554,7 @@
   </div>
 
   <div class="audio-mount-box">
-    <audio id="audioCore" preload="auto" playsinline></audio>
+    <audio id="audioCore" playsinline></audio>
     <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -651,7 +651,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_fixed_loading_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_direct_load_v2";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -948,7 +948,7 @@
       else playCurrentTrack();
     }
 
-    // 播放核心：安全路徑解析 + 零等待極速起播
+    // 播放核心：直連路徑注入，零等待立即解碼
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -975,32 +975,16 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        // 構建精確的完整絕對路徑
-        const cleanFile = track.src.replace(/^\.\//, '');
-        const targetUrl = new URL(encodeURI(cleanFile), window.location.href).href;
+        // 直接轉為標準檔名
+        const rawFileName = track.src.replace(/^\.\//, '');
+        const targetUrl = new URL(encodeURIComponent(rawFileName).replace(/%2F/g, '/'), window.location.href).href;
 
         audio.muted = false;
         audio.volume = 1.0;
 
-        // 綁定載入防呆狀態
-        titleEl.innerText = "LOADING...";
+        titleEl.innerText = track.title;
 
-        const onAudioReady = () => {
-          titleEl.innerText = track.title;
-          if (audio.duration && !isNaN(audio.duration)) {
-            cdState.totalDuration = audio.duration;
-            updateLcdDisplay(audio.currentTime, audio.duration);
-          }
-        };
-
-        audio.onloadeddata = onAudioReady;
-        audio.oncanplay = onAudioReady;
-
-        audio.onerror = () => {
-          titleEl.innerText = "FILE NOT FOUND";
-          console.error("Audio Load Error on:", targetUrl);
-        };
-
+        // 僅當 URL 改變時重新給值，防止重新載入音訊
         if (audio.src !== targetUrl) {
           audio.src = targetUrl;
         }
@@ -1009,13 +993,11 @@
           audio.currentTime = cdState.currentSec;
         }
 
-        // 立即觸發播放
+        // 直接觸發 play，不再使用 oncanplay 進行阻塞等待
         const p = audio.play();
         if (p !== undefined) {
-          p.then(() => {
-            titleEl.innerText = track.title;
-          }).catch(err => {
-            console.warn("Autoplay interaction blocked:", err);
+          p.catch(err => {
+            console.warn("Play pending user interaction or network buffer:", err);
           });
         }
       }
@@ -1097,6 +1079,15 @@
     }
 
     const globalAudio = document.getElementById('audioCore');
+    
+    // 即時擷取音訊總時長
+    globalAudio.addEventListener('durationchange', () => {
+      if (globalAudio.duration && !isNaN(globalAudio.duration)) {
+        cdState.totalDuration = globalAudio.duration;
+        updateLcdDisplay(globalAudio.currentTime, globalAudio.duration);
+      }
+    });
+
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
         cdState.totalDuration = globalAudio.duration;
@@ -1104,6 +1095,7 @@
       }
     });
 
+    // 播放進度監聽
     globalAudio.addEventListener('timeupdate', () => {
       if (!cdState.isPlaying) return;
       const now = Date.now();
