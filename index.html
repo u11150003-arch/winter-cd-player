@@ -651,7 +651,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_lag_v1";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_fixed_loading_v1";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -662,8 +662,7 @@
       currentSec: 0,
       totalDuration: 0,
       ytTimer: null,
-      lastThrottleTime: 0,
-      isAudioBuffering: false
+      lastThrottleTime: 0
     };
 
     let trackClipboard = null;
@@ -833,12 +832,7 @@
       });
 
       const curTrack = curVer.tracks[cdState.trackIndex];
-      const titleEl = document.getElementById('lcdTrackTitle');
-      if (cdState.isAudioBuffering) {
-        titleEl.innerText = "LOADING...";
-      } else {
-        titleEl.innerText = curTrack ? curTrack.title : "No Track";
-      }
+      document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
 
       updateDiscSpinning();
       updateNavButtons();
@@ -954,7 +948,7 @@
       else playCurrentTrack();
     }
 
-    // 串流音訊核心：平滑首幀解碼，杜絕 40 秒等待與手機斷音
+    // 播放核心：安全路徑解析 + 零等待極速起播
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -962,6 +956,7 @@
       const track = curVer.tracks[cdState.trackIndex];
       const audio = document.getElementById('audioCore');
       const ytIframe = document.getElementById('ytCore');
+      const titleEl = document.getElementById('lcdTrackTitle');
 
       cdState.isPlaying = true;
       document.getElementById('playIconSvg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
@@ -971,41 +966,57 @@
       if (ytId) {
         audio.pause();
         audio.removeAttribute('src');
-        cdState.isAudioBuffering = false;
         const startSec = Math.floor(cdState.currentSec || 0);
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
+        titleEl.innerText = track.title;
         startXpYtTimer();
       } else {
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const cleanPath = track.src.replace('./', '');
-        const targetSrc = encodeURI(cleanPath);
-
-        const currentSrcPath = audio.src ? new URL(audio.src, window.location.href).pathname : '';
-        const targetSrcPath = new URL(targetSrc, window.location.href).pathname;
+        // 構建精確的完整絕對路徑
+        const cleanFile = track.src.replace(/^\.\//, '');
+        const targetUrl = new URL(encodeURI(cleanFile), window.location.href).href;
 
         audio.muted = false;
         audio.volume = 1.0;
 
-        if (currentSrcPath !== targetSrcPath) {
-          cdState.isAudioBuffering = true;
-          document.getElementById('lcdTrackTitle').innerText = "LOADING...";
-          audio.src = targetSrc;
-          // 一旦獲取到首段緩衝即啟動播放，不必等待整首下載
-          audio.oncanplay = function() {
-            cdState.isAudioBuffering = false;
-            document.getElementById('lcdTrackTitle').innerText = track.title;
-            audio.play().catch(() => {});
-            audio.oncanplay = null;
-          };
-        } else {
-          cdState.isAudioBuffering = false;
-          if (cdState.currentSec > 0 && Math.abs(audio.currentTime - cdState.currentSec) > 1) {
-            audio.currentTime = cdState.currentSec;
+        // 綁定載入防呆狀態
+        titleEl.innerText = "LOADING...";
+
+        const onAudioReady = () => {
+          titleEl.innerText = track.title;
+          if (audio.duration && !isNaN(audio.duration)) {
+            cdState.totalDuration = audio.duration;
+            updateLcdDisplay(audio.currentTime, audio.duration);
           }
-          audio.play().catch(() => {});
+        };
+
+        audio.onloadeddata = onAudioReady;
+        audio.oncanplay = onAudioReady;
+
+        audio.onerror = () => {
+          titleEl.innerText = "FILE NOT FOUND";
+          console.error("Audio Load Error on:", targetUrl);
+        };
+
+        if (audio.src !== targetUrl) {
+          audio.src = targetUrl;
+        }
+
+        if (cdState.currentSec > 0 && Math.abs(audio.currentTime - cdState.currentSec) > 1) {
+          audio.currentTime = cdState.currentSec;
+        }
+
+        // 立即觸發播放
+        const p = audio.play();
+        if (p !== undefined) {
+          p.then(() => {
+            titleEl.innerText = track.title;
+          }).catch(err => {
+            console.warn("Autoplay interaction blocked:", err);
+          });
         }
       }
 
@@ -1014,7 +1025,6 @@
 
     function pauseCdTrack() {
       cdState.isPlaying = false;
-      cdState.isAudioBuffering = false;
       document.getElementById('playIconSvg').innerHTML = '<path d="M8 5v14l11-7z"/>';
 
       const audio = document.getElementById('audioCore');
