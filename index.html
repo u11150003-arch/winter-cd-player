@@ -282,7 +282,7 @@
       margin-bottom: 8px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
-      height: 100%; width: 0%; background: #000080; transition: width 0.2s linear; pointer-events: none;
+      height: 100%; width: 0%; background: #000080; transition: width 0.25s linear; pointer-events: none;
     }
 
     .player-ctrl-row {
@@ -387,7 +387,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場展示層 (中心完全挖空) -->
+  <!-- 開場展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -445,7 +445,7 @@
             <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
             <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
           </div>
-          <!-- 放置在秒數正上方的純 YouTube Icon 按鈕 -->
+          <!-- 秒數正上方的純 YouTube Icon 按鈕 -->
           <a id="btnExternalPlaylist" class="yt-icon-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯播放清單">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           </a>
@@ -554,7 +554,7 @@
   </div>
 
   <div class="audio-mount-box">
-    <!-- 使用 preload="auto" 啟用漸進式串流播放 -->
+    <!-- 啟用 auto 預載入與 playsinline -->
     <audio id="audioCore" preload="auto" playsinline></audio>
     <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
   </div>
@@ -593,7 +593,7 @@
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLRULrLYCQiLE",
           "adjust": { "scale": 105, "x": 48, "y": 50 },
           "tracks": [
-            { "title": "Lips", "src": "./lips.mp3", "type": "file" },
+            { "title": "Lips", "src": "lips.mp3", "type": "file" },
             { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube" },
             { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube" }
@@ -605,7 +605,7 @@
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLaMTkiOdIubY",
           "adjust": { "scale": 130, "x": 41, "y": 52 },
           "tracks": [
-            { "title": "Spark", "src": "./spark.mp3", "type": "file" },
+            { "title": "Spark", "src": "spark.mp3", "type": "file" },
             { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube" },
             { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube" },
             { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube" },
@@ -618,7 +618,7 @@
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLCNrMOBKYIl8",
           "adjust": { "scale": 123, "x": 46, "y": 52 },
           "tracks": [
-            { "title": "BLUE", "src": "./blue.mp3", "type": "file" },
+            { "title": "BLUE", "src": "blue.mp3", "type": "file" },
             { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube" },
             { "title": "Winter - Voyage", "src": "YTeFLKMnwjg", "type": "youtube" }
@@ -630,7 +630,7 @@
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLUdyUn-FboWs",
           "adjust": { "scale": 108, "x": 50, "y": 50 },
           "tracks": [
-            { "title": "Saddle Up", "src": "./saddle up.mp3", "type": "file" },
+            { "title": "Saddle Up", "src": "saddle up.mp3", "type": "file" },
             { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube" },
             { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube" },
@@ -643,7 +643,7 @@
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLcq-xBkOq1is",
           "adjust": { "scale": 100, "x": 50, "y": 50 },
           "tracks": [
-            { "title": "Speed of Summer", "src": "./speed of summer.mp3", "type": "file" },
+            { "title": "Speed of Summer", "src": "speed of summer.mp3", "type": "file" },
             { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube" },
             { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube" },
             { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube" }
@@ -652,7 +652,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_fast_stream_v4";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_wait_v5";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -834,6 +834,7 @@
 
       const curTrack = curVer.tracks[cdState.trackIndex];
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
+
       updateDiscSpinning();
       updateNavButtons();
     }
@@ -948,7 +949,7 @@
       else playCurrentTrack();
     }
 
-    // 終極音訊串流加速核心
+    // 播放核心：電腦與手機完全相容之無延遲載入技術
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -956,6 +957,7 @@
       const track = curVer.tracks[cdState.trackIndex];
       const audio = document.getElementById('audioCore');
       const ytIframe = document.getElementById('ytCore');
+      const titleEl = document.getElementById('lcdTrackTitle');
 
       cdState.isPlaying = true;
       document.getElementById('playIconSvg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
@@ -968,34 +970,33 @@
         const startSec = Math.floor(cdState.currentSec || 0);
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
+        titleEl.innerText = track.title;
         startXpYtTimer();
       } else {
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const cleanPath = track.src.replace('./', '');
-        const targetSrc = encodeURI(cleanPath);
-
-        // 僅在更換曲目時設置 src，避免重置 Buffer 造成斷斷續續
-        const currentSrcPath = audio.src ? new URL(audio.src, window.location.href).pathname : '';
-        const targetSrcPath = new URL(targetSrc, window.location.href).pathname;
-
-        if (currentSrcPath !== targetSrcPath) {
-          audio.src = targetSrc;
-        }
+        // 直接使用最純淨的相對檔名（支援含有空格檔名）
+        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
 
         audio.muted = false;
         audio.volume = 1.0;
+        titleEl.innerText = track.title;
+
+        // 當檔案更換時重新指派，並使用 load() 啟動電腦瀏覽器的 HTTP Range 流式載入
+        if (!audio.src.endsWith(targetSrc)) {
+          audio.src = targetSrc;
+          audio.load();
+        }
 
         if (cdState.currentSec > 0 && Math.abs(audio.currentTime - cdState.currentSec) > 1) {
           audio.currentTime = cdState.currentSec;
         }
 
-        // 使用 Promise 容錯播放
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => {
-            console.warn("Autoplay waiting for buffer/interaction:", err);
+        const p = audio.play();
+        if (p !== undefined) {
+          p.catch(err => {
+            console.warn("Autoplay pending interaction:", err);
           });
         }
       }
@@ -1031,6 +1032,7 @@
       cdState.currentSec = 0;
       const audio = document.getElementById('audioCore');
       audio.currentTime = 0;
+      audio.removeAttribute('src');
       document.getElementById('ytCore').src = '';
       updateLcdDisplay(0, cdState.totalDuration);
       document.getElementById('lcdProgressFill').style.width = '0%';
@@ -1075,26 +1077,29 @@
       }
     }
 
-    // 輕量化監聽：節流至 300ms，徹底防止行動端解碼卡頓
     const globalAudio = document.getElementById('audioCore');
-    globalAudio.addEventListener('loadedmetadata', () => {
-      if (globalAudio.duration && !isNaN(globalAudio.duration)) {
+    
+    // 多重事件監聽秒數：一拿到標頭資料就立刻顯示總時間
+    function syncAudioDuration() {
+      if (globalAudio.duration && !isNaN(globalAudio.duration) && globalAudio.duration > 0) {
         cdState.totalDuration = globalAudio.duration;
         updateLcdDisplay(globalAudio.currentTime, globalAudio.duration);
       }
-    });
+    }
+
+    globalAudio.addEventListener('durationchange', syncAudioDuration);
+    globalAudio.addEventListener('loadedmetadata', syncAudioDuration);
+    globalAudio.addEventListener('canplay', syncAudioDuration);
 
     globalAudio.addEventListener('timeupdate', () => {
       if (!cdState.isPlaying) return;
       const now = Date.now();
-      if (now - cdState.lastThrottleTime < 300) return;
+      if (now - cdState.lastThrottleTime < 250) return;
       cdState.lastThrottleTime = now;
 
       cdState.currentSec = globalAudio.currentTime;
-      if (globalAudio.duration && !isNaN(globalAudio.duration) && globalAudio.duration > 0) {
-        cdState.totalDuration = globalAudio.duration;
-      }
-      updateLcdDisplay(cdState.currentSec, cdState.totalDuration);
+      syncAudioDuration();
+
       if (cdState.totalDuration > 0) {
         const percent = Math.min(100, (cdState.currentSec / cdState.totalDuration) * 100);
         document.getElementById('lcdProgressFill').style.width = percent + '%';
@@ -1189,7 +1194,7 @@
           track.src = ytId;
           track.type = "youtube";
         } else {
-          track.src = link.startsWith("./") || link.startsWith("http") ? link : "./" + link;
+          track.src = link.replace(/^\.\//, '');
           track.type = "file";
         }
       }
@@ -1232,7 +1237,7 @@
       const curVer = config.versions[cdState.verIndex];
       const title = prompt("請輸入歌曲名稱：", "New Track");
       if (!title) return;
-      const link = prompt("請輸入本機檔案名稱 (例如 ./song.mp3) 或 YouTube 連結：");
+      const link = prompt("請輸入本機檔案名稱 (例如 song.mp3) 或 YouTube 連結：");
       if (!link) return;
 
       const trimmed = link.trim();
@@ -1244,7 +1249,7 @@
         src = ytId;
         type = "youtube";
       } else {
-        src = trimmed.startsWith("./") || trimmed.startsWith("http") ? trimmed : "./" + trimmed;
+        src = trimmed.replace(/^\.\//, '');
       }
 
       curVer.tracks.push({ title, src, type });
