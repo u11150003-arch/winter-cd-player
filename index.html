@@ -56,7 +56,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 */
+    /* 開場全螢幕展示層 (中心完全挖空) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -282,7 +282,7 @@
       margin-bottom: 8px; position: relative; cursor: pointer;
     }
     .lcd-progress-fill {
-      height: 100%; width: 0%; background: #000080; transition: width 0.25s linear; pointer-events: none;
+      height: 100%; width: 0%; background: #000080; transition: width 0.2s linear; pointer-events: none;
     }
 
     .player-ctrl-row {
@@ -387,7 +387,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場展示層 -->
+  <!-- 開場展示層 (中心完全挖空) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -445,7 +445,7 @@
             <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
             <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
           </div>
-          <!-- 秒數正上方的純 YouTube Icon 按鈕 -->
+          <!-- 放置在秒數正上方的純 YouTube Icon 按鈕 -->
           <a id="btnExternalPlaylist" class="yt-icon-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯播放清單">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           </a>
@@ -554,7 +554,8 @@
   </div>
 
   <div class="audio-mount-box">
-    <audio id="audioCore" playsinline></audio>
+    <!-- 使用 preload="auto" 啟用漸進式串流播放 -->
+    <audio id="audioCore" preload="auto" playsinline></audio>
     <iframe id="ytCore" allow="autoplay; encrypted-media"></iframe>
   </div>
 
@@ -651,7 +652,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_direct_load_v2";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_fast_stream_v4";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -833,7 +834,6 @@
 
       const curTrack = curVer.tracks[cdState.trackIndex];
       document.getElementById('lcdTrackTitle').innerText = curTrack ? curTrack.title : "No Track";
-
       updateDiscSpinning();
       updateNavButtons();
     }
@@ -948,7 +948,7 @@
       else playCurrentTrack();
     }
 
-    // 播放核心：直連路徑注入，零等待立即解碼
+    // 終極音訊串流加速核心
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -956,7 +956,6 @@
       const track = curVer.tracks[cdState.trackIndex];
       const audio = document.getElementById('audioCore');
       const ytIframe = document.getElementById('ytCore');
-      const titleEl = document.getElementById('lcdTrackTitle');
 
       cdState.isPlaying = true;
       document.getElementById('playIconSvg').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
@@ -969,35 +968,34 @@
         const startSec = Math.floor(cdState.currentSec || 0);
         ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&start=${startSec}&playsinline=1&controls=0&enablejsapi=1`;
         cdState.totalDuration = 210;
-        titleEl.innerText = track.title;
         startXpYtTimer();
       } else {
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        // 直接轉為標準檔名
-        const rawFileName = track.src.replace(/^\.\//, '');
-        const targetUrl = new URL(encodeURIComponent(rawFileName).replace(/%2F/g, '/'), window.location.href).href;
+        const cleanPath = track.src.replace('./', '');
+        const targetSrc = encodeURI(cleanPath);
+
+        // 僅在更換曲目時設置 src，避免重置 Buffer 造成斷斷續續
+        const currentSrcPath = audio.src ? new URL(audio.src, window.location.href).pathname : '';
+        const targetSrcPath = new URL(targetSrc, window.location.href).pathname;
+
+        if (currentSrcPath !== targetSrcPath) {
+          audio.src = targetSrc;
+        }
 
         audio.muted = false;
         audio.volume = 1.0;
-
-        titleEl.innerText = track.title;
-
-        // 僅當 URL 改變時重新給值，防止重新載入音訊
-        if (audio.src !== targetUrl) {
-          audio.src = targetUrl;
-        }
 
         if (cdState.currentSec > 0 && Math.abs(audio.currentTime - cdState.currentSec) > 1) {
           audio.currentTime = cdState.currentSec;
         }
 
-        // 直接觸發 play，不再使用 oncanplay 進行阻塞等待
-        const p = audio.play();
-        if (p !== undefined) {
-          p.catch(err => {
-            console.warn("Play pending user interaction or network buffer:", err);
+        // 使用 Promise 容錯播放
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn("Autoplay waiting for buffer/interaction:", err);
           });
         }
       }
@@ -1033,7 +1031,6 @@
       cdState.currentSec = 0;
       const audio = document.getElementById('audioCore');
       audio.currentTime = 0;
-      audio.removeAttribute('src');
       document.getElementById('ytCore').src = '';
       updateLcdDisplay(0, cdState.totalDuration);
       document.getElementById('lcdProgressFill').style.width = '0%';
@@ -1078,16 +1075,8 @@
       }
     }
 
+    // 輕量化監聽：節流至 300ms，徹底防止行動端解碼卡頓
     const globalAudio = document.getElementById('audioCore');
-    
-    // 即時擷取音訊總時長
-    globalAudio.addEventListener('durationchange', () => {
-      if (globalAudio.duration && !isNaN(globalAudio.duration)) {
-        cdState.totalDuration = globalAudio.duration;
-        updateLcdDisplay(globalAudio.currentTime, globalAudio.duration);
-      }
-    });
-
     globalAudio.addEventListener('loadedmetadata', () => {
       if (globalAudio.duration && !isNaN(globalAudio.duration)) {
         cdState.totalDuration = globalAudio.duration;
@@ -1095,11 +1084,10 @@
       }
     });
 
-    // 播放進度監聽
     globalAudio.addEventListener('timeupdate', () => {
       if (!cdState.isPlaying) return;
       const now = Date.now();
-      if (now - cdState.lastThrottleTime < 250) return;
+      if (now - cdState.lastThrottleTime < 300) return;
       cdState.lastThrottleTime = now;
 
       cdState.currentSec = globalAudio.currentTime;
