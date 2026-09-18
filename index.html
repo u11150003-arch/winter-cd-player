@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#8bb7db">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#c0c0c0">
   <title>WINTER CD PLAYER</title>
 
   <meta property="og:title" content="WINTER CD PLAYER">
@@ -26,37 +24,64 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
+      --topbar-h: calc(28px + var(--safe-top));
       --taskbar-h: calc(38px + var(--safe-bottom));
       --sky-wallpaper: url('https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy');
     }
 
-    /* 真正根節點天空滿版，穿透動態島與頂部狀態列 */
-    html {
+    html, body {
       margin: 0; padding: 0;
       width: 100vw; height: 100vh;
-      min-height: -webkit-fill-available;
-      background-image: var(--sky-wallpaper);
-      background-size: cover;
-      -webkit-background-size: cover;
-      background-position: center top;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-    }
-
-    body {
-      margin: 0; padding: 0;
-      width: 100vw; height: 100vh;
-      height: 100dvh;
-      min-height: -webkit-fill-available;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       user-select: none;
+      background-color: #c0c0c0;
+    }
+
+    /* 中間天空畫布區域 (夾在頂部灰色頂欄與底部工作列之間) */
+    .app-bg-layer {
+      position: fixed;
+      top: var(--topbar-h);
+      left: 0; right: 0;
+      bottom: var(--taskbar-h);
+      z-index: 0;
       background-image: var(--sky-wallpaper);
       background-size: cover;
-      -webkit-background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
-      background-attachment: fixed;
+      pointer-events: none;
+    }
+
+    /* 頂部 Win98 經典灰色標題頂欄 (完全覆蓋動態島與瀏海區域) */
+    .system-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: #c0c0c0;
+      border-bottom: 2px solid #808080;
+      box-shadow: 0 1px 0 #fff;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-bottom: 4px;
+      padding-left: max(10px, var(--safe-left));
+      padding-right: max(10px, var(--safe-right));
+      z-index: 2500;
+    }
+    .topbar-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .topbar-right-info {
+      font-size: 11px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -78,18 +103,18 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層：自帶相同天空背景，遮擋下方播放器，避免重疊透出 */
+    /* 開場展示層 (覆蓋中間畫布，不擋住上下灰色頂欄) */
     .intro-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
+      top: var(--topbar-h);
+      left: 0; right: 0;
+      bottom: var(--taskbar-h);
       z-index: 2000;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       background-image: var(--sky-wallpaper);
       background-size: cover;
-      -webkit-background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
-      background-attachment: fixed;
       cursor: var(--star-cursor);
       padding: 16px;
     }
@@ -142,13 +167,13 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (僅在管理員模式顯現) */
+    /* 頂部管理列 (僅在管理員登入後顯現) */
     .top-bar-wrapper {
       position: fixed;
-      top: max(4px, var(--safe-top));
+      top: var(--topbar-h);
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 100; display: none; flex-direction: column;
+      z-index: 2400; display: none; flex-direction: column;
       background: #c0c0c0 !important; border: 2px outset #fff; padding: 3px;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     }
@@ -183,23 +208,23 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器舞台區域：背景全透，直接映襯下方無縫天空 */
+    /* 播放器視窗舞台區域 */
     .app-viewport {
       position: fixed;
-      top: 0;
+      top: var(--topbar-h);
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
       z-index: 10;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding-top: max(8px, var(--safe-top));
+      padding-top: 8px;
       padding-bottom: 16px;
       padding-left: 10px; padding-right: 10px;
       overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
       background: transparent !important;
     }
     body.admin-mode .app-viewport {
-      padding-top: calc(max(8px, var(--safe-top)) + 48px);
+      padding-top: 48px;
     }
 
     /* 3D 隨身聽舞台 */
@@ -374,6 +399,7 @@
     .track-list-box li.active { background: #000080; color: #fff; font-weight: bold; }
     .track-list-box li.active .track-title-text { color: #fff; }
 
+    /* 底部工作列 */
     .taskbar {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: var(--taskbar-h); min-height: 38px; background: #c0c0c0; border-top: 2px solid #fff;
@@ -423,7 +449,23 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none 隱藏，不造成光碟透印重疊) -->
+  <!-- 頂部 Win98 經典標題列：填補 iPhone 頂部 Safe Area -->
+  <div class="system-topbar">
+    <div class="topbar-title">
+      <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" width="14" height="14">
+      <span>WINTER AUDIO SYSTEM</span>
+    </div>
+    <div class="topbar-right-info">
+      <span>128Kbps</span>
+      <span>•</span>
+      <span>STEREO</span>
+    </div>
+  </div>
+
+  <!-- 中間滿版天空背景層 -->
+  <div class="app-bg-layer" id="appBgLayer"></div>
+
+  <!-- 開場展示層 (完全獨立覆蓋中間，點擊後徹底隱藏) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -517,7 +559,6 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
-          <!-- 僅管理員可見 -->
           <span class="admin-only" style="font-size:10px; color:#555;">(▲▼調換順序 / 點擊換歌)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
@@ -816,8 +857,7 @@
       ]
     };
 
-    // 快取版本同步
-    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_overlap_v12";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_topbar_classic_v13";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -913,17 +953,17 @@
 
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
+      const bgLayer = document.getElementById('appBgLayer');
+      const intro = document.getElementById('introOverlay');
       if (!bgUrl) return;
 
       const adj = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
       const bgStylePos = `${adj.x}% ${adj.y}%`;
 
-      document.documentElement.style.backgroundImage = `url('${bgUrl}')`;
-      document.documentElement.style.backgroundPosition = bgStylePos;
-      document.body.style.backgroundImage = `url('${bgUrl}')`;
-      document.body.style.backgroundPosition = bgStylePos;
-
-      const intro = document.getElementById('introOverlay');
+      if (bgLayer) {
+        bgLayer.style.backgroundImage = `url('${bgUrl}')`;
+        bgLayer.style.backgroundPosition = bgStylePos;
+      }
       if (intro) {
         intro.style.backgroundImage = `url('${bgUrl}')`;
         intro.style.backgroundPosition = bgStylePos;
