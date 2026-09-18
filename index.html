@@ -6,7 +6,7 @@
   <title>WINTER CD PLAYER</title>
 
   <meta property="og:title" content="WINTER CD PLAYER">
-  <meta property="og:description" content="A retro 3D CD player space for WINTER">
+  <meta property="og:description" content="A retro CD player space for WINTER">
   <meta property="og:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
 
   <link rel="stylesheet" href="https://unpkg.com/98.css">
@@ -32,14 +32,15 @@
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       user-select: none;
-      background-color: #8bb7db;
+      background: transparent !important;
     }
 
-    /* 全屏天空背景層：保證自最頂端至底部無縫滿版 */
+    /* 全屏天空背景層：強制使用 cover 滿版無縫覆蓋，杜絕任何單色色塊 */
     .app-bg-layer {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
@@ -65,7 +66,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (帶有獨立天空背景，不與後方播放器重疊穿透) */
+    /* 開場展示層 (背景完全貼齊天空，進入後 display: none) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -127,7 +128,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (僅在管理員登入後展開) */
+    /* 頂部管理列 (僅在管理員模式顯現) */
     .top-bar-wrapper {
       position: fixed;
       top: max(4px, var(--safe-top));
@@ -168,7 +169,7 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器舞台區域：自頂端平滑延伸至工作列 */
+    /* 播放器舞台區域 */
     .app-viewport {
       position: fixed;
       top: 0;
@@ -181,6 +182,7 @@
       padding-bottom: 16px;
       padding-left: 10px; padding-right: 10px;
       overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
+      background: transparent !important;
     }
     body.admin-mode .app-viewport {
       padding-top: calc(max(8px, var(--safe-top)) + 48px);
@@ -337,6 +339,14 @@
     }
     .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     
+    /* 權限隔離控制：一般使用者完全隱藏，只有管理員登入後才呈現 */
+    .admin-only {
+      display: none !important;
+    }
+    body.admin-mode .admin-only {
+      display: inline-flex !important;
+    }
+
     .order-reorder-box { display: none; gap: 2px; flex-shrink: 0; }
     body.admin-mode .order-reorder-box { display: inline-flex; }
     .order-reorder-box button { font-size: 8px !important; padding: 1px 3px !important; height: 18px !important; }
@@ -399,10 +409,10 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 滿版無縫背景層 -->
+  <!-- 滿版無縫背景層 (固定填滿全屏，上下均不露色塊) -->
   <div class="app-bg-layer" id="appBgLayer"></div>
 
-  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none 不透色) -->
+  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -497,6 +507,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
+          <!-- 只有在管理員模式下才會顯現，一般使用者瀏覽時完全隱藏 -->
           <span class="admin-only" style="font-size:10px; color:#555;">(▲▼調換順序 / 點擊換歌)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
@@ -797,8 +808,7 @@
       ]
     };
 
-    // 快取標籤更新，強制生效
-    const CONFIG_STORAGE_KEY = "winter_cd_config_fixed_top_clean_v9";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_clean_sky_v10";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -892,6 +902,7 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
+    // 全局背景統一鋪設（保證封面層與主畫面天空完全一致，無任何色塊）
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const bgLayer = document.getElementById('appBgLayer');
@@ -904,16 +915,21 @@
       }
 
       const adj = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
-      const bgStyleSize = `${adj.scale}% auto`;
-      const bgStylePos = `${adj.x}% ${adj.y}%`;
+      const scale = (adj.scale || 100) / 100;
 
       bgLayer.style.backgroundImage = `url('${bgUrl}')`;
-      bgLayer.style.backgroundSize = bgStyleSize;
-      bgLayer.style.backgroundPosition = bgStylePos;
+      bgLayer.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
+      bgLayer.style.backgroundSize = 'cover';
+      if (scale !== 1) {
+        bgLayer.style.transform = `scale(${scale})`;
+        bgLayer.style.transformOrigin = `${adj.x}% ${adj.y}%`;
+      } else {
+        bgLayer.style.transform = 'none';
+      }
 
       intro.style.backgroundImage = `url('${bgUrl}')`;
-      intro.style.backgroundSize = bgStyleSize;
-      intro.style.backgroundPosition = bgStylePos;
+      intro.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
+      intro.style.backgroundSize = 'cover';
     }
 
     function renderCdPlayerUI() {
