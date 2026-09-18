@@ -31,12 +31,20 @@
       width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      background-color: transparent;
+      background: transparent !important;
+      user-select: none;
+    }
+
+    /* 獨立全局滿版背景層：強制穿透 iOS 動態島與瀏海，完全消除頂部白邊 */
+    .app-bg-layer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
-      background-attachment: fixed;
-      user-select: none;
+      pointer-events: none;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -58,17 +66,13 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層 (無縫覆蓋頂部，完全穿透顯示天空背景) */
+    /* 開場全螢幕展示層：背景完全透明，直接露出下方的天空底層 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 1200;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background-color: transparent;
-      background-size: cover;
-      background-position: center top;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
+      background: transparent !important;
       cursor: var(--star-cursor);
       transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
@@ -122,7 +126,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理工具列：平時完全不佔用任何高度與空間 */
+    /* 頂部管理列：平時完全不渲染，避免佔用頂端空間 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, var(--safe-top));
@@ -166,15 +170,16 @@
     /* 播放器舞台區域 */
     .app-viewport {
       position: absolute;
-      top: max(10px, var(--safe-top));
+      top: max(8px, var(--safe-top));
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
+      padding: 4px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
+      background: transparent !important;
     }
     body.admin-mode .app-viewport {
-      top: calc(max(10px, var(--safe-top)) + 46px);
+      top: calc(max(8px, var(--safe-top)) + 46px);
     }
 
     /* 3D 隨身聽舞台 */
@@ -183,7 +188,7 @@
       width: 165px; height: 165px;
       display: flex; align-items: center; justify-content: center;
       perspective: 800px; touch-action: none;
-      flex-shrink: 0; margin-top: 2px;
+      flex-shrink: 0; margin-top: 0px;
     }
     .walkman-base {
       position: absolute; width: 165px; height: 165px; border-radius: 50% !important;
@@ -382,9 +387,6 @@
       margin-bottom: 8px; font-size: 11px;
     }
     .adjust-modal input[type="range"] { width: 160px; }
-
-    .admin-only { display: none !important; }
-    body.admin-mode .admin-only { display: inline-flex !important; }
     
     .audio-mount-box {
       position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.001; pointer-events: none; overflow: hidden;
@@ -392,6 +394,9 @@
   </style>
 </head>
 <body onclick="handleGlobalClick(event)">
+
+  <!-- 獨立背景層，強制全螢幕滿版覆蓋包括動態島 -->
+  <div class="app-bg-layer" id="appBgLayer"></div>
 
   <!-- 開場展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
@@ -402,7 +407,7 @@
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <!-- 管理員工具列 (僅在登入後顯現，已移除獨立管理員按鍵) -->
+  <!-- 管理員工具列 (僅在登入後顯現) -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button style="background:#ffcdd2; font-weight:bold;" onclick="exitAdmin(event)">🔒 退出管理員</button>
@@ -788,7 +793,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_clean_sky_v7";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_white_v8";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -842,7 +847,6 @@
       audio.volume = 1.0;
     }
 
-    // 切換管理員模式（由開始選單觸發）
     function toggleAdmin(e) {
       if (e) e.stopPropagation();
       if (isAdmin) {
@@ -883,13 +887,14 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
+    // 將背景直接指派給獨立背景層，徹底解決 Safari 頂部白邊
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
-      const intro = document.getElementById('introOverlay');
+      const bgLayer = document.getElementById('appBgLayer');
 
       if (!bgUrl) {
-        document.body.style.backgroundImage = "none";
-        intro.style.backgroundImage = "none";
+        bgLayer.style.backgroundImage = "none";
+        bgLayer.style.backgroundColor = "#b8d5ec";
         return;
       }
 
@@ -897,15 +902,9 @@
       const bgStyleSize = `${adj.scale}% auto`;
       const bgStylePos = `${adj.x}% ${adj.y}%`;
 
-      document.body.style.backgroundImage = `url('${bgUrl}')`;
-      document.body.style.backgroundSize = bgStyleSize;
-      document.body.style.backgroundPosition = bgStylePos;
-      document.body.style.backgroundColor = "transparent";
-
-      intro.style.backgroundImage = `url('${bgUrl}')`;
-      intro.style.backgroundSize = bgStyleSize;
-      intro.style.backgroundPosition = bgStylePos;
-      intro.style.backgroundColor = "transparent";
+      bgLayer.style.backgroundImage = `url('${bgUrl}')`;
+      bgLayer.style.backgroundSize = bgStyleSize;
+      bgLayer.style.backgroundPosition = bgStylePos;
     }
 
     function renderCdPlayerUI() {
@@ -1123,7 +1122,8 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
+        const cleanFile = track.src.replace(/^\.\//, '');
+        const targetSrc = encodeURI(cleanFile);
 
         audio.muted = false;
         audio.volume = 1.0;
