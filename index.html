@@ -31,16 +31,15 @@
       width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      background: transparent !important;
       user-select: none;
+      background-color: #8bb7db;
     }
 
-    /* 獨立全局滿版背景層：強制穿透 iOS 動態島與瀏海，完全消除頂部白邊 */
+    /* 全屏天空背景層：保證自最頂端至底部無縫滿版 */
     .app-bg-layer {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      z-index: -1;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
@@ -66,19 +65,21 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場全螢幕展示層：背景完全透明，直接露出下方的天空底層 */
+    /* 開場展示層 (帶有獨立天空背景，不與後方播放器重疊穿透) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
-      z-index: 1200;
+      z-index: 2000;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: transparent !important;
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
       cursor: var(--star-cursor);
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      transition: opacity 0.3s ease;
       padding: 16px;
     }
     .intro-overlay.hidden {
-      opacity: 0; pointer-events: none; transform: scale(0.92);
+      display: none !important;
     }
     .intro-title {
       font-size: 18px; letter-spacing: 2px; color: #000080;
@@ -126,15 +127,15 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列：平時完全不渲染，避免佔用頂端空間 */
+    /* 頂部管理列 (僅在管理員登入後展開) */
     .top-bar-wrapper {
-      position: absolute;
-      top: max(6px, var(--safe-top));
+      position: fixed;
+      top: max(4px, var(--safe-top));
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 50; display: none; flex-direction: column;
+      z-index: 100; display: none; flex-direction: column;
       background: #c0c0c0 !important; border: 2px outset #fff; padding: 3px;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.4); pointer-events: auto;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     }
     body.admin-mode .top-bar-wrapper {
       display: flex;
@@ -167,19 +168,22 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器舞台區域 */
+    /* 播放器舞台區域：自頂端平滑延伸至工作列 */
     .app-viewport {
-      position: absolute;
-      top: max(8px, var(--safe-top));
+      position: fixed;
+      top: 0;
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
+      z-index: 10;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding: 4px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
-      background: transparent !important;
+      padding-top: max(8px, var(--safe-top));
+      padding-bottom: 16px;
+      padding-left: 10px; padding-right: 10px;
+      overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
     }
     body.admin-mode .app-viewport {
-      top: calc(max(8px, var(--safe-top)) + 46px);
+      padding-top: calc(max(8px, var(--safe-top)) + 48px);
     }
 
     /* 3D 隨身聽舞台 */
@@ -188,7 +192,7 @@
       width: 165px; height: 165px;
       display: flex; align-items: center; justify-content: center;
       perspective: 800px; touch-action: none;
-      flex-shrink: 0; margin-top: 0px;
+      flex-shrink: 0;
     }
     .walkman-base {
       position: absolute; width: 165px; height: 165px; border-radius: 50% !important;
@@ -395,10 +399,10 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 獨立背景層，強制全螢幕滿版覆蓋包括動態島 -->
+  <!-- 滿版無縫背景層 -->
   <div class="app-bg-layer" id="appBgLayer"></div>
 
-  <!-- 開場展示層 -->
+  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none 不透色) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -793,7 +797,8 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_white_v8";
+    // 快取標籤更新，強制生效
+    const CONFIG_STORAGE_KEY = "winter_cd_config_fixed_top_clean_v9";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -857,7 +862,7 @@
           isAdmin = true;
           document.body.classList.add('admin-mode');
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖頂部管理工具列與微調功能。");
+          alert("登入成功！已解鎖頂部管理工具列。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
@@ -887,14 +892,14 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 將背景直接指派給獨立背景層，徹底解決 Safari 頂部白邊
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const bgLayer = document.getElementById('appBgLayer');
+      const intro = document.getElementById('introOverlay');
 
       if (!bgUrl) {
         bgLayer.style.backgroundImage = "none";
-        bgLayer.style.backgroundColor = "#b8d5ec";
+        intro.style.backgroundImage = "none";
         return;
       }
 
@@ -905,6 +910,10 @@
       bgLayer.style.backgroundImage = `url('${bgUrl}')`;
       bgLayer.style.backgroundSize = bgStyleSize;
       bgLayer.style.backgroundPosition = bgStylePos;
+
+      intro.style.backgroundImage = `url('${bgUrl}')`;
+      intro.style.backgroundSize = bgStyleSize;
+      intro.style.backgroundPosition = bgStylePos;
     }
 
     function renderCdPlayerUI() {
@@ -1122,8 +1131,7 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const cleanFile = track.src.replace(/^\.\//, '');
-        const targetSrc = encodeURI(cleanFile);
+        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
 
         audio.muted = false;
         audio.volume = 1.0;
