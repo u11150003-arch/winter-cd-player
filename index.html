@@ -19,6 +19,7 @@
     
     :root {
       --star-cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9' fill='%23FFD700' stroke='%23B8860B' stroke-width='1.5'/></svg>") 4 4, auto;
+      --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
@@ -30,10 +31,11 @@
       width: 100vw; height: 100vh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
-      background-color: #b8d5ec;
+      background-color: transparent;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      background-attachment: fixed;
       user-select: none;
     }
     
@@ -56,16 +58,17 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (中心完全挖空) */
+    /* 開場展示層 (背景完全貼齊天空，無任何藍色切塊) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 1200;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background-color: #b8d5ec;
+      background-color: transparent;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      background-attachment: fixed;
       cursor: var(--star-cursor);
       transition: opacity 0.35s ease, transform 0.35s ease;
       padding: 16px;
@@ -119,17 +122,18 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 */
+    /* 頂部管理列 (完全透明且不留色塊背景) */
     .top-bar-wrapper {
       position: absolute;
-      top: max(6px, env(safe-area-inset-top, 6px));
+      top: max(6px, var(--safe-top));
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 50; display: flex; flex-direction: column; background: transparent;
+      z-index: 50; display: flex; flex-direction: column;
+      background: transparent !important;
       border: none; pointer-events: none;
     }
     body.admin-mode .top-bar-wrapper {
-      background: #c0c0c0; border: 2px outset #fff; padding: 3px;
+      background: #c0c0c0 !important; border: 2px outset #fff; padding: 3px;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.4); pointer-events: auto;
     }
     .top-actions-viewport {
@@ -577,7 +581,7 @@
       return url.trim();
     }
 
-    // 精準對齊你上傳的 (online-audio-converter.com) 檔名，並內建真實時長
+    // 內嵌完整最新資料庫（包含最新曲目與即時時長）
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -585,84 +589,214 @@
         "x": 50,
         "y": 50
       },
-      "activeVerIndex": 3,
+      "activeVerIndex": 0,
       "versions": [
         {
           "name": "Lips",
           "cover": "https://lh3.googleusercontent.com/d/1uaaVb_4JOQ9dF7wSlNxtIVHKMViueEa6",
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLRULrLYCQiLE",
-          "adjust": { "scale": 105, "x": 48, "y": 50 },
+          "adjust": {
+            "scale": 105,
+            "x": 48,
+            "y": 50
+          },
           "tracks": [
-            { "title": "Lips", "src": "lips (online-audio-converter.com).mp3", "type": "file", "duration": 211 },
-            { "title": "Winter - What you want do for love", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 210 },
-            { "title": "aespa - Better Things", "src": "gfd16hP_3TQ", "type": "youtube", "duration": 208 },
-            { "title": "aespa - Life's Too Short", "src": "z2AHnk76PDU", "type": "youtube", "duration": 178 }
+            {
+              "title": "Lips",
+              "src": "lips (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 211
+            },
+            {
+              "title": "Time Walking On Memories기억을 걷는 시간",
+              "src": "time walking on memories (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 208
+            },
+            {
+              "title": "Winter - What you want do for love",
+              "src": "YTeFLKMnwjg",
+              "type": "youtube",
+              "duration": 210
+            },
+            {
+              "title": "aespa - Life's Too Short",
+              "src": "z2AHnk76PDU",
+              "type": "youtube",
+              "duration": 178
+            }
           ]
         },
         {
           "name": "Spark",
           "cover": "https://lh3.googleusercontent.com/d/1XSzga0t8grbH0Ez_NIeTrc3c17ud4CiB",
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLaMTkiOdIubY",
-          "adjust": { "scale": 130, "x": 41, "y": 52 },
+          "adjust": {
+            "scale": 130,
+            "x": 41,
+            "y": 52
+          },
           "tracks": [
-            { "title": "Spark", "src": "spark (online-audio-converter.com).mp3", "type": "file", "duration": 195 },
-            { "title": "aespa - Supernova", "src": "phuiAIQAxZ4", "type": "youtube", "duration": 181 },
-            { "title": "aespa - Mine", "src": "nFYwcndNuZY", "type": "youtube", "duration": 194 },
-            { "title": "aespa - Licorice", "src": "phuiAIQAxZ4", "type": "youtube", "duration": 160 },
-            { "title": "aespa - Live My Life", "src": "nFYwcndNuZY", "type": "youtube", "duration": 212 }
+            {
+              "title": "Spark",
+              "src": "spark (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 195
+            },
+            {
+              "title": "aespa - Supernova",
+              "src": "phuiAIQAxZ4",
+              "type": "youtube",
+              "duration": 181
+            },
+            {
+              "title": "aespa - Mine",
+              "src": "nFYwcndNuZY",
+              "type": "youtube",
+              "duration": 194
+            },
+            {
+              "title": "aespa - Licorice",
+              "src": "phuiAIQAxZ4",
+              "type": "youtube",
+              "duration": 160
+            },
+            {
+              "title": "aespa - Live My Life",
+              "src": "nFYwcndNuZY",
+              "type": "youtube",
+              "duration": 212
+            }
           ]
         },
         {
           "name": "BLUE",
           "cover": "https://lh3.googleusercontent.com/d/17-sGD8zhNCLqU_cNCDeXovJ8-Ww6ZcK7",
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLCNrMOBKYIl8",
-          "adjust": { "scale": 123, "x": 46, "y": 52 },
+          "adjust": {
+            "scale": 123,
+            "x": 46,
+            "y": 52
+          },
           "tracks": [
-            { "title": "BLUE", "src": "blue (online-audio-converter.com).mp3", "type": "file", "duration": 211 },
-            { "title": "Winter - With You (OST)", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 220 },
-            { "title": "Winter - Fly Away (Live Ver)", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 240 },
-            { "title": "Winter - Voyage", "src": "YTeFLKMnwjg", "type": "youtube", "duration": 215 }
+            {
+              "title": "BLUE",
+              "src": "blue (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 211
+            },
+            {
+              "title": "Winter - With You (OST)",
+              "src": "YTeFLKMnwjg",
+              "type": "youtube",
+              "duration": 220
+            },
+            {
+              "title": "Winter - Fly Away (Live Ver)",
+              "src": "YTeFLKMnwjg",
+              "type": "youtube",
+              "duration": 240
+            },
+            {
+              "title": "Winter - Voyage",
+              "src": "YTeFLKMnwjg",
+              "type": "youtube",
+              "duration": 215
+            }
           ]
         },
         {
           "name": "Saddle Up",
           "cover": "https://lh3.googleusercontent.com/d/1smNAdV5IfQNN8C2o1x7uK4POeFz95sYi",
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLUdyUn-FboWs",
-          "adjust": { "scale": 108, "x": 50, "y": 50 },
+          "adjust": {
+            "scale": 108,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
-            { "title": "Saddle Up", "src": "Saddle Up (online-audio-converter.com).mp3", "type": "file", "duration": 201 },
-            { "title": "aespa - Trick or Trick", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 195 },
-            { "title": "aespa - Don't Blink", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 172 },
-            { "title": "aespa - Hot Air Balloon", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 204 },
-            { "title": "aespa - YOLO", "src": "D8VEhcPeSlc", "type": "youtube", "duration": 189 }
+            {
+              "title": "Saddle Up",
+              "src": "Saddle Up (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 201
+            },
+            {
+              "title": "aespa - Trick or Trick",
+              "src": "D8VEhcPeSlc",
+              "type": "youtube",
+              "duration": 195
+            },
+            {
+              "title": "aespa - Don't Blink",
+              "src": "D8VEhcPeSlc",
+              "type": "youtube",
+              "duration": 172
+            },
+            {
+              "title": "aespa - Hot Air Balloon",
+              "src": "D8VEhcPeSlc",
+              "type": "youtube",
+              "duration": 204
+            },
+            {
+              "title": "aespa - YOLO",
+              "src": "D8VEhcPeSlc",
+              "type": "youtube",
+              "duration": 189
+            }
           ]
         },
         {
           "name": "Speed of Summer",
           "cover": "https://lh3.googleusercontent.com/d/1R3m2fbip6zXRkHx0ujIQtW4VcoOkDnax",
           "ytPlaylistUrl": "https://youtube.com/playlist?list=PLcq-xBkOq1is",
-          "adjust": { "scale": 100, "x": 50, "y": 50 },
+          "adjust": {
+            "scale": 100,
+            "x": 50,
+            "y": 50
+          },
           "tracks": [
-            { "title": "Speed of Summer", "src": "speed of summer (online-audio-converter.com).mp3", "type": "file", "duration": 210 },
-            { "title": "aespa - Flights, Not Feelings", "src": "jWQx2f-CErU", "type": "youtube", "duration": 182 },
-            { "title": "aespa - Pink Hoodie", "src": "jWQx2f-CErU", "type": "youtube", "duration": 175 },
-            { "title": "aespa - Just Another Girl", "src": "jWQx2f-CErU", "type": "youtube", "duration": 196 }
+            {
+              "title": "Speed of Summer",
+              "src": "speed of summer (online-audio-converter.com).mp3",
+              "type": "file",
+              "duration": 210
+            },
+            {
+              "title": "aespa - Flights, Not Feelings",
+              "src": "jWQx2f-CErU",
+              "type": "youtube",
+              "duration": 182
+            },
+            {
+              "title": "aespa - Pink Hoodie",
+              "src": "jWQx2f-CErU",
+              "type": "youtube",
+              "duration": 175
+            },
+            {
+              "title": "aespa - Just Another Girl",
+              "src": "jWQx2f-CErU",
+              "type": "youtube",
+              "duration": 196
+            }
           ]
         }
       ]
     };
 
-    // 強制升級版本快取，洗掉以前失效的路徑與秒數
-    const CONFIG_STORAGE_KEY = "winter_cd_config_converter_filename_v2";
+    // 強制升級快取標籤，使新曲目立即生效
+    const CONFIG_STORAGE_KEY = "winter_cd_config_sky_seamless_v6";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
     let cdState = {
-      verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 3,
+      verIndex: (config.activeVerIndex !== undefined) ? config.activeVerIndex : 0,
       trackIndex: 0,
       isPlaying: false,
       currentSec: 0,
-      totalDuration: 201,
+      totalDuration: 211,
       ytTimer: null,
       lastThrottleTime: 0
     };
@@ -743,6 +877,7 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
+    // 背景無縫滿版貼齊（徹底消滅頂部藍色色塊）
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const intro = document.getElementById('introOverlay');
@@ -762,10 +897,12 @@
       document.body.style.backgroundImage = `url('${bgUrl}')`;
       document.body.style.backgroundSize = bgStyleSize;
       document.body.style.backgroundPosition = bgStylePos;
+      document.body.style.backgroundColor = "transparent";
 
       intro.style.backgroundImage = `url('${bgUrl}')`;
       intro.style.backgroundSize = bgStyleSize;
       intro.style.backgroundPosition = bgStylePos;
+      intro.style.backgroundColor = "transparent";
     }
 
     function renderCdPlayerUI() {
@@ -954,7 +1091,6 @@
       else playCurrentTrack();
     }
 
-    // 播放核心：安全處理空格與括號，秒開極速解碼
     function playCurrentTrack() {
       const curVer = config.versions[cdState.verIndex];
       if (!curVer || !curVer.tracks[cdState.trackIndex]) return;
@@ -984,7 +1120,6 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        // 正確編碼檔名中的空白與特殊符號
         const cleanFile = track.src.replace(/^\.\//, '');
         const targetSrc = encodeURI(cleanFile);
 
