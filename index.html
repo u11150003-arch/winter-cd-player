@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#8db8dc">
+  <meta name="theme-color" content="#8bb7db">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>WINTER CD PLAYER</title>
 
@@ -26,13 +27,17 @@
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
       --taskbar-h: calc(38px + var(--safe-bottom));
+      --sky-wallpaper: url('https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy');
     }
 
+    /* 真正根節點天空滿版，穿透動態島與頂部狀態列 */
     html {
       margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      background-image: url('https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy');
+      width: 100vw; height: 100vh;
+      min-height: -webkit-fill-available;
+      background-image: var(--sky-wallpaper);
       background-size: cover;
+      -webkit-background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -42,10 +47,16 @@
       margin: 0; padding: 0;
       width: 100vw; height: 100vh;
       height: 100dvh;
+      min-height: -webkit-fill-available;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       user-select: none;
-      background: transparent !important;
+      background-image: var(--sky-wallpaper);
+      background-size: cover;
+      -webkit-background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -67,15 +78,19 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層：直接使用完全透明底色，露出最底層同一張天空桌布 */
+    /* 開場展示層：自帶相同天空背景，遮擋下方播放器，避免重疊透出 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 2000;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: transparent !important;
+      background-image: var(--sky-wallpaper);
+      background-size: cover;
+      -webkit-background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       cursor: var(--star-cursor);
-      transition: opacity 0.3s ease;
       padding: 16px;
     }
     .intro-overlay.hidden {
@@ -127,7 +142,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (平時徹底不顯示) */
+    /* 頂部管理列 (僅在管理員模式顯現) */
     .top-bar-wrapper {
       position: fixed;
       top: max(4px, var(--safe-top));
@@ -168,7 +183,7 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器舞台區域：背景全透，平滑覆蓋至頂端 */
+    /* 播放器舞台區域：背景全透，直接映襯下方無縫天空 */
     .app-viewport {
       position: fixed;
       top: 0;
@@ -193,7 +208,7 @@
       width: 165px; height: 165px;
       display: flex; align-items: center; justify-content: center;
       perspective: 800px; touch-action: none;
-      flex-shrink: 0;
+      flex-shrink: 0; margin-top: 2px;
     }
     .walkman-base {
       position: absolute; width: 165px; height: 165px; border-radius: 50% !important;
@@ -338,7 +353,7 @@
     }
     .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     
-    /* 權限隔離控制：一般使用者完全隱藏，只有管理員登入後才呈現 */
+    /* 權限隔離控制：一般使用者完全隱藏 */
     .admin-only {
       display: none !important;
     }
@@ -408,7 +423,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 開場展示層 -->
+  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none 隱藏，不造成光碟透印重疊) -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -417,7 +432,7 @@
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
-  <!-- 管理員工具列 (僅在登入後顯現) -->
+  <!-- 管理員工具列 (僅在管理員登入後顯現) -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
       <button style="background:#ffcdd2; font-weight:bold;" onclick="exitAdmin(event)">🔒 退出管理員</button>
@@ -502,6 +517,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
+          <!-- 僅管理員可見 -->
           <span class="admin-only" style="font-size:10px; color:#555;">(▲▼調換順序 / 點擊換歌)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
@@ -800,7 +816,8 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_sky_seamless_v11";
+    // 快取版本同步
+    const CONFIG_STORAGE_KEY = "winter_cd_config_zero_overlap_v12";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -894,16 +911,23 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 真正全局天空鋪底：直接在 html 上設定背景，消除所有手機頂部的單色色塊
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       if (!bgUrl) return;
 
       const adj = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
+      const bgStylePos = `${adj.x}% ${adj.y}%`;
+
       document.documentElement.style.backgroundImage = `url('${bgUrl}')`;
-      document.documentElement.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
-      document.documentElement.style.backgroundSize = 'cover';
-      document.documentElement.style.backgroundAttachment = 'fixed';
+      document.documentElement.style.backgroundPosition = bgStylePos;
+      document.body.style.backgroundImage = `url('${bgUrl}')`;
+      document.body.style.backgroundPosition = bgStylePos;
+
+      const intro = document.getElementById('introOverlay');
+      if (intro) {
+        intro.style.backgroundImage = `url('${bgUrl}')`;
+        intro.style.backgroundPosition = bgStylePos;
+      }
     }
 
     function renderCdPlayerUI() {
@@ -1121,8 +1145,7 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const cleanFile = track.src.replace(/^\.\//, '');
-        const targetSrc = encodeURI(cleanFile);
+        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
 
         audio.muted = false;
         audio.volume = 1.0;
