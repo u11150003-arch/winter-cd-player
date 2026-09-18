@@ -38,7 +38,7 @@
       background-color: #c0c0c0;
     }
 
-    /* 中間天空畫布區域 (夾在頂部灰色頂欄與底部工作列之間) */
+    /* 中間天空畫布區域 */
     .app-bg-layer {
       position: fixed;
       top: var(--topbar-h);
@@ -52,7 +52,7 @@
       pointer-events: none;
     }
 
-    /* 頂部 Win98 經典灰色標題頂欄 (完全覆蓋動態島與瀏海區域) */
+    /* 頂部 Win98 經典灰色標題頂欄 */
     .system-topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -62,7 +62,7 @@
       box-shadow: 0 1px 0 #fff;
       display: flex;
       align-items: flex-end;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding-bottom: 4px;
       padding-left: max(10px, var(--safe-left));
       padding-right: max(10px, var(--safe-right));
@@ -75,13 +75,6 @@
       display: flex;
       align-items: center;
       gap: 5px;
-    }
-    .topbar-right-info {
-      font-size: 11px;
-      color: #333;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -103,7 +96,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (覆蓋中間畫布，不擋住上下灰色頂欄) */
+    /* 開場展示層 */
     .intro-overlay {
       position: fixed;
       top: var(--topbar-h);
@@ -167,7 +160,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (僅在管理員登入後顯現) */
+    /* 頂部管理列 (僅管理員模式顯現) */
     .top-bar-wrapper {
       position: fixed;
       top: var(--topbar-h);
@@ -378,7 +371,6 @@
     }
     .track-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     
-    /* 權限隔離控制：一般使用者完全隱藏 */
     .admin-only {
       display: none !important;
     }
@@ -449,16 +441,11 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 頂部 Win98 經典標題列：填補 iPhone 頂部 Safe Area -->
+  <!-- 頂部 Win98 經典標題列 (純文字 WINTER CD PLAYER，無右側頻寬文字) -->
   <div class="system-topbar">
     <div class="topbar-title">
       <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" width="14" height="14">
-      <span>WINTER AUDIO SYSTEM</span>
-    </div>
-    <div class="topbar-right-info">
-      <span>128Kbps</span>
-      <span>•</span>
-      <span>STEREO</span>
+      <span>WINTER CD PLAYER</span>
     </div>
   </div>
 
@@ -857,7 +844,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_topbar_classic_v13";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_topbar_minimal_v14";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
