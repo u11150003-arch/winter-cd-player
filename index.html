@@ -33,7 +33,7 @@
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       background-color: transparent;
       background-size: cover;
-      background-position: center;
+      background-position: center top;
       background-repeat: no-repeat;
       background-attachment: fixed;
       user-select: none;
@@ -58,7 +58,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (背景完全貼齊天空，無任何藍色切塊) */
+    /* 開場全螢幕展示層 (無縫覆蓋頂部，完全穿透顯示天空背景) */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
@@ -66,7 +66,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       background-color: transparent;
       background-size: cover;
-      background-position: center;
+      background-position: center top;
       background-repeat: no-repeat;
       background-attachment: fixed;
       cursor: var(--star-cursor);
@@ -122,33 +122,30 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (完全透明且不留色塊背景) */
+    /* 頂部管理工具列：平時完全不佔用任何高度與空間 */
     .top-bar-wrapper {
       position: absolute;
       top: max(6px, var(--safe-top));
       left: max(6px, var(--safe-left));
       right: max(6px, var(--safe-right));
-      z-index: 50; display: flex; flex-direction: column;
-      background: transparent !important;
-      border: none; pointer-events: none;
-    }
-    body.admin-mode .top-bar-wrapper {
+      z-index: 50; display: none; flex-direction: column;
       background: #c0c0c0 !important; border: 2px outset #fff; padding: 3px;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.4); pointer-events: auto;
     }
+    body.admin-mode .top-bar-wrapper {
+      display: flex;
+    }
     .top-actions-viewport {
-      display: flex; gap: 4px; overflow-x: hidden; white-space: nowrap; pointer-events: auto;
+      display: flex; gap: 4px; overflow-x: hidden; white-space: nowrap;
     }
     .top-actions-viewport button, .top-actions-viewport span {
       flex-shrink: 0; font-size: 11px; padding: 2px 6px; cursor: pointer; height: 25px;
     }
-    #authBtn { pointer-events: auto; align-self: flex-start; }
 
     .admin-scrollbar-bar {
-      display: none; height: 16px; background: #c0c0c0; border-top: 1px solid #808080;
+      display: flex; height: 16px; background: #c0c0c0; border-top: 1px solid #808080;
       margin-top: 3px; align-items: center; position: relative;
     }
-    body.admin-mode .admin-scrollbar-bar { display: flex; }
     .scrollbar-btn {
       width: 16px; height: 16px; padding: 0; font-size: 8px; font-weight: bold;
       border: 1px outset #fff !important; background: #c0c0c0 !important;
@@ -166,13 +163,18 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
+    /* 播放器舞台區域 */
     .app-viewport {
-      position: absolute; top: 48px;
+      position: absolute;
+      top: max(10px, var(--safe-top));
       left: max(0px, var(--safe-left));
       right: max(0px, var(--safe-right));
       bottom: var(--taskbar-h);
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       padding: 6px 10px 24px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
+    }
+    body.admin-mode .app-viewport {
+      top: calc(max(10px, var(--safe-top)) + 46px);
     }
 
     /* 3D 隨身聽舞台 */
@@ -400,22 +402,23 @@
     <div class="intro-hint">點擊畫面開啟隨身聽 (Click to Enter)</div>
   </div>
 
+  <!-- 管理員工具列 (僅在登入後顯現，已移除獨立管理員按鍵) -->
   <div class="top-bar-wrapper" id="topBarWrapper">
     <div class="top-actions-viewport" id="topActionsViewport">
-      <button id="authBtn" onclick="toggleAdmin(event)">🔒 管理員</button>
-      <button class="admin-only" style="background:#fff2b2; font-weight:bold;" onclick="openAdjustModal('cover')">🔍 調封面大小位置</button>
-      <button class="admin-only" style="background:#e0f7fa; font-weight:bold;" onclick="openAdjustModal('wallpaper')">🖼️ 調背景大小位置</button>
-      <button class="admin-only" style="background:#ffebee; color:#c62828; font-weight:bold;" onclick="editCurrentYtPlaylistUrl()">🔗 改YT清單網址</button>
-      <button class="admin-only" onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
-      <button class="admin-only" onclick="addTrackToActiveVer()">+ 新增曲目</button>
-      <button class="admin-only" onclick="editSelectedTrackPrompt()">✏️ 編輯選中曲目</button>
-      <button class="admin-only" onclick="editCurrentVerName()">✏️ 改專輯名</button>
-      <button class="admin-only" onclick="copyCurrentTrack()">📋 複製曲目</button>
-      <button class="admin-only" onclick="cutCurrentTrack()">✂️ 剪下曲目</button>
-      <button class="admin-only" id="topPasteBtn" onclick="pasteTrack()" style="background:#ffffe0;">📌 貼上曲目</button>
-      <button class="admin-only" onclick="deleteCurrentTrack()">❌ 刪除選中曲目</button>
-      <button class="admin-only" onclick="changeWallpaper()">🎨 更換背景</button>
-      <button class="admin-only" style="background:#000080; color:#fff; font-weight:bold;" onclick="exportCurrentState()">💾 儲存並產出備份代碼</button>
+      <button style="background:#ffcdd2; font-weight:bold;" onclick="exitAdmin(event)">🔒 退出管理員</button>
+      <button style="background:#fff2b2; font-weight:bold;" onclick="openAdjustModal('cover')">🔍 調封面大小位置</button>
+      <button style="background:#e0f7fa; font-weight:bold;" onclick="openAdjustModal('wallpaper')">🖼️ 調背景大小位置</button>
+      <button style="background:#ffebee; color:#c62828; font-weight:bold;" onclick="editCurrentYtPlaylistUrl()">🔗 改YT清單網址</button>
+      <button onclick="changeCurrentCdCover()">🎨 換當前CD封面</button>
+      <button onclick="addTrackToActiveVer()">+ 新增曲目</button>
+      <button onclick="editSelectedTrackPrompt()">✏️ 編輯選中曲目</button>
+      <button onclick="editCurrentVerName()">✏️ 改專輯名</button>
+      <button onclick="copyCurrentTrack()">📋 複製曲目</button>
+      <button onclick="cutCurrentTrack()">✂️ 剪下曲目</button>
+      <button id="topPasteBtn" onclick="pasteTrack()" style="background:#ffffe0;">📌 貼上曲目</button>
+      <button onclick="deleteCurrentTrack()">❌ 刪除選中曲目</button>
+      <button onclick="changeWallpaper()">🎨 更換背景</button>
+      <button style="background:#000080; color:#fff; font-weight:bold;" onclick="exportCurrentState()">💾 儲存並產出備份代碼</button>
     </div>
 
     <div class="admin-scrollbar-bar" id="adminScrollbarBar">
@@ -581,7 +584,6 @@
       return url.trim();
     }
 
-    // 內嵌完整最新資料庫（包含最新曲目與即時時長）
     const CD_MASTER_CONFIG = {
       "wallpaper": "https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy",
       "wallpaperAdjust": {
@@ -786,8 +788,7 @@
       ]
     };
 
-    // 強制升級快取標籤，使新曲目立即生效
-    const CONFIG_STORAGE_KEY = "winter_cd_config_sky_seamless_v6";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_clean_sky_v7";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -841,26 +842,31 @@
       audio.volume = 1.0;
     }
 
+    // 切換管理員模式（由開始選單觸發）
     function toggleAdmin(e) {
       if (e) e.stopPropagation();
       if (isAdmin) {
-        isAdmin = false;
-        document.body.classList.remove('admin-mode');
-        document.getElementById('authBtn').innerText = "🔒 管理員";
-        closeAdjustModal();
-        alert("已退出管理員模式");
+        exitAdmin(e);
       } else {
         const input = prompt("請輸入管理員密碼：");
         if (input === ADMIN_PASSWORD) {
           isAdmin = true;
           document.body.classList.add('admin-mode');
-          document.getElementById('authBtn').innerText = "🔓 退出管理";
           setTimeout(updateScrollBarUI, 80);
-          alert("登入成功！已解鎖管理功能。");
+          alert("登入成功！已解鎖頂部管理工具列與微調功能。");
         } else if (input !== null) {
           alert("密碼錯誤！");
         }
       }
+      renderCdPlayerUI();
+    }
+
+    function exitAdmin(e) {
+      if (e) e.stopPropagation();
+      isAdmin = false;
+      document.body.classList.remove('admin-mode');
+      closeAdjustModal();
+      alert("已退出管理員模式");
       renderCdPlayerUI();
     }
 
@@ -877,16 +883,13 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 背景無縫滿版貼齊（徹底消滅頂部藍色色塊）
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
       const intro = document.getElementById('introOverlay');
 
       if (!bgUrl) {
         document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = "#b8d5ec";
         intro.style.backgroundImage = "none";
-        intro.style.backgroundColor = "#b8d5ec";
         return;
       }
 
@@ -1120,8 +1123,7 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const cleanFile = track.src.replace(/^\.\//, '');
-        const targetSrc = encodeURI(cleanFile);
+        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
 
         audio.muted = false;
         audio.volume = 1.0;
