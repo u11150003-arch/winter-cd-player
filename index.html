@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#8db8dc">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>WINTER CD PLAYER</title>
 
   <meta property="og:title" content="WINTER CD PLAYER">
-  <meta property="og:description" content="A retro CD player space for WINTER">
+  <meta property="og:description" content="A retro 3D CD player space for WINTER">
   <meta property="og:image" content="https://lh3.googleusercontent.com/d/1FxNNT9a2bBobCvFCBaI1ze3d7fVsPm9g">
 
   <link rel="stylesheet" href="https://unpkg.com/98.css">
@@ -26,25 +28,24 @@
       --taskbar-h: calc(38px + var(--safe-bottom));
     }
 
-    html, body {
+    html {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background-image: url('https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    body {
       margin: 0; padding: 0;
       width: 100vw; height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif !important;
       user-select: none;
       background: transparent !important;
-    }
-
-    /* 全屏天空背景層：強制使用 cover 滿版無縫覆蓋，杜絕任何單色色塊 */
-    .app-bg-layer {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100vh;
-      z-index: -1;
-      background-size: cover;
-      background-position: center top;
-      background-repeat: no-repeat;
-      pointer-events: none;
     }
     
     button, a, .title-bar-controls button, .track-list-box li, .cd-disc-3d, .intro-cd-disc {
@@ -66,15 +67,13 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 (背景完全貼齊天空，進入後 display: none) */
+    /* 開場展示層：直接使用完全透明底色，露出最底層同一張天空桌布 */
     .intro-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: var(--taskbar-h);
       z-index: 2000;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background-size: cover;
-      background-position: center top;
-      background-repeat: no-repeat;
+      background: transparent !important;
       cursor: var(--star-cursor);
       transition: opacity 0.3s ease;
       padding: 16px;
@@ -128,7 +127,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (僅在管理員模式顯現) */
+    /* 頂部管理列 (平時徹底不顯示) */
     .top-bar-wrapper {
       position: fixed;
       top: max(4px, var(--safe-top));
@@ -169,7 +168,7 @@
       background: #c0c0c0; border: 1px outset #fff; cursor: grab;
     }
 
-    /* 播放器舞台區域 */
+    /* 播放器舞台區域：背景全透，平滑覆蓋至頂端 */
     .app-viewport {
       position: fixed;
       top: 0;
@@ -409,10 +408,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 滿版無縫背景層 (固定填滿全屏，上下均不露色塊) -->
-  <div class="app-bg-layer" id="appBgLayer"></div>
-
-  <!-- 開場展示層 (完全覆蓋，點擊進入後 display: none) -->
+  <!-- 開場展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -471,7 +467,6 @@
             <button type="button" id="btnNavBack" onclick="navGoBack(event)" title="上一步">⬅ 上一步</button>
             <button type="button" id="btnNavForward" onclick="navGoForward(event)" title="下一步">➡ 下一步</button>
           </div>
-          <!-- 秒數正上方的純 YouTube Icon 按鈕 -->
           <a id="btnExternalPlaylist" class="yt-icon-btn" href="#" target="_blank" title="在 YouTube 開啟此專輯播放清單">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           </a>
@@ -507,7 +502,6 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
           <span style="font-size:11px; font-weight:bold;">Tracks List:</span>
-          <!-- 只有在管理員模式下才會顯現，一般使用者瀏覽時完全隱藏 -->
           <span class="admin-only" style="font-size:10px; color:#555;">(▲▼調換順序 / 點擊換歌)</span>
         </div>
         <ul class="track-list-box" id="cdTrackListBox"></ul>
@@ -515,7 +509,6 @@
     </div>
   </div>
 
-  <!-- 縮放與位置調整面板 -->
   <div class="window adjust-modal" id="adjustModal" onclick="event.stopPropagation()">
     <div class="title-bar">
       <div class="title-bar-text" id="adjustModalTitle">🔍 調微細節</div>
@@ -546,7 +539,6 @@
     </div>
   </div>
 
-  <!-- 開始選單 -->
   <div id="startMenu" class="start-menu" onclick="event.stopPropagation()">
     <div class="start-menu-banner">🪟 WINTER MENU</div>
     <ul>
@@ -808,7 +800,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_clean_sky_v10";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_sky_seamless_v11";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -902,34 +894,16 @@
       img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
     }
 
-    // 全局背景統一鋪設（保證封面層與主畫面天空完全一致，無任何色塊）
+    // 真正全局天空鋪底：直接在 html 上設定背景，消除所有手機頂部的單色色塊
     function applyWallpaperStyles() {
       const bgUrl = formatCoverUrl(config.wallpaper);
-      const bgLayer = document.getElementById('appBgLayer');
-      const intro = document.getElementById('introOverlay');
-
-      if (!bgUrl) {
-        bgLayer.style.backgroundImage = "none";
-        intro.style.backgroundImage = "none";
-        return;
-      }
+      if (!bgUrl) return;
 
       const adj = config.wallpaperAdjust || { scale: 100, x: 50, y: 50 };
-      const scale = (adj.scale || 100) / 100;
-
-      bgLayer.style.backgroundImage = `url('${bgUrl}')`;
-      bgLayer.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
-      bgLayer.style.backgroundSize = 'cover';
-      if (scale !== 1) {
-        bgLayer.style.transform = `scale(${scale})`;
-        bgLayer.style.transformOrigin = `${adj.x}% ${adj.y}%`;
-      } else {
-        bgLayer.style.transform = 'none';
-      }
-
-      intro.style.backgroundImage = `url('${bgUrl}')`;
-      intro.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
-      intro.style.backgroundSize = 'cover';
+      document.documentElement.style.backgroundImage = `url('${bgUrl}')`;
+      document.documentElement.style.backgroundPosition = `${adj.x}% ${adj.y}%`;
+      document.documentElement.style.backgroundSize = 'cover';
+      document.documentElement.style.backgroundAttachment = 'fixed';
     }
 
     function renderCdPlayerUI() {
@@ -1147,7 +1121,8 @@
         clearInterval(cdState.ytTimer);
         ytIframe.src = '';
 
-        const targetSrc = encodeURI(track.src.replace(/^\.\//, ''));
+        const cleanFile = track.src.replace(/^\.\//, '');
+        const targetSrc = encodeURI(cleanFile);
 
         audio.muted = false;
         audio.volume = 1.0;
@@ -1492,7 +1467,6 @@
       if (menu) menu.style.display = 'none';
       const adj = document.getElementById('adjustModal');
       if (adj && !adj.contains(e.target) && !e.target.innerText?.includes("調")) {
-        // 保留面板
       }
     }
 
