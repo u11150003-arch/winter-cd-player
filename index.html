@@ -24,9 +24,16 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
-      --topbar-h: calc(28px + var(--safe-top));
+      --topbar-h: 0px; /* 電腦端預設無頂欄 */
       --taskbar-h: calc(38px + var(--safe-bottom));
       --sky-wallpaper: url('https://lh3.googleusercontent.com/d/1mEW4K9nKngTU_6f7k2usw78wLZhbOFXy');
+    }
+
+    /* 手機行動端：啟用灰色頂欄高度 */
+    @media (max-width: 768px) {
+      :root {
+        --topbar-h: calc(28px + var(--safe-top));
+      }
     }
 
     html, body {
@@ -38,7 +45,7 @@
       background-color: #c0c0c0;
     }
 
-    /* 中間天空畫布區域 */
+    /* 天空畫布背景層 */
     .app-bg-layer {
       position: fixed;
       top: var(--topbar-h);
@@ -52,22 +59,35 @@
       pointer-events: none;
     }
 
-    /* 頂部 Win98 經典灰色標題頂欄 */
-    .system-topbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--topbar-h);
-      background: #c0c0c0;
-      border-bottom: 2px solid #808080;
-      box-shadow: 0 1px 0 #fff;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      padding-bottom: 4px;
-      padding-left: max(10px, var(--safe-left));
-      padding-right: max(10px, var(--safe-right));
-      z-index: 2500;
+    /* 電腦端直接從視窗頂端開始延伸天空背景 */
+    @media (min-width: 769px) {
+      .app-bg-layer {
+        top: 0;
+      }
     }
+
+    /* 頂部 Win98 灰色頂欄：僅在手機行動裝置顯現，電腦版直接隱藏 */
+    .system-topbar {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .system-topbar {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: var(--topbar-h);
+        background: #c0c0c0;
+        border-bottom: 2px solid #808080;
+        box-shadow: 0 1px 0 #fff;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        padding-left: max(10px, var(--safe-left));
+        padding-right: max(10px, var(--safe-right));
+        z-index: 2500;
+      }
+    }
+
     .topbar-title {
       font-size: 11px;
       font-weight: bold;
@@ -96,7 +116,7 @@
     }
     button:active { border: 2px inset #ffffff !important; }
 
-    /* 開場展示層 */
+    /* 開場展示層 (手機自灰色頂欄下方展開，電腦則全螢幕覆蓋) */
     .intro-overlay {
       position: fixed;
       top: var(--topbar-h);
@@ -110,6 +130,11 @@
       background-repeat: no-repeat;
       cursor: var(--star-cursor);
       padding: 16px;
+    }
+    @media (min-width: 769px) {
+      .intro-overlay {
+        top: 0;
+      }
     }
     .intro-overlay.hidden {
       display: none !important;
@@ -160,7 +185,7 @@
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* 頂部管理列 (僅管理員模式顯現) */
+    /* 頂部管理工具列 (僅在管理員登入後顯現) */
     .top-bar-wrapper {
       position: fixed;
       top: var(--topbar-h);
@@ -169,6 +194,11 @@
       z-index: 2400; display: none; flex-direction: column;
       background: #c0c0c0 !important; border: 2px outset #fff; padding: 3px;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
+    @media (min-width: 769px) {
+      .top-bar-wrapper {
+        top: 6px;
+      }
     }
     body.admin-mode .top-bar-wrapper {
       display: flex;
@@ -215,6 +245,12 @@
       padding-left: 10px; padding-right: 10px;
       overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 6px;
       background: transparent !important;
+    }
+    @media (min-width: 769px) {
+      .app-viewport {
+        top: 0;
+        padding-top: 24px;
+      }
     }
     body.admin-mode .app-viewport {
       padding-top: 48px;
@@ -441,7 +477,7 @@
 </head>
 <body onclick="handleGlobalClick(event)">
 
-  <!-- 頂部 Win98 經典標題列 (純文字 WINTER CD PLAYER，無右側頻寬文字) -->
+  <!-- 頂部 Win98 經典標題列 (僅手機行動端顯示) -->
   <div class="system-topbar">
     <div class="topbar-title">
       <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" width="14" height="14">
@@ -452,7 +488,7 @@
   <!-- 中間滿版天空背景層 -->
   <div class="app-bg-layer" id="appBgLayer"></div>
 
-  <!-- 開場展示層 (完全獨立覆蓋中間，點擊後徹底隱藏) -->
+  <!-- 開場展示層 -->
   <div class="intro-overlay" id="introOverlay" onclick="enterCdPlayer()">
     <div class="intro-title">WINTER CD PLAYER</div>
     <div class="intro-cd-disc">
@@ -844,7 +880,7 @@
       ]
     };
 
-    const CONFIG_STORAGE_KEY = "winter_cd_config_topbar_minimal_v14";
+    const CONFIG_STORAGE_KEY = "winter_cd_config_topbar_device_split_v15";
     let savedRaw = localStorage.getItem(CONFIG_STORAGE_KEY);
     let config = savedRaw ? JSON.parse(savedRaw) : CD_MASTER_CONFIG;
 
@@ -1062,7 +1098,7 @@
       document.getElementById('adjustScale').value = adj.scale;
       document.getElementById('adjustScaleVal').innerText = adj.scale + '%';
       document.getElementById('adjustPosX').value = adj.x;
-      document.getElementById('adjustPosXVal').innerText = adj.x + '%';
+      document.getElementById('adjustPosXVal').innerText = adj.scale + '%';
       document.getElementById('adjustPosY').value = adj.y;
       document.getElementById('adjustPosYVal').innerText = adj.y + '%';
 
